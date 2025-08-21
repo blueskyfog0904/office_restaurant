@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* 회사 정보 */}
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">공공맛집</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">공무원 맛집</h3>
             <p className="text-gray-600 mb-4">
               공공기관 업무추진비 데이터를 기반으로 한 신뢰할 수 있는 맛집 정보를 제공합니다.
             </p>
@@ -71,7 +71,8 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-200 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-gray-500">
-              © {currentYear} 공공맛집. All rights reserved.
+              © {currentYear} 공무원맛집(회사 : 더나움마켓) 제공 All rights reserved.
+              
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="/privacy" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">
