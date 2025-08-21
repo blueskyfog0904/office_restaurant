@@ -77,14 +77,35 @@ const MapModal: React.FC<MapModalProps> = ({ restaurant, isOpen, onClose }) => {
                 
                 if (isMobile) {
                   // 모바일에서는 카카오맵 앱 URL 스키마 사용
-                  const kakaoAppUrl = `kakaomap://search?q=${searchQuery}`;
-                  const fallbackUrl = `https://map.kakao.com/link/search/${searchQuery}`;
+                  // iOS와 Android에서 다른 방식으로 처리
+                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                   
-                  // 앱으로 시도 후 실패시 웹으로 fallback
-                  window.location.href = kakaoAppUrl;
-                  setTimeout(() => {
-                    window.open(fallbackUrl, '_blank');
-                  }, 1000);
+                  if (isIOS) {
+                    // iOS에서는 Universal Link 방식 사용
+                    const universalLink = `https://map.kakao.com/link/search/${searchQuery}`;
+                    
+                    // 먼저 앱 스키마로 시도
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = `kakaomap://search?q=${searchQuery}`;
+                    document.body.appendChild(iframe);
+                    
+                    // 500ms 후 앱이 실행되지 않으면 Universal Link로 이동
+                    setTimeout(() => {
+                      document.body.removeChild(iframe);
+                      window.location.href = universalLink;
+                    }, 500);
+                  } else {
+                    // Android에서는 Intent URL 사용
+                    const intentUrl = `intent://search?q=${searchQuery}#Intent;scheme=kakaomap;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=net.daum.android.map;end`;
+                    const fallbackUrl = `https://map.kakao.com/link/search/${searchQuery}`;
+                    
+                    try {
+                      window.location.href = intentUrl;
+                    } catch (e) {
+                      window.open(fallbackUrl, '_blank');
+                    }
+                  }
                 } else {
                   // 데스크톱에서는 웹 버전 검색
                   const webUrl = `https://map.kakao.com/link/search/${searchQuery}`;
