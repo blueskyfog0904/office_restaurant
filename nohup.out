@@ -1,0 +1,62 @@
+
+> web@0.1.0 start
+> react-scripts start
+
+(node:26583) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:26583) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:26583) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/pages/public/RestaurantsPage.tsx
+  Line 141:6:  React Hook useEffect has a missing dependency: 'loadRestaurants'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 154:6:  React Hook useEffect has a missing dependency: 'setSearchParams'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/pages/public/RestaurantsPage.tsx
+  Line 141:6:  React Hook useEffect has a missing dependency: 'loadRestaurants'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 154:6:  React Hook useEffect has a missing dependency: 'setSearchParams'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/pages/public/RestaurantsPage.tsx
+  Line 141:6:  React Hook useEffect has a missing dependency: 'loadRestaurants'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 154:6:  React Hook useEffect has a missing dependency: 'setSearchParams'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+src/pages/public/RestaurantsPage.tsx
+  Line 141:6:  React Hook useEffect has a missing dependency: 'loadRestaurants'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  Line 154:6:  React Hook useEffect has a missing dependency: 'setSearchParams'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.

@@ -1,0 +1,1023 @@
+
+> web@0.1.0 start
+> react-scripts start
+
+(node:2356) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:2356) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:2356) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view web in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.200.161:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+
+warn - As of Tailwind CSS v3.3, the `@tailwindcss/line-clamp` plugin is now included by default.
+warn - Remove it from the `plugins` array in your configuration to eliminate this warning.
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/pages/public/RegionsPage.tsx:93:15
+TS2345: Argument of type '{ order_by: string; page: number; size: number; }' is not assignable to parameter of type 'Omit<RestaurantSearchRequest, "region_id">'.
+  Object literal may only specify known properties, and 'order_by' does not exist in type 'Omit<RestaurantSearchRequest, "region_id">'.
+    91 |           try {
+    92 |             const response = await getRestaurantsByRegion(selectedRegion.id, {
+  > 93 |               order_by: 'visit_count',
+       |               ^^^^^^^^^^^^^^^^^^^^^^^
+    94 |               page: 1,
+    95 |               size: 20
+    96 |             });
+
+ERROR in src/pages/public/RegionsPage.tsx:145:9
+TS2345: Argument of type '{ order_by: string; page: number; size: number; }' is not assignable to parameter of type 'Omit<RestaurantSearchRequest, "region_id">'.
+  Object literal may only specify known properties, and 'order_by' does not exist in type 'Omit<RestaurantSearchRequest, "region_id">'.
+    143 |     try {
+    144 |       const response = await getRestaurantsByRegion(selectedRegion.id, {
+  > 145 |         order_by: 'visit_count',
+        |         ^^^^^^^^^^^^^^^^^^^^^^^
+    146 |         page: 1,
+    147 |         size: 20
+    148 |       });
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/pages/public/RegionsPage.tsx:93:15
+TS2345: Argument of type '{ order_by: string; page: number; size: number; }' is not assignable to parameter of type 'Omit<RestaurantSearchRequest, "region_id">'.
+  Object literal may only specify known properties, and 'order_by' does not exist in type 'Omit<RestaurantSearchRequest, "region_id">'.
+    91 |           try {
+    92 |             const response = await getRestaurantsByRegion(selectedRegion.id, {
+  > 93 |               order_by: 'visit_count',
+       |               ^^^^^^^^^^^^^^^^^^^^^^^
+    94 |               page: 1,
+    95 |               size: 20
+    96 |             });
+
+ERROR in src/pages/public/RegionsPage.tsx:145:9
+TS2345: Argument of type '{ order_by: string; page: number; size: number; }' is not assignable to parameter of type 'Omit<RestaurantSearchRequest, "region_id">'.
+  Object literal may only specify known properties, and 'order_by' does not exist in type 'Omit<RestaurantSearchRequest, "region_id">'.
+    143 |     try {
+    144 |       const response = await getRestaurantsByRegion(selectedRegion.id, {
+  > 145 |         order_by: 'visit_count',
+        |         ^^^^^^^^^^^^^^^^^^^^^^^
+    146 |         page: 1,
+    147 |         size: 20
+    148 |       });
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Failed to compile.
+
+Attempted import error: 'ExternalLinkIcon' is not exported from '@heroicons/react/24/outline' (imported as 'ExternalLinkIcon').
+WARNING in [eslint] 
+src/pages/public/RestaurantDetailPage.tsx
+  Line 4:3:     'StarIcon' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 30:23:   'user' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  Line 287:13:  <iframe> elements must have a unique title property  jsx-a11y/iframe-has-title
+
+ERROR in ./src/pages/public/RestaurantDetailPage.tsx 370:44-60
+export 'ExternalLinkIcon' (imported as 'ExternalLinkIcon') was not found in '@heroicons/react/24/outline' (possible exports: AcademicCapIcon, AdjustmentsHorizontalIcon, AdjustmentsVerticalIcon, ArchiveBoxArrowDownIcon, ArchiveBoxIcon, ArchiveBoxXMarkIcon, ArrowDownCircleIcon, ArrowDownIcon, ArrowDownLeftIcon, ArrowDownOnSquareIcon, ArrowDownOnSquareStackIcon, ArrowDownRightIcon, ArrowDownTrayIcon, ArrowLeftCircleIcon, ArrowLeftEndOnRectangleIcon, ArrowLeftIcon, ArrowLeftOnRectangleIcon, ArrowLeftStartOnRectangleIcon, ArrowLongDownIcon, ArrowLongLeftIcon, ArrowLongRightIcon, ArrowLongUpIcon, ArrowPathIcon, ArrowPathRoundedSquareIcon, ArrowRightCircleIcon, ArrowRightEndOnRectangleIcon, ArrowRightIcon, ArrowRightOnRectangleIcon, ArrowRightStartOnRectangleIcon, ArrowSmallDownIcon, ArrowSmallLeftIcon, ArrowSmallRightIcon, ArrowSmallUpIcon, ArrowTopRightOnSquareIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, ArrowTurnDownLeftIcon, ArrowTurnDownRightIcon, ArrowTurnLeftDownIcon, ArrowTurnLeftUpIcon, ArrowTurnRightDownIcon, ArrowTurnRightUpIcon, ArrowTurnUpLeftIcon, ArrowTurnUpRightIcon, ArrowUpCircleIcon, ArrowUpIcon, ArrowUpLeftIcon, ArrowUpOnSquareIcon, ArrowUpOnSquareStackIcon, ArrowUpRightIcon, ArrowUpTrayIcon, ArrowUturnDownIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, ArrowUturnUpIcon, ArrowsPointingInIcon, ArrowsPointingOutIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, AtSymbolIcon, BackspaceIcon, BackwardIcon, BanknotesIcon, Bars2Icon, Bars3BottomLeftIcon, Bars3BottomRightIcon, Bars3CenterLeftIcon, Bars3Icon, Bars4Icon, BarsArrowDownIcon, BarsArrowUpIcon, Battery0Icon, Battery100Icon, Battery50Icon, BeakerIcon, BellAlertIcon, BellIcon, BellSlashIcon, BellSnoozeIcon, BoldIcon, BoltIcon, BoltSlashIcon, BookOpenIcon, BookmarkIcon, BookmarkSlashIcon, BookmarkSquareIcon, BriefcaseIcon, BugAntIcon, BuildingLibraryIcon, BuildingOffice2Icon, BuildingOfficeIcon, BuildingStorefrontIcon, CakeIcon, CalculatorIcon, CalendarDateRangeIcon, CalendarDaysIcon, CalendarIcon, CameraIcon, ChartBarIcon, ChartBarSquareIcon, ChartPieIcon, ChatBubbleBottomCenterIcon, ChatBubbleBottomCenterTextIcon, ChatBubbleLeftEllipsisIcon, ChatBubbleLeftIcon, ChatBubbleLeftRightIcon, ChatBubbleOvalLeftEllipsisIcon, ChatBubbleOvalLeftIcon, CheckBadgeIcon, CheckCircleIcon, CheckIcon, ChevronDoubleDownIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon, ChevronDoubleUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpDownIcon, ChevronUpIcon, CircleStackIcon, ClipboardDocumentCheckIcon, ClipboardDocumentIcon, ClipboardDocumentListIcon, ClipboardIcon, ClockIcon, CloudArrowDownIcon, CloudArrowUpIcon, CloudIcon, CodeBracketIcon, CodeBracketSquareIcon, Cog6ToothIcon, Cog8ToothIcon, CogIcon, CommandLineIcon, ComputerDesktopIcon, CpuChipIcon, CreditCardIcon, CubeIcon, CubeTransparentIcon, CurrencyBangladeshiIcon, CurrencyDollarIcon, CurrencyEuroIcon, CurrencyPoundIcon, CurrencyRupeeIcon, CurrencyYenIcon, CursorArrowRaysIcon, CursorArrowRippleIcon, DevicePhoneMobileIcon, DeviceTabletIcon, DivideIcon, DocumentArrowDownIcon, DocumentArrowUpIcon, DocumentChartBarIcon, DocumentCheckIcon, DocumentCurrencyBangladeshiIcon, DocumentCurrencyDollarIcon, DocumentCurrencyEuroIcon, DocumentCurrencyPoundIcon, DocumentCurrencyRupeeIcon, DocumentCurrencyYenIcon, DocumentDuplicateIcon, DocumentIcon, DocumentMagnifyingGlassIcon, DocumentMinusIcon, DocumentPlusIcon, DocumentTextIcon, EllipsisHorizontalCircleIcon, EllipsisHorizontalIcon, EllipsisVerticalIcon, EnvelopeIcon, EnvelopeOpenIcon, EqualsIcon, ExclamationCircleIcon, ExclamationTriangleIcon, EyeDropperIcon, EyeIcon, EyeSlashIcon, FaceFrownIcon, FaceSmileIcon, FilmIcon, FingerPrintIcon, FireIcon, FlagIcon, FolderArrowDownIcon, FolderIcon, FolderMinusIcon, FolderOpenIcon, FolderPlusIcon, ForwardIcon, FunnelIcon, GifIcon, GiftIcon, GiftTopIcon, GlobeAltIcon, GlobeAmericasIcon, GlobeAsiaAustraliaIcon, GlobeEuropeAfricaIcon, H1Icon, H2Icon, H3Icon, HandRaisedIcon, HandThumbDownIcon, HandThumbUpIcon, HashtagIcon, HeartIcon, HomeIcon, HomeModernIcon, IdentificationIcon, InboxArrowDownIcon, InboxIcon, InboxStackIcon, InformationCircleIcon, ItalicIcon, KeyIcon, LanguageIcon, LifebuoyIcon, LightBulbIcon, LinkIcon, LinkSlashIcon, ListBulletIcon, LockClosedIcon, LockOpenIcon, MagnifyingGlassCircleIcon, MagnifyingGlassIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, MapIcon, MapPinIcon, MegaphoneIcon, MicrophoneIcon, MinusCircleIcon, MinusIcon, MinusSmallIcon, MoonIcon, MusicalNoteIcon, NewspaperIcon, NoSymbolIcon, NumberedListIcon, PaintBrushIcon, PaperAirplaneIcon, PaperClipIcon, PauseCircleIcon, PauseIcon, PencilIcon, PencilSquareIcon, PercentBadgeIcon, PhoneArrowDownLeftIcon, PhoneArrowUpRightIcon, PhoneIcon, PhoneXMarkIcon, PhotoIcon, PlayCircleIcon, PlayIcon, PlayPauseIcon, PlusCircleIcon, PlusIcon, PlusSmallIcon, PowerIcon, PresentationChartBarIcon, PresentationChartLineIcon, PrinterIcon, PuzzlePieceIcon, QrCodeIcon, QuestionMarkCircleIcon, QueueListIcon, RadioIcon, ReceiptPercentIcon, ReceiptRefundIcon, RectangleGroupIcon, RectangleStackIcon, RocketLaunchIcon, RssIcon, ScaleIcon, ScissorsIcon, ServerIcon, ServerStackIcon, ShareIcon, ShieldCheckIcon, ShieldExclamationIcon, ShoppingBagIcon, ShoppingCartIcon, SignalIcon, SignalSlashIcon, SlashIcon, SparklesIcon, SpeakerWaveIcon, SpeakerXMarkIcon, Square2StackIcon, Square3Stack3DIcon, Squares2X2Icon, SquaresPlusIcon, StarIcon, StopCircleIcon, StopIcon, StrikethroughIcon, SunIcon, SwatchIcon, TableCellsIcon, TagIcon, TicketIcon, TrashIcon, TrophyIcon, TruckIcon, TvIcon, UnderlineIcon, UserCircleIcon, UserGroupIcon, UserIcon, UserMinusIcon, UserPlusIcon, UsersIcon, VariableIcon, VideoCameraIcon, VideoCameraSlashIcon, ViewColumnsIcon, ViewfinderCircleIcon, WalletIcon, WifiIcon, WindowIcon, WrenchIcon, WrenchScrewdriverIcon, XCircleIcon, XMarkIcon)
+
+webpack compiled with 1 error and 1 warning
+ERROR in src/pages/public/RestaurantDetailPage.tsx:9:3
+TS2305: Module '"@heroicons/react/24/outline"' has no exported member 'ExternalLinkIcon'.
+     7 |   ChatBubbleLeftIcon,
+     8 |   PencilSquareIcon,
+  >  9 |   ExternalLinkIcon,
+       |   ^^^^^^^^^^^^^^^^
+    10 |   ArrowLeftIcon
+    11 | } from '@heroicons/react/24/outline';
+    12 | import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/pages/public/RestaurantDetailPage.tsx:218:50
+TS2345: Argument of type 'number | "0"' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+    216 |             {/* 평점 및 리뷰 수 */}
+    217 |             <div className="flex items-center mb-4">
+  > 218 |               {renderStars(Math.round(parseFloat(reviewSummary?.average_rating || '0')), 'lg')}
+        |                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    219 |               <span className="ml-2 text-lg font-medium text-gray-900">
+    220 |                 {reviewSummary?.average_rating ? parseFloat(reviewSummary.average_rating).toFixed(1) : '0.0'}
+    221 |               </span>
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:220:61
+TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+    218 |               {renderStars(Math.round(parseFloat(reviewSummary?.average_rating || '0')), 'lg')}
+    219 |               <span className="ml-2 text-lg font-medium text-gray-900">
+  > 220 |                 {reviewSummary?.average_rating ? parseFloat(reviewSummary.average_rating).toFixed(1) : '0.0'}
+        |                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    221 |               </span>
+    222 |               <span className="ml-2 text-gray-600">
+    223 |                 ({reviewSummary?.total_reviews || 0}개 리뷰)
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/MapModal.tsx
+TS1208: 'MapModal.tsx' cannot be compiled under '--isolatedModules' because it is considered a global script file. Add an import, export, or an empty 'export {}' statement to make it a module.
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/ShareModal.tsx
+TS1208: 'ShareModal.tsx' cannot be compiled under '--isolatedModules' because it is considered a global script file. Add an import, export, or an empty 'export {}' statement to make it a module.
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:  'MapModal' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 15:8:  'ShareModal' is defined but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:  'MapModal' is defined but never used    @typescript-eslint/no-unused-vars
+  Line 15:8:  'ShareModal' is defined but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used                  @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:24:  'setShowMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 36:26:  'setShowShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                    @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used                  @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  Line 35:24:  'setShowMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 36:26:  'setShowShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 54:9:   'handleMapClick' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 54:9:   'handleMapClick' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/RestaurantCard.tsx
+  Line 14:8:   'MapModal' is defined but never used                 @typescript-eslint/no-unused-vars
+  Line 15:8:   'ShareModal' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 35:10:  'showMapModal' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 36:10:  'showShareModal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/public/RestaurantDetailPage.tsx
+  Line 25:8:  'KakaoMap' is defined but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/public/RestaurantDetailPage.tsx
+  Line 25:8:  'KakaoMap' is defined but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/public/RestaurantDetailPage.tsx
+  Line 25:8:   'KakaoMap' is defined but never used                           @typescript-eslint/no-unused-vars
+  Line 156:9:  'getRestaurantCoordinates' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/public/RestaurantDetailPage.tsx
+  Line 25:8:   'KakaoMap' is defined but never used                           @typescript-eslint/no-unused-vars
+  Line 156:9:  'getRestaurantCoordinates' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:20
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                    ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:48
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                                                ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:169:32
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    167 |     // 2. recent_visits에서 좌표 찾기
+    168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+  > 169 |       const visit = restaurant.recent_visits[0];
+        |                                ^^^^^^^^^^^^^
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+    172 |           latitude: parseFloat(visit.restaurant.latitude.toString()),
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:20
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                    ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:50
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                                                  ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:180:34
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    178 |     // 3. recent_rankings에서 좌표 찾기
+    179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+  > 180 |       const ranking = restaurant.recent_rankings[0];
+        |                                  ^^^^^^^^^^^^^^^
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+    183 |           latitude: parseFloat(ranking.restaurant.latitude.toString()),
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:314:20
+TS2304: Cannot find name 'getGoogleMapUrl'.
+    312 |           {restaurant.latitude && restaurant.longitude ? (
+    313 |             <iframe
+  > 314 |               src={getGoogleMapUrl()}
+        |                    ^^^^^^^^^^^^^^^
+    315 |               width="100%"
+    316 |               height="100%"
+    317 |               style={{ border: 0 }}
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:20
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                    ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:48
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                                                ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:169:32
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    167 |     // 2. recent_visits에서 좌표 찾기
+    168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+  > 169 |       const visit = restaurant.recent_visits[0];
+        |                                ^^^^^^^^^^^^^
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+    172 |           latitude: parseFloat(visit.restaurant.latitude.toString()),
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:20
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                    ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:50
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                                                  ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:180:34
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    178 |     // 3. recent_rankings에서 좌표 찾기
+    179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+  > 180 |       const ranking = restaurant.recent_rankings[0];
+        |                                  ^^^^^^^^^^^^^^^
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+    183 |           latitude: parseFloat(ranking.restaurant.latitude.toString()),
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:20
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                    ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:168:48
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    166 |     
+    167 |     // 2. recent_visits에서 좌표 찾기
+  > 168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+        |                                                ^^^^^^^^^^^^^
+    169 |       const visit = restaurant.recent_visits[0];
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:169:32
+TS2339: Property 'recent_visits' does not exist on type 'RestaurantWithStats'.
+    167 |     // 2. recent_visits에서 좌표 찾기
+    168 |     if (restaurant.recent_visits && restaurant.recent_visits.length > 0) {
+  > 169 |       const visit = restaurant.recent_visits[0];
+        |                                ^^^^^^^^^^^^^
+    170 |       if (visit.restaurant?.latitude && visit.restaurant?.longitude) {
+    171 |         return {
+    172 |           latitude: parseFloat(visit.restaurant.latitude.toString()),
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:20
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                    ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:179:50
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    177 |     
+    178 |     // 3. recent_rankings에서 좌표 찾기
+  > 179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+        |                                                  ^^^^^^^^^^^^^^^
+    180 |       const ranking = restaurant.recent_rankings[0];
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+
+ERROR in src/pages/public/RestaurantDetailPage.tsx:180:34
+TS2339: Property 'recent_rankings' does not exist on type 'RestaurantWithStats'.
+    178 |     // 3. recent_rankings에서 좌표 찾기
+    179 |     if (restaurant.recent_rankings && restaurant.recent_rankings.length > 0) {
+  > 180 |       const ranking = restaurant.recent_rankings[0];
+        |                                  ^^^^^^^^^^^^^^^
+    181 |       if (ranking.restaurant?.latitude && ranking.restaurant?.longitude) {
+    182 |         return {
+    183 |           latitude: parseFloat(ranking.restaurant.latitude.toString()),
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+No issues found.
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  Line 30:10:  'retryCount' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 30:22:  'setRetryCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  Line 30:10:  'retryCount' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 30:22:  'setRetryCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+ERROR in src/components/KakaoMap.tsx:29:37
+TS2304: Cannot find name 'useState'.
+    27 | }) => {
+    28 |   const mapContainer = useRef<HTMLDivElement>(null);
+  > 29 |   const [mapLoaded, setMapLoaded] = useState(false);
+       |                                     ^^^^^^^^
+    30 |   const [retryCount, setRetryCount] = useState(0);
+    31 |
+    32 |   useEffect(() => {
+
+ERROR in src/components/KakaoMap.tsx:30:39
+TS2304: Cannot find name 'useState'.
+    28 |   const mapContainer = useRef<HTMLDivElement>(null);
+    29 |   const [mapLoaded, setMapLoaded] = useState(false);
+  > 30 |   const [retryCount, setRetryCount] = useState(0);
+       |                                       ^^^^^^^^
+    31 |
+    32 |   useEffect(() => {
+    33 |     console.log('KakaoMap useEffect 실행:', {
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  Line 30:10:  'retryCount' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 30:22:  'setRetryCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  Line 30:10:  'retryCount' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 30:22:  'setRetryCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used                                                                 @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 91:6:   React Hook useEffect has a missing dependency: 'retryCount'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used                                                                 @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+  Line 91:6:   React Hook useEffect has a missing dependency: 'retryCount'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 29:10:  'mapLoaded' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 29:21:  'setMapLoaded' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 29:21:  'setMapLoaded' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 29:21:  'setMapLoaded' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/KakaoMap.tsx
+Syntax error: Declaration or statement expected (111:3)
+ERROR in ./src/components/KakaoMap.tsx
+Module build failed (from ../node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/mac/Documents/project/office_restaurant_v01/web/src/components/KakaoMap.tsx: Unexpected token (111:3)
+
+  109 |     console.log('카카오맵 로딩 완료');
+  110 |
+> 111 |   }, [latitude, longitude, level, restaurantName, retryCount]);
+      |    ^
+  112 |
+  113 |   return (
+  114 |     <div
+    at constructor (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:6627:19)
+    at TypeScriptParserMixin.unexpected (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:6647:16)
+    at TypeScriptParserMixin.parseExprAtom (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11442:16)
+    at TypeScriptParserMixin.parseExprAtom (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:4794:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11076:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11061:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11041:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9852:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10894:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10899:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10876:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10826:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9801:20)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10779:23)
+    at /Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10775:39
+    at TypeScriptParserMixin.allowInAnd (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12422:16)
+    at TypeScriptParserMixin.parseExpression (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10775:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12895:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9527:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12767:17)
+    at TypeScriptParserMixin.parseStatementListItem (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12747:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:13316:61)
+    at TypeScriptParserMixin.parseBlockBody (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:13309:10)
+    at TypeScriptParserMixin.parseBlock (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:13297:10)
+    at TypeScriptParserMixin.parseFunctionBody (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12101:24)
+    at TypeScriptParserMixin.parseArrowExpression (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12076:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11686:12)
+    at TypeScriptParserMixin.parseExprAtom (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11326:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:4794:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11076:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11061:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11041:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9852:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10894:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10899:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10876:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10826:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9801:20)
+    at /Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10795:39
+    at TypeScriptParserMixin.allowInAnd (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12427:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:10795:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12494:17)
+    at TypeScriptParserMixin.parseExprListItem (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:12176:18)
+    at TypeScriptParserMixin.parseCallExpressionArguments (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11247:22)
+    at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11181:29)
+    at TypeScriptParserMixin.parseSubscript (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11115:19)
+    at TypeScriptParserMixin.parseSubscript (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:9353:18)
+    at TypeScriptParserMixin.parseSubscripts (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11089:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/mac/Documents/project/office_restaurant_v01/node_modules/@babel/parser/lib/index.js:11080:17)
+
+ERROR in [eslint] 
+src/components/KakaoMap.tsx
+  Line 111:3:  Parsing error: Declaration or statement expected
+
+webpack compiled with 2 errors
+ERROR in src/components/KakaoMap.tsx:111:4
+TS1128: Declaration or statement expected.
+    109 |     console.log('카카오맵 로딩 완료');
+    110 |
+  > 111 |   }, [latitude, longitude, level, restaurantName, retryCount]);
+        |    ^
+    112 |
+    113 |   return (
+    114 |     <div
+
+ERROR in src/components/KakaoMap.tsx:111:62
+TS1005: ';' expected.
+    109 |     console.log('카카오맵 로딩 완료');
+    110 |
+  > 111 |   }, [latitude, longitude, level, restaurantName, retryCount]);
+        |                                                              ^
+    112 |
+    113 |   return (
+    114 |     <div
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/routes/AppRouter.tsx
+  Line 20:8:  'KakaoMapTest' is defined but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/routes/AppRouter.tsx
+  Line 20:8:  'KakaoMapTest' is defined but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 10:7:  'loadKakaoMapScript' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 10:7:  'loadKakaoMapScript' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 165:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/KakaoMap.tsx
+  Line 167:11:  'kakaoMapUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.

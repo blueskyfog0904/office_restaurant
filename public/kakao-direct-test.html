@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>카카오맵 직접 API 테스트</title>
+</head>
+<body>
+    <h1>카카오맵 직접 API 테스트</h1>
+    <div id="status" style="padding:20px;margin:20px 0;border:1px solid #ccc;"></div>
+    <div id="map" style="width:100%;height:400px;border:1px solid #ccc;"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        function updateStatus(message, isError = false) {
+            console.log(message);
+            statusDiv.innerHTML += '<div style="color:' + (isError ? 'red' : 'green') + '">' + message + '</div>';
+        }
+
+        updateStatus('1. 스크립트 실행 시작');
+        
+        // API 키 직접 확인
+        const apiKey = '9b439953b484087316534c0e748848ce';
+        updateStatus('2. API 키: ' + apiKey);
+
+        // 수동으로 스크립트 태그 생성
+        updateStatus('3. 카카오맵 스크립트 동적 로딩 시작...');
+        
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}`;
+        
+        script.onload = function() {
+            updateStatus('4. ✅ 스크립트 로딩 완료');
+            
+            setTimeout(() => {
+                if (window.kakao && window.kakao.maps) {
+                    updateStatus('5. ✅ 카카오 객체 확인됨');
+                    initMap();
+                } else {
+                    updateStatus('5. ❌ 카카오 객체 없음', true);
+                }
+            }, 1000);
+        };
+        
+        script.onerror = function() {
+            updateStatus('4. ❌ 스크립트 로딩 실패', true);
+        };
+        
+        document.head.appendChild(script);
+
+        function initMap() {
+            try {
+                updateStatus('6. 지도 초기화 시작...');
+                
+                const mapContainer = document.getElementById('map');
+                const mapOption = { 
+                    center: new kakao.maps.LatLng(37.5501, 127.1436),
+                    level: 3
+                };
+
+                const map = new kakao.maps.Map(mapContainer, mapOption);
+                
+                const markerPosition = new kakao.maps.LatLng(37.5501, 127.1436);
+                const marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+                marker.setMap(map);
+                
+                updateStatus('7. ✅ 지도 표시 성공!');
+            } catch (error) {
+                updateStatus('6. ❌ 지도 초기화 오류: ' + error.message, true);
+            }
+        }
+
+        // 네트워크 상태 확인
+        if (navigator.onLine) {
+            updateStatus('네트워크: 온라인 ✅');
+        } else {
+            updateStatus('네트워크: 오프라인 ❌', true);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>카카오맵 API 키 테스트</title>
+</head>
+<body>
+    <div id="map" style="width:500px;height:400px;"></div>
+    <div id="result" style="margin-top:20px;padding:10px;border:1px solid #ccc;">
+        <h3>테스트 결과:</h3>
+        <div id="status">테스트 중...</div>
+    </div>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=9b439953b484087316534c0e748848ce&autoload=false"></script>
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        function updateStatus(message, isError = false) {
+            statusDiv.innerHTML = message;
+            statusDiv.style.color = isError ? 'red' : 'green';
+            console.log(message);
+        }
+
+        // 카카오맵 로드 테스트
+        if (window.kakao) {
+            updateStatus('✅ 카카오 객체 로드 성공');
+            
+            kakao.maps.load(() => {
+                updateStatus('✅ 카카오맵 라이브러리 로드 성공');
+                
+                try {
+                    // 지도 생성 테스트
+                    const container = document.getElementById('map');
+                    const options = {
+                        center: new kakao.maps.LatLng(37.5665, 126.9780),
+                        level: 3
+                    };
+                    
+                    const map = new kakao.maps.Map(container, options);
+                    updateStatus('✅ 지도 생성 성공 - API 키가 유효합니다!');
+                    
+                    // 마커 추가 테스트
+                    const markerPosition = new kakao.maps.LatLng(37.5665, 126.9780);
+                    const marker = new kakao.maps.Marker({
+                        position: markerPosition
+                    });
+                    marker.setMap(map);
+                    
+                } catch (error) {
+                    updateStatus('❌ 지도 생성 실패: ' + error.message, true);
+                }
+            });
+        } else {
+            updateStatus('❌ 카카오 객체 로드 실패 - API 키가 유효하지 않거나 도메인이 등록되지 않았습니다', true);
+        }
+    </script>
+</body>
+</html>

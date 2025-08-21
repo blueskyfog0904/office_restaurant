@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>카카오맵 API 테스트</title>
+</head>
+<body>
+    <h1>카카오맵 API 테스트</h1>
+    <div id="map" style="width:100%;height:400px;"></div>
+
+    <!-- 새 카카오맵 API 키 사용 -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=9b439953b484087316534c0e748848ce"></script>
+    <script>
+        function checkKakaoStatus() {
+            console.log('=== 카카오 SDK 상태 체크 ===');
+            console.log('1. window.kakao 존재:', !!window.kakao);
+            console.log('2. window.kakao 내용:', window.kakao);
+            console.log('3. window.kakao.maps 존재:', !!window.kakao?.maps);
+            console.log('4. Document ready state:', document.readyState);
+            
+            if (window.kakao && window.kakao.maps) {
+                console.log('✅ 카카오맵 SDK 로딩 성공');
+                initializeMap();
+            } else {
+                console.error('❌ 카카오맵 SDK 로딩 실패');
+                document.getElementById('map').innerHTML = 
+                    '<div style="text-align:center;padding:50px;border:2px dashed #ccc;">' +
+                    '<h3>카카오맵 SDK 로딩 실패</h3>' +
+                    '<p>개발자 도구 Console 탭에서 상세한 에러를 확인하세요</p>' +
+                    '</div>';
+            }
+        }
+
+        function initializeMap() {
+            try {
+                var mapContainer = document.getElementById('map');
+                var mapOption = { 
+                    center: new kakao.maps.LatLng(37.5501, 127.1436),
+                    level: 3
+                };
+
+                var map = new kakao.maps.Map(mapContainer, mapOption);
+                
+                var markerPosition = new kakao.maps.LatLng(37.5501, 127.1436);
+                var marker = new kakao.maps.Marker({
+                    position: markerPosition
+                });
+                marker.setMap(map);
+                
+                console.log('✅ 지도 표시 완료');
+            } catch (error) {
+                console.error('❌ 지도 초기화 오류:', error);
+            }
+        }
+
+        // 다양한 시점에서 체크
+        console.log('스크립트 실행 시작');
+        
+        // 즉시 체크
+        setTimeout(checkKakaoStatus, 100);
+        
+        // 1초 후 체크  
+        setTimeout(() => {
+            console.log('=== 1초 후 재체크 ===');
+            checkKakaoStatus();
+        }, 1000);
+
+        // 3초 후 체크
+        setTimeout(() => {
+            console.log('=== 3초 후 재체크 ===');
+            checkKakaoStatus();
+        }, 3000);
+
+        // DOM 로드 완료시 체크
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOM 로드 완료 후 체크 ===');
+            checkKakaoStatus();
+        });
+
+        // 윈도우 로드 완료시 체크
+        window.addEventListener('load', function() {
+            console.log('=== 윈도우 로드 완료 후 체크 ===');
+            checkKakaoStatus();
+        });
+    </script>
+</body>
+</html>
