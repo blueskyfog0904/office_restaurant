@@ -60,39 +60,58 @@ const MapModal: React.FC<MapModalProps> = ({ restaurant, isOpen, onClose }) => {
 
         {/* 하단 버튼 */}
         <div className="flex gap-2 p-4 border-t bg-gray-50">
-          {hasCoordinates ? (
-            <>
-              <button
-                onClick={() => {
-                  const url = `https://map.kakao.com/link/map/${encodeURIComponent(restaurant.title || '음식점')},${restaurant.latitude},${restaurant.longitude}`;
-                  window.open(url, '_blank');
-                }}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-              >
-                카카오맵에서 보기
-              </button>
-              <button
-                onClick={() => {
-                  const url = `https://map.naver.com/v5/search/${encodeURIComponent(restaurant.address || restaurant.title || '음식점')}`;
-                  window.open(url, '_blank');
-                }}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-              >
-                네이버지도에서 보기
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => {
-                const searchQuery = encodeURIComponent(`${restaurant.title || '음식점'} ${restaurant.address || ''}`);
-                const url = `https://map.naver.com/v5/search/${searchQuery}`;
-                window.open(url, '_blank');
-              }}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-            >
-              네이버지도에서 검색
-            </button>
-          )}
+          <button
+            onClick={() => {
+              const openKakaoMap = () => {
+                // region + sub_region + title로 검색 쿼리 생성
+                const searchTerms = [
+                  restaurant.region,
+                  restaurant.sub_region, 
+                  restaurant.title || '음식점'
+                ].filter(Boolean).join(' ');
+                
+                const searchQuery = encodeURIComponent(searchTerms);
+                
+                // 모바일 환경 감지
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                  // 모바일에서는 카카오맵 앱 URL 스키마 사용
+                  const kakaoAppUrl = `kakaomap://search?q=${searchQuery}`;
+                  const fallbackUrl = `https://map.kakao.com/link/search/${searchQuery}`;
+                  
+                  // 앱으로 시도 후 실패시 웹으로 fallback
+                  window.location.href = kakaoAppUrl;
+                  setTimeout(() => {
+                    window.open(fallbackUrl, '_blank');
+                  }, 1000);
+                } else {
+                  // 데스크톱에서는 웹 버전 검색
+                  const webUrl = `https://map.kakao.com/link/search/${searchQuery}`;
+                  window.open(webUrl, '_blank');
+                }
+              };
+              openKakaoMap();
+            }}
+            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            카카오맵에서 검색
+          </button>
+          <button
+            onClick={() => {
+              const searchTerms = [
+                restaurant.region,
+                restaurant.sub_region,
+                restaurant.title || '음식점'
+              ].filter(Boolean).join(' ');
+              const searchQuery = encodeURIComponent(searchTerms);
+              const url = `https://map.naver.com/v5/search/${searchQuery}`;
+              window.open(url, '_blank');
+            }}
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+          >
+            네이버지도에서 검색
+          </button>
         </div>
       </div>
     </div>
