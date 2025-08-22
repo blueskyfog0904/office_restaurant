@@ -33,14 +33,16 @@ const RegisterPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center">
-            {/* 로고 또는 아이콘 */}
-            <div className="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xl font-bold">공</span>
+                      <div className="mx-auto h-12 w-12 flex items-center justify-center">
+              {/* 로고 */}
+              <img 
+                src="/images/project_logo.png" 
+                alt="공공맛집 로고" 
+                className="h-12 w-12 object-contain"
+              />
             </div>
-          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            공공맛집 회원가입
+            공무원맛집 회원가입
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             카카오 계정으로 간편하게 가입할 수 있습니다
@@ -144,7 +146,7 @@ const RegisterPage: React.FC = () => {
           {/* 서비스 특징 */}
           <div className="mt-8 bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
-              🍽️ 공공맛집과 함께하세요
+              🍽️ 공무원맛집과 함께하세요
             </h3>
             <div className="grid grid-cols-1 gap-3 text-sm text-gray-600">
               <div className="flex items-start space-x-3">
@@ -156,7 +158,7 @@ const RegisterPage: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">지역별 맛집 탐색</p>
-                  <p className="text-gray-600">전국 공공기관 협력 맛집 정보를 한눈에</p>
+                  <p className="text-gray-600">전국 공공기관 맛집 정보를 한눈에</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
