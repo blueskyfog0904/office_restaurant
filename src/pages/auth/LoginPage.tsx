@@ -36,11 +36,16 @@ const LoginPage: React.FC = () => {
           <div className="mx-auto h-12 w-12 flex items-center justify-center">
             {/* 로고 또는 아이콘 */}
             <div className="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xl font-bold">공</span>
+              {/* 로고 */}
+              <img 
+                src="/images/project_logo.png" 
+                alt="공공맛집 로고" 
+                className="h-12 w-12 object-contain"
+              />
             </div>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            공공맛집에 로그인하세요
+            공무원맛집에 로그인하세요
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             카카오 계정으로 간편하게 로그인할 수 있습니다
@@ -98,13 +103,13 @@ const LoginPage: React.FC = () => {
           {/* 서비스 소개 */}
           <div className="mt-8 border-t border-gray-200 pt-6">
             <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">공공맛집이란?</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">공무원맛집이란?</h3>
               <div className="grid grid-cols-1 gap-4 text-sm text-gray-600">
                 <div className="flex items-center justify-center space-x-2">
                   <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>공공기관 협업 맛집 정보</span>
+                  <span>공공기관 맛집 정보</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
                   <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -29,6 +29,35 @@ const AuthCallbackPage: React.FC = () => {
 
         // 사용자 정보 새로고침
         await refreshUser();
+        
+        // 프로필이 없는 경우 생성 (GitHub 토론 해결책)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('user_id', data.session.user.id)
+          .single();
+          
+        if (!profile) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: data.session.user.id,
+              email: data.session.user.email,
+              nickname: data.session.user.user_metadata?.full_name || 
+                       data.session.user.user_metadata?.name || 
+                       data.session.user.user_metadata?.nickname ||
+                       data.session.user.email?.split('@')[0] || 'User',
+              provider: 'kakao',
+              metadata: data.session.user.user_metadata || {},
+              role: 'user',
+              is_admin: false
+            });
+            
+          if (profileError) {
+            console.error('프로필 생성 실패:', profileError);
+            // 프로필 생성 실패해도 로그인은 계속 진행
+          }
+        }
 
         // 세션 스토리지에서 약관 동의 정보 확인
         const termsConsentData = sessionStorage.getItem('termsConsent');
