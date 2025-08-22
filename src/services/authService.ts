@@ -416,20 +416,46 @@ export const getRestaurantByLocation = async (
   
   console.log('음식점 검색:', { decodedRegion, decodedSubRegion, decodedTitle });
   
-  const { data, error } = await supabase
+  // 먼저 활성화된 음식점만 검색
+  let { data, error } = await supabase
     .from('v_restaurants_with_stats')
     .select('*')
     .eq('region', decodedRegion)
     .eq('sub_region', decodedSubRegion)
     .eq('title', decodedTitle)
-    .single();
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  
+  // 활성화된 음식점이 없으면 모든 음식점에서 검색
+  if (!data || data.length === 0) {
+    const { data: allData, error: allError } = await supabase
+      .from('v_restaurants_with_stats')
+      .select('*')
+      .eq('region', decodedRegion)
+      .eq('sub_region', decodedSubRegion)
+      .eq('title', decodedTitle)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    if (allError) {
+      console.error('음식점 검색 실패:', allError);
+      throw new Error(getErrorMessage(allError));
+    }
+    
+    if (!allData || allData.length === 0) {
+      throw new Error('음식점을 찾을 수 없습니다.');
+    }
+    
+    data = allData;
+  }
   
   if (error) {
     console.error('음식점 검색 실패:', error);
     throw new Error(getErrorMessage(error));
   }
   
-  const row: any = data;
+  const row: any = data[0]; // 배열의 첫 번째 요소 사용
   const mapped: RestaurantWithStats = {
     id: row.id,
     name: row.name,
