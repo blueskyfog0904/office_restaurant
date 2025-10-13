@@ -103,7 +103,7 @@ const RegionsPage: React.FC = () => {
 
           try {
             const response = await searchRestaurants({
-              region_id: district,
+              region_id: `${province}|${district}`,
               order_by: 'total_count',
               page: 1,
               size: 60,

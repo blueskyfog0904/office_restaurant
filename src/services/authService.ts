@@ -283,10 +283,18 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
     );
   }
 
-  // 지역별 필터링 (sub_region으로 검색)
+  // 지역별 필터링 (region과 sub_region으로 검색)
   if (params.region_id) {
     console.log(`지역 ${params.region_id}로 필터링 중...`);
-    query = query.eq('sub_region', params.region_id);
+    
+    // region_id가 문자열이고 "시도명|시군구명" 형태인 경우
+    if (typeof params.region_id === 'string' && params.region_id.includes('|')) {
+      const [region, sub_region] = params.region_id.split('|');
+      query = query.eq('region', region).eq('sub_region', sub_region);
+    } else {
+      // 기존 호환성을 위해 sub_region으로만 검색 (deprecated)
+      query = query.eq('sub_region', params.region_id);
+    }
   }
 
   // 카테고리
