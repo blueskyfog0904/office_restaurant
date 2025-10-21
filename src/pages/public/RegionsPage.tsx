@@ -106,7 +106,7 @@ const RegionsPage: React.FC = () => {
               region_id: `${province}|${district}`,
               order_by: 'total_count',
               page: 1,
-              size: 60,
+              size: 1000,
             });
             
             setRestaurants(response.data);
@@ -159,7 +159,7 @@ const RegionsPage: React.FC = () => {
         region_id: selectedDistrict,
         order_by: 'total_count',
         page: 1,
-        size: 60,
+        size: 1000,
       });
       
       setRestaurants(response.data);

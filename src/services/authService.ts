@@ -269,7 +269,7 @@ export const getUserReviews = async (userId: string): Promise<any[]> => {
 
 export const searchRestaurants = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
   const page = params.page ?? 1;
-  const size = params.size ?? 60;
+  const size = params.size ?? 1000;
 
   // 기본 쿼리 빌더 - 새로운 뷰 사용
   let query = supabase
