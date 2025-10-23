@@ -47,8 +47,8 @@ const AdminEditRestaurantPage: React.FC = () => {
         address: data.address || '',
         category: data.category || '',
         telephone: data.phone || '',
-        region: data.region || '',
-        sub_region: data.sub_region || '',
+        region: data.sub_add1 || '',
+        sub_region: data.sub_add2 || '',
         is_active: data.is_active ?? true
       });
     } catch (error) {

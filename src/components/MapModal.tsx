@@ -63,10 +63,10 @@ const MapModal: React.FC<MapModalProps> = ({ restaurant, isOpen, onClose }) => {
           <button
             onClick={() => {
               const openKakaoMap = () => {
-                // region + sub_region + title로 검색 쿼리 생성
+                // sub_add1 + sub_add2 + title로 검색 쿼리 생성
                 const searchTerms = [
-                  restaurant.region,
-                  restaurant.sub_region, 
+                  restaurant.sub_add1,
+                  restaurant.sub_add2, 
                   restaurant.title || '음식점'
                 ].filter(Boolean).join(' ');
                 
@@ -121,8 +121,8 @@ const MapModal: React.FC<MapModalProps> = ({ restaurant, isOpen, onClose }) => {
           <button
             onClick={() => {
               const searchTerms = [
-                restaurant.region,
-                restaurant.sub_region,
+                restaurant.sub_add1,
+                restaurant.sub_add2,
                 restaurant.title || '음식점'
               ].filter(Boolean).join(' ');
               const searchQuery = encodeURIComponent(searchTerms);

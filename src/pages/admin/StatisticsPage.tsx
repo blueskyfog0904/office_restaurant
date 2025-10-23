@@ -281,7 +281,7 @@ const StatisticsPage: React.FC = () => {
                 <option value="all">모든 지역</option>
                 {regions.map(region => (
                   <option key={region.id} value={region.id.toString()}>
-                    {region.region} {region.sub_region}
+                    {region.sub_add1} {region.sub_add2}
                   </option>
                 ))}
               </select>

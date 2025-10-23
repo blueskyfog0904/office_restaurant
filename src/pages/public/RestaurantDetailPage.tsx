@@ -4,11 +4,11 @@ import {
   MapPinIcon,
   PhoneIcon,
   ChatBubbleLeftIcon,
-  PencilSquareIcon,
   ArrowTopRightOnSquareIcon,
   ArrowLeftIcon,
   ShareIcon,
-  HeartIcon
+  HeartIcon,
+  ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { 
@@ -32,9 +32,9 @@ import { addToRecentHistory, isFavorite, addToFavorites, removeFromFavorites } f
 import { supabase } from '../../services/supabaseClient';
 
 const RestaurantDetailPage: React.FC = () => {
-  const { region, subRegion, title, id } = useParams<{ 
-    region?: string; 
-    subRegion?: string; 
+  const { subAdd1, subAdd2, title, id } = useParams<{ 
+    subAdd1?: string; 
+    subAdd2?: string; 
     title?: string; 
     id?: string; 
   }>();
@@ -111,7 +111,7 @@ const RestaurantDetailPage: React.FC = () => {
   // 데이터 로드
   useEffect(() => {
     // URL 패턴에 따라 다른 로딩 방식 사용
-    const hasLocationParams = region && subRegion && title;
+    const hasLocationParams = subAdd1 && subAdd2 && title;
     const hasIdParam = id;
     
     if (!hasLocationParams && !hasIdParam) return;
@@ -124,7 +124,7 @@ const RestaurantDetailPage: React.FC = () => {
         
         if (hasLocationParams) {
           // 새로운 URL 파라미터로 음식점 검색
-          restaurantData = await getRestaurantByLocation(region!, subRegion!, title!);
+          restaurantData = await getRestaurantByLocation(subAdd1!, subAdd2!, title!);
         } else if (hasIdParam) {
           // 기존 ID 기반 검색
           restaurantData = await getRestaurantById(id!);
@@ -147,8 +147,8 @@ const RestaurantDetailPage: React.FC = () => {
           name: restaurantData.name,
           address: restaurantData.address || '',
           category: restaurantData.category,
-          region: restaurantData.region || '',
-          sub_region: restaurantData.sub_region || ''
+          sub_add1: restaurantData.sub_add1 || '',
+          sub_add2: restaurantData.sub_add2 || ''
         });
         
         // 리뷰 목록 로드
@@ -170,7 +170,7 @@ const RestaurantDetailPage: React.FC = () => {
     };
 
     loadRestaurantData();
-  }, [region, subRegion, title, id, isLoggedIn, user]);
+  }, [subAdd1, subAdd2, title, id, isLoggedIn, user]);
 
   // 리뷰 목록 로드
   const loadReviews = async (restaurantId: string) => {
@@ -262,31 +262,31 @@ const RestaurantDetailPage: React.FC = () => {
   // 네이버 블로그 검색 링크
   const getNaverSearchUrl = () => {
     if (!restaurant) return '#';
-    const query = `${restaurant.region} ${restaurant.sub_region} ${restaurant.title || '음식점'}`;
+    const query = `${restaurant.sub_add1} ${restaurant.sub_add2} ${restaurant.title || '음식점'}`;
     return `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
   };
 
   // 통합 검색어 생성
   const getSearchQuery = () => {
     if (!restaurant) return '';
-    return `${restaurant.region} ${restaurant.sub_region} ${restaurant.title || '음식점'}`;
+    return `${restaurant.sub_add1} ${restaurant.sub_add2} ${restaurant.title || '음식점'}`;
   };
 
-  // 음식점 위치 정보 생성 (region, sub_region, title 조합)
+  // 음식점 위치 정보 생성 (sub_add1, sub_add2, title 조합)
   const getRestaurantLocation = () => {
     if (!restaurant) return '';
     
     console.log('getRestaurantLocation 실행:', {
       restaurant_name: restaurant.name,
-      region: restaurant.region,
-      sub_region: restaurant.sub_region,
+      sub_add1: restaurant.sub_add1,
+      sub_add2: restaurant.sub_add2,
       title: restaurant.title
     });
     
-    // region, sub_region, title 조합으로 위치 문자열 생성
+    // sub_add1, sub_add2, title 조합으로 위치 문자열 생성
     const locationParts = [
-      restaurant.region,
-      restaurant.sub_region,
+      restaurant.sub_add1,
+      restaurant.sub_add2,
       restaurant.title || restaurant.name
     ].filter(part => part && part.trim().length > 0);
     
@@ -307,7 +307,7 @@ const RestaurantDetailPage: React.FC = () => {
     }
 
     return {
-      title: `${restaurant.name} - ${restaurant.region} ${restaurant.sub_region}`,
+      title: `${restaurant.name} - ${restaurant.sub_add1} ${restaurant.sub_add2}`,
       description: `${restaurant.category || '음식점'} | ${restaurant.address}`,
       url: window.location.href,
       image: 'https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=맛집',
@@ -320,9 +320,8 @@ const RestaurantDetailPage: React.FC = () => {
   const openKakaoMap = () => {
     if (!restaurant) return;
     
-    const location = getRestaurantLocation();
-    // 지역 정보 기반 검색으로 이동
-    const searchQuery = location || getSearchQuery();
+    // address 우선, 없으면 지역+음식점명으로 검색
+    const searchQuery = restaurant.address || getRestaurantLocation() || getSearchQuery();
     const url = `https://map.kakao.com/link/search/${encodeURIComponent(searchQuery)}`;
     window.open(url, '_blank');
   };
@@ -331,10 +330,26 @@ const RestaurantDetailPage: React.FC = () => {
   const openNaverMap = () => {
     if (!restaurant) return;
     
-    const location = getRestaurantLocation();
-    const searchQuery = location || getSearchQuery();
+    // address 우선, 없으면 지역+음식점명으로 검색
+    const searchQuery = restaurant.address || getRestaurantLocation() || getSearchQuery();
     const url = `https://map.naver.com/v5/search/${encodeURIComponent(searchQuery)}`;
     window.open(url, '_blank');
+  };
+
+  // 주소 복사하기
+  const copyAddress = async () => {
+    if (!restaurant?.address) {
+      alert('복사할 주소가 없습니다.');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(restaurant.address);
+      alert('주소가 클립보드에 복사되었습니다.');
+    } catch (error) {
+      console.error('주소 복사 실패:', error);
+      alert('주소 복사에 실패했습니다.');
+    }
   };
 
   // 즐겨찾기 토글
@@ -356,8 +371,8 @@ const RestaurantDetailPage: React.FC = () => {
         name: restaurant.title || '음식점',
         address: restaurant.address || '',
         category: restaurant.category,
-        region: restaurant.region || '',
-        sub_region: restaurant.sub_region || ''
+        sub_add1: restaurant.sub_add1 || '',
+        sub_add2: restaurant.sub_add2 || ''
       });
       setIsFavoriteRestaurant(true);
     }
@@ -436,9 +451,20 @@ const RestaurantDetailPage: React.FC = () => {
             {/* 주소 */}
             <div className="flex items-start mb-4">
               <MapPinIcon className="h-5 w-5 text-gray-500 mt-1 mr-2 flex-shrink-0" />
-              <div>
+              <div className="flex-1">
                 <span className="text-sm font-medium text-gray-500">주소</span>
-                <p className="text-gray-900">{restaurant.address}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-900 flex-1">{restaurant.address}</p>
+                  {restaurant.address && (
+                    <button
+                      onClick={copyAddress}
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="주소 복사"
+                    >
+                      <ClipboardDocumentIcon className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -515,20 +541,15 @@ const RestaurantDetailPage: React.FC = () => {
           </div>
         </div>
         <div className="w-full h-96 rounded-lg overflow-hidden border">
-          {(() => {
-            const location = getRestaurantLocation();
-            return (
-              <KakaoMap
-                address={location || restaurant.address || ''}
-                width="100%"
-                height={384}
-                level={3}
-                restaurantName={restaurant.name}
-                region={restaurant.region}
-                subRegion={restaurant.sub_region}
-              />
-            );
-          })()}
+          <KakaoMap
+            address={restaurant.address || ''}
+            width="100%"
+            height={384}
+            level={3}
+            restaurantName={restaurant.title || restaurant.name}
+            subAdd1={restaurant.sub_add1}
+            subAdd2={restaurant.sub_add2}
+          />
         </div>
       </div>
 

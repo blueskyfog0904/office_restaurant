@@ -112,8 +112,8 @@ interface KakaoMapProps {
   level?: number;
   className?: string;
   restaurantName?: string;
-  region?: string;
-  subRegion?: string;
+  subAdd1?: string;
+  subAdd2?: string;
 }
 
 const KakaoMap: React.FC<KakaoMapProps> = ({
@@ -125,8 +125,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   level = 3,
   className = '',
   restaurantName,
-  region,
-  subRegion
+  subAdd1,
+  subAdd2
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -281,21 +281,14 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         if (address && address.trim()) {
           console.log('🔍 주소 검색 시작:', address);
           
-          // 1차: 주소 검색
+          // 1차: 주소 검색 (DB의 address 필드로 검색)
           let result = await searchAddress(address);
           
-          // 2차: 키워드 검색 (주소 검색 실패 시)
-          if (!result && restaurantName) {
-            const keywords: string[] = [
-              restaurantName,
-              `${restaurantName} ${address}`,
-              region && subRegion ? `${restaurantName} ${region} ${subRegion}` : ''
-            ].filter(keyword => keyword.trim().length > 0);
-            
-            for (const keyword of keywords) {
-              result = await searchKeyword(keyword);
-              if (result) break;
-            }
+          // 2차: 키워드 검색 (주소 검색 실패 시) - sub_add1 + sub_add2 + restaurantName
+          if (!result && subAdd1 && subAdd2 && restaurantName) {
+            const keyword = `${subAdd1} ${subAdd2} ${restaurantName}`;
+            console.log('🔍 키워드 검색 시도:', keyword);
+            result = await searchKeyword(keyword);
           }
           
           if (result) {
@@ -325,7 +318,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     };
 
     initializeMap();
-  }, [latitude, longitude, address, level, restaurantName, region, subRegion]);
+  }, [latitude, longitude, address, level, restaurantName, subAdd1, subAdd2]);
 
   // 컨테이너 크기 변경 시 지도 크기 재조정
   useEffect(() => {
@@ -362,9 +355,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
             <button
               onClick={() => {
-                const searchQuery = address || (region && subRegion && restaurantName 
-                  ? `${region} ${subRegion} ${restaurantName}`
-                  : restaurantName || '');
+                // address 우선 사용
+                const searchQuery = address || '';
                 const url = `https://map.kakao.com/link/search/${encodeURIComponent(searchQuery)}`;
                 window.open(url, '_blank');
               }}
@@ -377,7 +369,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
             </button>
             <button
               onClick={() => {
-                const searchQuery = address || restaurantName || '';
+                // address 우선 사용
+                const searchQuery = address || '';
                 const url = `https://map.naver.com/v5/search/${encodeURIComponent(searchQuery)}`;
                 window.open(url, '_blank');
               }}
@@ -389,9 +382,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
               네이버지도에서 보기
             </button>
           </div>
-          {restaurantName && (
+          {address && (
             <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">검색어: <span className="font-medium">{address || restaurantName}</span></p>
+              <p className="text-xs text-gray-500">검색어: <span className="font-medium">{address}</span></p>
             </div>
           )}
         </div>

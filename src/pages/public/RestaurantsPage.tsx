@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   FunnelIcon,
@@ -44,6 +44,8 @@ const CATEGORY_OPTIONS = [
 const RestaurantsPage: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const scrollPositionKey = 'restaurantsPageScrollPosition';
   
   // 상태 관리
   const [restaurants, setRestaurants] = useState<RestaurantWithStats[]>([]);
@@ -70,18 +72,25 @@ const RestaurantsPage: React.FC = () => {
 
   // 지역별 그룹화된 옵션
   const regionOptions = useMemo(() => {
+    console.log('🔄 regionOptions 계산 중... regions.length:', regions.length);
+    
     const grouped = regions.reduce((acc, region) => {
-      if (!acc[region.region]) {
-        acc[region.region] = [];
+      if (!acc[region.sub_add1]) {
+        acc[region.sub_add1] = [];
       }
-      acc[region.region].push(region);
+      acc[region.sub_add1].push(region);
       return acc;
     }, {} as Record<string, Region[]>);
 
-    return Object.entries(grouped).map(([province, regions]) => ({
+    const result = Object.entries(grouped).map(([province, regions]) => ({
       province,
       regions
     }));
+    
+    console.log('✅ regionOptions 결과:', result.length, '개 시도');
+    console.log('시도 목록:', result.map(r => r.province));
+    
+    return result;
   }, [regions]);
 
   // 검색 파라미터 구성
@@ -100,14 +109,56 @@ const RestaurantsPage: React.FC = () => {
     const loadRegions = async () => {
       try {
         const response = await getRegions();
+        console.log('✅ 지역 데이터 로드 성공:', response.data.length, '개 지역');
+        console.log('지역 데이터 샘플:', response.data.slice(0, 3));
         setRegions(response.data);
       } catch (error) {
-        console.error('지역 데이터 로드 실패:', error);
+        console.error('❌ 지역 데이터 로드 실패:', error);
       }
     };
 
     loadRegions();
   }, []);
+
+  // 스크롤 위치 복원 (뒤로가기 시)
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
+    
+    if (savedScrollPosition) {
+      const scrollTimeout = setTimeout(() => {
+        const position = parseInt(savedScrollPosition, 10);
+        window.scrollTo(0, position);
+        console.log('✅ 스크롤 위치 복원:', position);
+        sessionStorage.removeItem(scrollPositionKey);
+      }, 150);
+
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, [restaurants, scrollPositionKey]);
+
+  // 스크롤 이벤트 감지하여 지속적으로 위치 저장
+  useEffect(() => {
+    let scrollTimeout: number | undefined;
+    
+    const handleScroll = () => {
+      // 디바운싱: 스크롤이 멈춘 후 200ms 후에 저장
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        if (restaurants.length > 0) {
+          const currentScroll = window.scrollY;
+          sessionStorage.setItem(scrollPositionKey, currentScroll.toString());
+          console.log('📜 스크롤 위치 저장:', currentScroll);
+        }
+      }, 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [restaurants, scrollPositionKey]);
 
   // 음식점 데이터 로드
   const loadRestaurants = useCallback(async (reset = false) => {
@@ -115,7 +166,9 @@ const RestaurantsPage: React.FC = () => {
     
     setLoading(true);
     try {
+      console.log('🔍 음식점 검색 요청:', searchRequest);
       const response = await searchRestaurants(searchRequest);
+      console.log('✅ 음식점 검색 성공:', response.data.length, '개');
       
       if (reset) {
         setRestaurants(response.data);
@@ -126,7 +179,8 @@ const RestaurantsPage: React.FC = () => {
       
       setHasMore(response.pagination.page < response.pagination.pages);
     } catch (error) {
-      console.error('음식점 데이터 로드 실패:', error);
+      console.error('❌ 음식점 데이터 로드 실패:', error);
+      alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -289,8 +343,8 @@ const RestaurantsPage: React.FC = () => {
                   {regionOptions.map(({ province, regions }) => (
                     <optgroup key={province} label={province}>
                       {regions.map(region => (
-                        <option key={region.id} value={region.id}>
-                          {region.sub_region}
+                        <option key={region.id} value={`${region.sub_add1}|${region.sub_add2}`}>
+                          {region.sub_add2}
                         </option>
                       ))}
                     </optgroup>

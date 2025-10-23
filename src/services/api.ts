@@ -33,10 +33,9 @@ export interface Restaurant {
   longitude?: number;
   category: string;
   region_id: number;
-  region?: {
-    region: string;
-    sub_region: string;
-  };
+  sub_add1?: string;
+  sub_add2?: string;
+  rank_value?: number;
   status: 'active' | 'inactive' | 'pending';
   created_at: string;
   updated_at: string;
@@ -223,26 +222,60 @@ export const getRankings = async (): Promise<RankingData[]> => {
 
 export interface Region {
   id: number;
-  region: string;
-  sub_region: string;
+  sub_add1: string;
+  sub_add2: string;
   code?: string;
   created_at: string;
   updated_at: string;
 }
 
 export const getRegions = async (): Promise<Region[]> => {
-  const { data, error } = await supabase
-    .from('public_expense_entries')
-    .select('region, sub_region')
-    .neq('region', null)
-    .neq('sub_region', null)
-    .order('region', { ascending: true })
-    .order('sub_region', { ascending: true });
-  if (error) throw error;
-  const unique = Array.from(
-    new Map((data as any[]).map((r) => [`${r.region}__${r.sub_region}`, r])).values()
-  );
-  return unique.map((r: any, idx: number) => ({ id: idx + 1, region: r.region, sub_region: r.sub_region, created_at: '', updated_at: '' }));
+  // RPC로 DISTINCT 쿼리 실행 (중복 제거)
+  const { data, error } = await supabase.rpc('get_distinct_regions');
+  
+  if (error) {
+    // Fallback: RPC가 없으면 기존 방식 사용
+    console.warn('RPC get_distinct_regions not found, using fallback');
+    const { data: restaurantData, error: fallbackError } = await supabase
+      .from('restaurants')
+      .select('sub_add1, sub_add2')
+      .neq('sub_add1', null)
+      .neq('sub_add2', null);
+    
+    if (fallbackError) throw fallbackError;
+    
+    // 중복 제거
+    const uniqueMap = new Map();
+    (restaurantData as any[]).forEach((r) => {
+      const key = `${r.sub_add1}__${r.sub_add2}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, r);
+      }
+    });
+    
+    const unique = Array.from(uniqueMap.values())
+      .sort((a: any, b: any) => {
+        if (a.sub_add1 !== b.sub_add1) return a.sub_add1.localeCompare(b.sub_add1);
+        return a.sub_add2.localeCompare(b.sub_add2);
+      });
+    
+    return unique.map((r: any, idx: number) => ({ 
+      id: idx + 1, 
+      sub_add1: r.sub_add1, 
+      sub_add2: r.sub_add2, 
+      created_at: '', 
+      updated_at: '' 
+    }));
+  }
+  
+  // RPC 결과 반환
+  return (data as any[]).map((r: any, idx: number) => ({ 
+    id: idx + 1, 
+    sub_add1: r.sub_add1, 
+    sub_add2: r.sub_add2, 
+    created_at: '', 
+    updated_at: '' 
+  }));
 };
 
 // ===================================

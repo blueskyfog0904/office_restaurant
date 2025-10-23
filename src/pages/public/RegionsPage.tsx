@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon,
@@ -21,6 +21,8 @@ import { useAuth } from '../../contexts/AuthContext';
 const RegionsPage: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const scrollPositionKey = 'regionsPageScrollPosition';
   
   // 상태 관리
   const [regions, setRegions] = useState<Region[]>([]);
@@ -41,10 +43,10 @@ const RegionsPage: React.FC = () => {
   // 지역별 그룹화된 데이터
   const regionData = useMemo(() => {
     const grouped = regions.reduce((acc, region) => {
-      if (!acc[region.region]) {
-        acc[region.region] = [];
+      if (!acc[region.sub_add1]) {
+        acc[region.sub_add1] = [];
       }
-      acc[region.region].push(region);
+      acc[region.sub_add1].push(region);
       return acc;
     }, {} as Record<string, Region[]>);
 
@@ -71,6 +73,13 @@ const RegionsPage: React.FC = () => {
     const loadRegions = async () => {
       try {
         const response = await getRegions();
+        console.log('✅ 지역 데이터 로드 성공:', response.data.length, '개 지역');
+        
+        // 전라북도 지역만 필터링해서 확인
+        const jeonbukRegions = response.data.filter(r => r.sub_add1 === '전라북도');
+        console.log('🔍 전라북도 지역:', jeonbukRegions.length, '개');
+        console.log('전라북도 시군구 목록:', jeonbukRegions.map(r => r.sub_add2));
+        
         setRegions(response.data);
       } catch (error) {
         console.error('지역 데이터 로드 실패:', error);
@@ -79,6 +88,46 @@ const RegionsPage: React.FC = () => {
 
     loadRegions();
   }, []);
+
+  // 스크롤 위치 복원 (뒤로가기 시)
+  useEffect(() => {
+    const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
+    
+    if (savedScrollPosition) {
+      const scrollTimeout = setTimeout(() => {
+        const position = parseInt(savedScrollPosition, 10);
+        window.scrollTo(0, position);
+        console.log('✅ 스크롤 위치 복원:', position);
+        sessionStorage.removeItem(scrollPositionKey);
+      }, 150);
+
+      return () => clearTimeout(scrollTimeout);
+    }
+  }, [restaurants, scrollPositionKey]);
+
+  // 스크롤 이벤트 감지하여 지속적으로 위치 저장
+  useEffect(() => {
+    let scrollTimeout: number | undefined;
+    
+    const handleScroll = () => {
+      // 디바운싱: 스크롤이 멈춘 후 200ms 후에 저장
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(() => {
+        if (restaurants.length > 0) {
+          const currentScroll = window.scrollY;
+          sessionStorage.setItem(scrollPositionKey, currentScroll.toString());
+          console.log('📜 스크롤 위치 저장:', currentScroll);
+        }
+      }, 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [restaurants, scrollPositionKey]);
 
   // URL 파라미터에서 초기 검색 실행
   useEffect(() => {
@@ -92,7 +141,7 @@ const RegionsPage: React.FC = () => {
       
       // 지역 찾기
       const selectedRegion = regions.find(
-        region => region.region === province && region.sub_region === district
+        region => region.sub_add1 === province && region.sub_add2 === district
       );
 
       if (selectedRegion) {
@@ -143,7 +192,7 @@ const RegionsPage: React.FC = () => {
 
     // 선택된 지역의 ID 찾기
     const selectedRegion = regions.find(
-      region => region.region === selectedProvince && region.sub_region === selectedDistrict
+      region => region.sub_add1 === selectedProvince && region.sub_add2 === selectedDistrict
     );
 
     if (!selectedRegion) {
@@ -274,8 +323,8 @@ const RegionsPage: React.FC = () => {
             >
               <option value="">시군구를 선택하세요</option>
               {regionData.districts.map(district => (
-                <option key={district.id} value={district.sub_region}>
-                  {district.sub_region}
+                <option key={district.id} value={district.sub_add2}>
+                  {district.sub_add2}
                 </option>
               ))}
             </select>
@@ -386,12 +435,14 @@ const RegionsPage: React.FC = () => {
           {/* 검색 결과 카드 그리드 */}
           {!loading && restaurants.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredRestaurants.map((restaurant, index) => (
+              {filteredRestaurants.map((restaurant) => (
                 <div key={restaurant.id} className="relative">
-                  {/* 순위 표시 */}
-                  <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2 py-1 rounded-full text-sm font-bold">
-                    {index + 1}위
-                  </div>
+                  {/* 순위 표시 - DB의 실제 순위 사용 (동점자 처리 포함) */}
+                  {restaurant.region_rank && (
+                    <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2 py-1 rounded-full text-sm font-bold shadow-lg">
+                      {restaurant.region_rank}위
+                    </div>
+                  )}
                   <RestaurantCard
                     restaurant={restaurant}
                     isFavorite={favorites.has(restaurant.id.toString())} // Set<string>으로 변경

@@ -268,6 +268,8 @@ export const getUserReviews = async (userId: string): Promise<any[]> => {
 // ===================================
 
 export const searchRestaurants = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
+  console.log('🔍 [searchRestaurants] 시작, params:', params);
+  
   const page = params.page ?? 1;
   const size = params.size ?? 1000;
 
@@ -278,22 +280,25 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
 
   // 키워드: 이름/주소 ILIKE
   if (params.keyword) {
+    console.log('📝 키워드 필터:', params.keyword);
     query = query.or(
       `name.ilike.%${params.keyword}%,address.ilike.%${params.keyword}%`
     );
   }
 
-  // 지역별 필터링 (region과 sub_region으로 검색)
+  // 지역별 필터링 (sub_add1과 sub_add2로 검색)
   if (params.region_id) {
-    console.log(`지역 ${params.region_id}로 필터링 중...`);
+    console.log('📍 지역 필터:', params.region_id);
     
     // region_id가 문자열이고 "시도명|시군구명" 형태인 경우
     if (typeof params.region_id === 'string' && params.region_id.includes('|')) {
-      const [region, sub_region] = params.region_id.split('|');
-      query = query.eq('region', region).eq('sub_region', sub_region);
+      const [sub_add1, sub_add2] = params.region_id.split('|');
+      console.log('   → sub_add1:', sub_add1, ', sub_add2:', sub_add2);
+      query = query.eq('sub_add1', sub_add1).eq('sub_add2', sub_add2);
     } else {
-      // 기존 호환성을 위해 sub_region으로만 검색 (deprecated)
-      query = query.eq('sub_region', params.region_id);
+      // 기존 호환성을 위해 sub_add2로만 검색 (deprecated)
+      console.log('   → sub_add2만:', params.region_id);
+      query = query.eq('sub_add2', params.region_id);
     }
   }
 
@@ -324,45 +329,56 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
   // 정렬
   const sortBy = (params.order_by ?? 'visit_count').toLowerCase();
   const sortMap: Record<string, string> = {
-    visit_count: 'total_visits',
+    visit_count: 'rank_value', // rank_value로 정렬
     rating: 'avg_rating',
     amount: 'total_amount',
     name: 'name',
-    total_count: 'total_visits', // total_count를 total_visits로 매핑
+    total_count: 'rank_value', // rank_value로 정렬
+    rank: 'rank_value',
   };
-  const sortColumn = sortMap[sortBy] ?? 'total_visits';
+  const sortColumn = sortMap[sortBy] ?? 'rank_value';
+  console.log('🔀 정렬:', sortBy, '→', sortColumn);
   query = query.order(sortColumn as any, { ascending: sortBy === 'name' });
 
   // 페이지네이션
   const from = (page - 1) * size;
   const to = from + size - 1;
+  console.log('📄 페이지네이션:', { page, size, from, to });
+  
   const { data, error, count } = await query.range(from, to);
-  if (error) throw new Error(getErrorMessage(error));
+  
+  if (error) {
+    console.error('❌ Supabase 쿼리 에러:', error);
+    throw new Error(getErrorMessage(error));
+  }
 
-  console.log(`검색 결과: ${data?.length || 0}개 음식점 발견`);
+  console.log('✅ 검색 결과:', data?.length || 0, '개 음식점, 전체:', count);
 
   const items = ((data ?? []) as any[]).map((row: any) => {
     const mapped: RestaurantWithStats = {
       id: row.id,
-      name: row.name,
-      title: row.title,  // title 필드 추가
+      name: row.title || row.name,  // title 우선, 없으면 name
+      title: row.title || row.name,
       address: row.address,
-      phone: row.telephone,
+      phone: row.phone,
       latitude: row.latitude,
       longitude: row.longitude,
       category: row.category,
-      sub_category: row.category2,
+      sub_category: row.category,
       region_id: 0,
-      region: row.region,  // 지역명 직접 매핑
-      sub_region: row.sub_region,  // 하위 지역명 직접 매핑
-      status: row.is_active ? 'active' : 'inactive',
+      sub_add1: row.sub_add1,
+      sub_add2: row.sub_add2,
+      status: row.status ? 'active' : 'inactive',
       created_at: row.created_at,
       updated_at: row.updated_at,
-      total_amount: 0, // 새로운 스키마에서는 total_amount가 없음
-      visit_count: row.total_visits ?? 0,
+      total_amount: row.total_amount ?? 0,
+      visit_count: row.visit_count ?? 0,
       avg_rating: row.avg_rating ?? 0,
-      review_count: row.reviews_count ?? 0,
-      region_info: { region: row.region, sub_region: row.sub_region } as any,  // 기존 region 필드 호환성
+      review_count: row.review_count ?? 0,
+      region_rank: row.region_rank,      // 지역 순위 추가
+      province_rank: row.province_rank,  // 광역시/도 순위 추가
+      national_rank: row.national_rank,  // 전국 순위 추가
+      region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
     } as any;
     return mapped;
   });
@@ -389,60 +405,81 @@ export const getRestaurantById = async (id: string): Promise<RestaurantWithStats
   const row: any = data;
   const mapped: RestaurantWithStats = {
     id: row.id,
-    name: row.name,
-    title: row.title,  // title 필드 추가
+    name: row.title || row.name,  // title 우선
+    title: row.title || row.name,
     address: row.address,
-    phone: row.telephone,
+    phone: row.phone,
     latitude: row.latitude,
     longitude: row.longitude,
     category: row.category,
-    sub_category: row.category2, 
+    sub_category: row.category,
     region_id: 0,
-    region: row.region,  // 지역명 직접 매핑
-    sub_region: row.sub_region,  // 하위 지역명 직접 매핑
-    status: row.is_active ? 'active' : 'inactive',
+    sub_add1: row.sub_add1,
+    sub_add2: row.sub_add2,
+    status: row.status ? 'active' : 'inactive',
     created_at: row.created_at,
     updated_at: row.updated_at,
-    total_amount: 0, // 새로운 스키마에서는 total_amount가 없음
-    visit_count: row.total_visits ?? 0,
+    total_amount: row.total_amount ?? 0,
+    visit_count: row.visit_count ?? 0,
     avg_rating: row.avg_rating ?? 0,
-    review_count: row.reviews_count ?? 0,
-    region_info: { region: row.region, sub_region: row.sub_region } as any,  // 기존 region 필드 호환성
+    review_count: row.review_count ?? 0,
+    region_rank: row.region_rank,
+    province_rank: row.province_rank,
+    national_rank: row.national_rank,
+    region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
   } as any;
   return mapped as any;
 };
 
 export const getRestaurantByLocation = async (
-  region: string, 
-  subRegion: string, 
+  subAdd1: string, 
+  subAdd2: string, 
   title: string
 ): Promise<RestaurantWithStats> => {
   // URL 디코딩
-  const decodedRegion = decodeURIComponent(region);
-  const decodedSubRegion = decodeURIComponent(subRegion);
+  const decodedSubAdd1 = decodeURIComponent(subAdd1);
+  const decodedSubAdd2 = decodeURIComponent(subAdd2);
   const decodedTitle = decodeURIComponent(title);
   
-  console.log('음식점 검색:', { decodedRegion, decodedSubRegion, decodedTitle });
+  console.log('음식점 검색:', { decodedSubAdd1, decodedSubAdd2, decodedTitle });
   
-  // 먼저 활성화된 음식점만 검색
+  // 먼저 title로 검색 (활성화된 음식점만)
   let { data, error } = await supabase
     .from('v_restaurants_with_stats')
     .select('*')
-    .eq('region', decodedRegion)
-    .eq('sub_region', decodedSubRegion)
+    .eq('sub_add1', decodedSubAdd1)
+    .eq('sub_add2', decodedSubAdd2)
     .eq('title', decodedTitle)
-    .eq('is_active', true)
+    .eq('status', true)
     .order('created_at', { ascending: false })
     .limit(1);
   
-  // 활성화된 음식점이 없으면 모든 음식점에서 검색
+  // title로 못 찾으면 name으로 시도
+  if (!data || data.length === 0) {
+    const { data: nameData, error: nameError } = await supabase
+      .from('v_restaurants_with_stats')
+      .select('*')
+      .eq('sub_add1', decodedSubAdd1)
+      .eq('sub_add2', decodedSubAdd2)
+      .eq('name', decodedTitle)
+      .eq('status', true)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    if (nameData && nameData.length > 0) {
+      data = nameData;
+      error = nameError;
+    }
+  }
+  
+  // 활성화된 음식점이 없으면 모든 음식점에서 검색 (title 우선)
   if (!data || data.length === 0) {
     const { data: allData, error: allError } = await supabase
       .from('v_restaurants_with_stats')
       .select('*')
-      .eq('region', decodedRegion)
-      .eq('sub_region', decodedSubRegion)
-      .eq('title', decodedTitle)
+      .eq('sub_add1', decodedSubAdd1)
+      .eq('sub_add2', decodedSubAdd2)
+      .or(`title.eq.${decodedTitle},name.eq.${decodedTitle}`)
       .order('created_at', { ascending: false })
       .limit(1);
     
@@ -466,26 +503,29 @@ export const getRestaurantByLocation = async (
   const row: any = data[0]; // 배열의 첫 번째 요소 사용
   const mapped: RestaurantWithStats = {
     id: row.id,
-    name: row.name,
-    title: row.title,
+    name: row.title || row.name,  // title 우선
+    title: row.title || row.name,
     address: row.address,
-    phone: row.telephone,
+    phone: row.phone,
     latitude: row.latitude,
     longitude: row.longitude,
     category: row.category,
-    sub_category: row.category2, 
+    sub_category: row.category,
     region_id: 0,
-    region: row.region,
-    sub_region: row.sub_region,
-    status: row.is_active ? 'active' : 'inactive',
+    sub_add1: row.sub_add1,
+    sub_add2: row.sub_add2,
+    status: row.status ? 'active' : 'inactive',
     created_at: row.created_at,
     updated_at: row.updated_at,
-    total_amount: 0,
-    visit_count: row.total_visits ?? 0,
+    total_amount: row.total_amount ?? 0,
+    visit_count: row.visit_count ?? 0,
     avg_rating: row.avg_rating ?? 0,
-    review_count: row.reviews_count ?? 0,
-    favorite_count: row.favorites_count ?? 0,
-    region_info: { region: row.region, sub_region: row.sub_region } as any,
+    review_count: row.review_count ?? 0,
+    region_rank: row.region_rank,
+    province_rank: row.province_rank,
+    national_rank: row.national_rank,
+    favorite_count: 0,
+    region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
     recent_visits: [],
     recent_rankings: [],
   } as any;
@@ -506,22 +546,63 @@ export const getRestaurantsByRegion = async (
 // ===================================
 
 export const getRegions = async (): Promise<RegionListResponse> => {
-  const { data, error } = await supabase
-    .from('v_region_stats')  // 🎯 restaurants → v_region_stats
-    .select('region, sub_region, restaurant_count, total_visits')  // 추가 통계 정보도 가져올 수 있음
-    .order('region', { ascending: true })
-    .order('sub_region', { ascending: true });
-    
-  if (error) throw new Error(getErrorMessage(error));
+  // RPC로 DISTINCT 쿼리 실행 (중복 제거)
+  const { data, error } = await supabase.rpc('get_distinct_regions');
   
-  const regions: Region[] = (data ?? []).map((r, idx) => ({
+  if (error) {
+    // Fallback: RPC가 없으면 기존 방식 사용
+    console.warn('⚠️ RPC get_distinct_regions not found, using fallback');
+    const { data: restaurantData, error: fallbackError } = await supabase
+      .from('restaurants')
+      .select('sub_add1, sub_add2')
+      .not('sub_add1', 'is', null)
+      .not('sub_add2', 'is', null);
+    
+    if (fallbackError) throw new Error(getErrorMessage(fallbackError));
+    
+    // 중복 제거
+    const uniqueMap = new Map<string, any>();
+    (restaurantData as any[]).forEach((r) => {
+      const key = `${r.sub_add1}__${r.sub_add2}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, r);
+      }
+    });
+    
+    const unique = Array.from(uniqueMap.values())
+      .sort((a: any, b: any) => {
+        if (a.sub_add1 !== b.sub_add1) return a.sub_add1.localeCompare(b.sub_add1);
+        return a.sub_add2.localeCompare(b.sub_add2);
+      });
+    
+    const regions: Region[] = unique.map((r: any, idx) => ({
+      id: (idx + 1).toString(),
+      code: '',
+      sub_add1: r.sub_add1,
+      sub_add2: r.sub_add2,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+    
+    return {
+      success: true,
+      message: 'ok',
+      data: regions,
+      pagination: { page: 1, size: regions.length, total: regions.length, pages: 1 },
+    };
+  }
+  
+  // RPC 결과 반환
+  const regions: Region[] = (data as any[]).map((r: any, idx) => ({
     id: (idx + 1).toString(),
     code: '',
-    region: r.region,
-    sub_region: r.sub_region,
+    sub_add1: r.sub_add1,
+    sub_add2: r.sub_add2,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));
+  
+  console.log('✅ RPC get_distinct_regions 사용:', regions.length, '개 지역');
   
   return {
     success: true,
@@ -534,18 +615,18 @@ export const getRegions = async (): Promise<RegionListResponse> => {
 export const getRegionsByProvince = async (province: string): Promise<RegionListResponse> => {
   const { data, error } = await supabase
     .from('restaurants')
-    .select('region, sub_region')
-    .eq('region', province)
-    .order('sub_region', { ascending: true });
+    .select('sub_add1, sub_add2')
+    .eq('sub_add1', province)
+    .order('sub_add2', { ascending: true });
   if (error) throw new Error(getErrorMessage(error));
   const unique = Array.from(
-    new Map((data ?? []).map((r: any) => [`${r.region}__${r.sub_region}`, r])).values()
+    new Map((data ?? []).map((r: any) => [`${r.sub_add1}__${r.sub_add2}`, r])).values()
   );
   const regions: Region[] = unique.map((r: any, idx: number) => ({
     id: (idx + 1).toString(),
     code: '',
-    region: r.region,
-    sub_region: r.sub_region,
+    sub_add1: r.sub_add1,
+    sub_add2: r.sub_add2,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));

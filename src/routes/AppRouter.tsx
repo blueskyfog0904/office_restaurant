@@ -13,7 +13,6 @@ import RegisterPage from '../pages/auth/RegisterPage';
 import TermsConsentPage from '../pages/auth/TermsConsentPage';
 import ProfileSetupPage from '../pages/auth/ProfileSetupPage';
 import AuthCallbackPage from '../pages/auth/AuthCallbackPage';
-import RestaurantsPage from '../pages/public/RestaurantsPage';
 import RestaurantDetailPage from '../pages/public/RestaurantDetailPage';
 import RegionsPage from '../pages/public/RegionsPage';
 import ProfilePage from '../pages/user/ProfilePage';
@@ -76,7 +75,7 @@ const AppRouter: React.FC = () => {
             </MainLayout>
           } />
           
-          <Route path="/restaurants/:region/:subRegion/:title" element={
+          <Route path="/restaurants/:subAdd1/:subAdd2/:title" element={
             <MainLayout>
               <RestaurantDetailPage />
             </MainLayout>

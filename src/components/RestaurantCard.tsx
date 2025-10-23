@@ -17,7 +17,7 @@ import NaverReviewButton from './NaverReviewButton';
 import MapModal from './MapModal';
 import ShareModal from './ShareModal';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
-import { updateRestaurant, deleteRestaurant, setSkipAdminCheck } from '../services/adminApi';
+import { deleteRestaurant, setSkipAdminCheck } from '../services/adminApi';
 
 interface RestaurantCardProps {
   restaurant: RestaurantWithStats;
@@ -213,23 +213,13 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           </div>
         )}
 
-        {/* 랭킹 배지 */}
-        {restaurant.rank_position && restaurant.rank_position <= 10 && (
-          <div className="absolute top-3 left-3">
-            <div className="flex items-center gap-1 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-              <TrophyIcon className="h-3 w-3" />
-              {restaurant.rank_position}위
-            </div>
-          </div>
-        )}
-
         {/* 네이버 리뷰 버튼 */}
         <div className="absolute top-3 right-3">
           <NaverReviewButton
             restaurantName={restaurant.title || '음식점'}
             address={restaurant.address}
-            region={restaurant.region}
-            subRegion={restaurant.sub_region}
+            subAdd1={restaurant.sub_add1}
+            subAdd2={restaurant.sub_add2}
             size="sm"
           />
         </div>
@@ -337,7 +327,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       {/* 공유 모달 */}
       <ShareModal
         shareData={{
-          title: `${restaurant.title || '음식점'} - ${restaurant.region} ${restaurant.sub_region}`,
+          title: `${restaurant.title || '음식점'} - ${restaurant.sub_add1} ${restaurant.sub_add2}`,
           description: `${restaurant.category || '음식점'} | ${restaurant.address}`,
           url: `${window.location.origin}/restaurants/${restaurant.id}`,
           image: 'https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=맛집'

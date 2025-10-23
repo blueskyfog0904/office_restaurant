@@ -5,8 +5,8 @@ export interface FavoriteRestaurant {
   name: string;
   address: string;
   category?: string;
-  region?: string;
-  sub_region?: string;
+  sub_add1?: string;
+  sub_add2?: string;
   addedAt: string;
 }
 
@@ -15,8 +15,8 @@ export interface RecentRestaurant {
   name: string;
   address: string;
   category?: string;
-  region?: string;
-  sub_region?: string;
+  sub_add1?: string;
+  sub_add2?: string;
   visitedAt: string;
 }
 
@@ -40,8 +40,8 @@ export const addToFavorites = (restaurant: {
   name: string;
   address: string;
   category?: string;
-  region?: string;
-  sub_region?: string;
+  sub_add1?: string;
+  sub_add2?: string;
 }): boolean => {
   try {
     const favorites = getFavorites();
@@ -98,8 +98,8 @@ export const addToRecentHistory = (restaurant: {
   name: string;
   address: string;
   category?: string;
-  region?: string;
-  sub_region?: string;
+  sub_add1?: string;
+  sub_add2?: string;
 }): boolean => {
   try {
     const history = getRecentHistory();

@@ -54,8 +54,8 @@ export interface AuthResponse {
 export interface Region {
   id: string;
   code: string;
-  region: string;
-  sub_region: string;
+  sub_add1: string;
+  sub_add2: string;
   created_at: string;
   updated_at: string;
 }
@@ -80,8 +80,8 @@ export interface Restaurant {
   category?: string;
   sub_category?: string; 
   region_id: string;
-  region?: string;  // 지역명 직접 추가
-  sub_region?: string;  // 하위 지역명 직접 추가
+  sub_add1?: string;  // 지역명 (기존 region)
+  sub_add2?: string;  // 하위 지역명 (기존 sub_region)
   status: string;
   is_active?: boolean;  // 활성화 상태
   created_at: string;
@@ -112,6 +112,9 @@ export interface RestaurantWithStats extends Restaurant {
   rank_position?: number;
   avg_rating?: number;
   review_count?: number;
+  region_rank?: number;     // 지역 내 순위 (DENSE_RANK)
+  province_rank?: number;    // 광역시/도 내 순위 (DENSE_RANK)
+  national_rank?: number;    // 전국 순위 (DENSE_RANK)
   images?: RestaurantImage[];
   recent_visits?: VisitRecord[];
   recent_rankings?: Ranking[];

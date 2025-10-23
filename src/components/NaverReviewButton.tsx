@@ -4,8 +4,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 interface NaverReviewButtonProps {
   restaurantName: string;
   address?: string;
-  region?: string;
-  subRegion?: string;
+  subAdd1?: string;
+  subAdd2?: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -13,8 +13,8 @@ interface NaverReviewButtonProps {
 const NaverReviewButton: React.FC<NaverReviewButtonProps> = ({
   restaurantName,
   address,
-  region,
-  subRegion,
+  subAdd1,
+  subAdd2,
   className = '',
   size = 'md'
 }) => {
@@ -22,8 +22,8 @@ const NaverReviewButton: React.FC<NaverReviewButtonProps> = ({
     e.preventDefault();
     e.stopPropagation(); // 부모 요소 클릭 이벤트 방지
     
-    // 검색 키워드 구성: 'region sub_region title'
-    const keywords = [region, subRegion, restaurantName]
+    // 검색 키워드 구성: 'sub_add1 sub_add2 title'
+    const keywords = [subAdd1, subAdd2, restaurantName]
       .filter(Boolean)
       .join(' ');
     

@@ -4,29 +4,29 @@
  * 음식점 정보로 상세페이지 URL을 생성합니다
  */
 export const generateRestaurantUrl = (
-  region: string,
-  subRegion: string,
+  subAdd1: string,
+  subAdd2: string,
   title: string
 ): string => {
   // URL 인코딩으로 특수문자 처리
-  const encodedRegion = encodeURIComponent(region);
-  const encodedSubRegion = encodeURIComponent(subRegion);
+  const encodedSubAdd1 = encodeURIComponent(subAdd1);
+  const encodedSubAdd2 = encodeURIComponent(subAdd2);
   const encodedTitle = encodeURIComponent(title);
   
-  return `/restaurants/${encodedRegion}/${encodedSubRegion}/${encodedTitle}`;
+  return `/restaurants/${encodedSubAdd1}/${encodedSubAdd2}/${encodedTitle}`;
 };
 
 /**
  * 음식점 객체로 상세페이지 URL을 생성합니다
  */
 export const generateRestaurantUrlFromObject = (restaurant: {
-  region?: string;
-  sub_region?: string;
+  sub_add1?: string;
+  sub_add2?: string;
   title?: string;
   name?: string;
 }): string | null => {
   // 필수 정보가 없으면 null 반환
-  if (!restaurant.region || !restaurant.sub_region) {
+  if (!restaurant.sub_add1 || !restaurant.sub_add2) {
     return null;
   }
   
@@ -35,18 +35,18 @@ export const generateRestaurantUrlFromObject = (restaurant: {
     return null;
   }
   
-  return generateRestaurantUrl(restaurant.region, restaurant.sub_region, title);
+  return generateRestaurantUrl(restaurant.sub_add1, restaurant.sub_add2, title);
 };
 
 /**
  * URL에서 파라미터를 디코딩합니다
  */
 export const decodeUrlParams = (
-  region: string,
-  subRegion: string,
+  subAdd1: string,
+  subAdd2: string,
   title: string
 ) => ({
-  region: decodeURIComponent(region),
-  subRegion: decodeURIComponent(subRegion),
+  subAdd1: decodeURIComponent(subAdd1),
+  subAdd2: decodeURIComponent(subAdd2),
   title: decodeURIComponent(title)
 });
