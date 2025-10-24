@@ -93,13 +93,19 @@ const RegionsPage: React.FC = () => {
   useEffect(() => {
     const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
     
-    if (savedScrollPosition) {
+    if (savedScrollPosition && restaurants.length > 0) {
+      // 데이터가 로드되고 DOM이 완전히 렌더링된 후에 스크롤 복원
       const scrollTimeout = setTimeout(() => {
         const position = parseInt(savedScrollPosition, 10);
-        window.scrollTo(0, position);
-        console.log('✅ 스크롤 위치 복원:', position);
-        sessionStorage.removeItem(scrollPositionKey);
-      }, 150);
+        console.log('🔄 스크롤 복원 시도:', position);
+        
+        // requestAnimationFrame을 사용하여 브라우저 렌더링 후 스크롤
+        requestAnimationFrame(() => {
+          window.scrollTo(0, position);
+          console.log('✅ 스크롤 위치 복원 완료:', window.scrollY);
+          sessionStorage.removeItem(scrollPositionKey);
+        });
+      }, 300);
 
       return () => clearTimeout(scrollTimeout);
     }

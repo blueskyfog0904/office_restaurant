@@ -108,6 +108,11 @@ const RestaurantDetailPage: React.FC = () => {
     console.log('hasUserReviewed 상태 변경:', hasUserReviewed);
   }, [hasUserReviewed]);
 
+  // 페이지 로드 시 스크롤을 맨 위로 이동
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [subAdd1, subAdd2, title, id]);
+
   // 데이터 로드
   useEffect(() => {
     // URL 패턴에 따라 다른 로딩 방식 사용
