@@ -1,40 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { SparklesIcon, FireIcon } from '@heroicons/react/24/outline';
-import { getPopularRecommendations, getTrendingRecommendations, RestaurantData } from '../../services/adminApi';
 import { getHomePageStats, HomePageStats } from '../../services/authService';
 
 const HomePage: React.FC = () => {
-  const [popularRestaurants, setPopularRestaurants] = useState<RestaurantData[]>([]);
-  const [trendingRestaurants, setTrendingRestaurants] = useState<RestaurantData[]>([]);
-  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<HomePageStats>({
-    regionCount: 250,
-    restaurantCount: 515,
-    totalVisits: 865
+    regionCount: 0,
+    restaurantCount: 0,
+    totalVisits: 0
   });
   const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    loadRecommendations();
     loadStats();
   }, []);
-
-  const loadRecommendations = async () => {
-    try {
-      setLoading(true);
-      const [popular, trending] = await Promise.all([
-        getPopularRecommendations(6),
-        getTrendingRecommendations(6),
-      ]);
-      setPopularRestaurants(popular);
-      setTrendingRestaurants(trending);
-    } catch (error) {
-      console.error('추천 데이터 로드 실패:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadStats = async () => {
     try {
@@ -130,7 +108,7 @@ const HomePage: React.FC = () => {
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">지역별 검색</h3>
             <p className="text-gray-600">
-              전국 250개 지역별로 세분화된 맛집 정보를 통해 원하는 지역의 맛집을 쉽게 찾을 수 있습니다.
+              전국 {stats.regionCount}개 지역별로 세분화된 맛집 정보를 통해 원하는 지역의 맛집을 쉽게 찾을 수 있습니다.
             </p>
           </div>
         </div>
@@ -178,82 +156,6 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* 추천 음식점 섹션 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-          AI 추천 맛집
-        </h2>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* 인기 음식점 */}
-          <div>
-            <div className="flex items-center mb-6">
-              <SparklesIcon className="h-6 w-6 text-blue-500 mr-2" />
-              <h3 className="text-xl font-semibold text-gray-900">인기 맛집</h3>
-            </div>
-            
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {popularRestaurants.slice(0, 3).map((restaurant, index) => (
-                  <div key={restaurant.id} className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm mr-4">
-                      {index + 1}
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="font-medium text-gray-900">{restaurant.name}</h4>
-                      <p className="text-sm text-gray-600">{restaurant.address}</p>
-                      <p className="text-xs text-blue-600">{restaurant.category}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 트렌딩 음식점 */}
-          <div>
-            <div className="flex items-center mb-6">
-              <FireIcon className="h-6 w-6 text-red-500 mr-2" />
-              <h3 className="text-xl font-semibold text-gray-900">트렌딩 맛집</h3>
-            </div>
-            
-            {loading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {trendingRestaurants.slice(0, 3).map((restaurant, index) => (
-                  <div key={restaurant.id} className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold text-xs mr-4">
-                      HOT
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="font-medium text-gray-900">{restaurant.name}</h4>
-                      <p className="text-sm text-gray-600">{restaurant.address}</p>
-                      <p className="text-xs text-red-600">{restaurant.category}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="text-center mt-8">
-          <Link
-            to="/restaurants"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
-          >
-            <SparklesIcon className="h-5 w-5 mr-2" />
-            더 많은 추천 맛집 보기
-          </Link>
-        </div>
-      </div>
     </div>
   );
 };

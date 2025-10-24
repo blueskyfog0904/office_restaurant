@@ -863,48 +863,39 @@ export interface HomePageStats {
 
 export const getHomePageStats = async (): Promise<HomePageStats> => {
   try {
-    // 1. 지역 수 가져오기 (v_region_stats에서 고유한 region, sub_region 조합 개수)
-    const { data: regionData, error: regionError } = await supabase
-      .from('v_region_stats')
-      .select('region, sub_region');
+    console.log('📊 홈페이지 통계 데이터 로딩 시작...');
     
-    if (regionError) {
-      console.error('지역 통계 조회 실패:', regionError);
-      throw new Error('지역 통계를 불러올 수 없습니다.');
+    // RPC 함수를 사용하여 모든 통계를 한 번에 가져오기
+    const { data, error } = await supabase.rpc('get_homepage_stats');
+    
+    if (error) {
+      console.error('❌ 홈페이지 통계 조회 실패:', error);
+      throw new Error('홈페이지 통계를 불러올 수 없습니다.');
     }
 
-    const regionCount = regionData?.length || 0;
+    console.log('✅ RPC 응답 데이터:', data);
 
-    // 2. 등록된 맛집 수 가져오기 (restaurants 테이블의 활성 레코드 수)
-    const { count: restaurantCount, error: restaurantError } = await supabase
-      .from('restaurants')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_active', true);
-    
-    if (restaurantError) {
-      console.error('음식점 수 조회 실패:', restaurantError);
-      throw new Error('음식점 수를 불러올 수 없습니다.');
-    }
+    // 데이터를 객체로 변환
+    const statsMap = new Map<string, number>();
+    (data as any[]).forEach((row: any) => {
+      statsMap.set(row.stat_name, Number(row.stat_value));
+    });
 
-    // 3. 총 방문 기록 수 가져오기 (v_region_stats의 total_visits 합계)
-    const { data: visitsData, error: visitsError } = await supabase
-      .from('v_region_stats')
-      .select('total_visits');
-    
-    if (visitsError) {
-      console.error('방문 통계 조회 실패:', visitsError);
-      throw new Error('방문 통계를 불러올 수 없습니다.');
-    }
+    const regionCount = statsMap.get('지역수') || 0;
+    const restaurantCount = statsMap.get('맛집수') || 0;
+    const totalVisits = statsMap.get('방문기록') || 0;
 
-    const totalVisits = visitsData?.reduce((sum, row) => sum + (row.total_visits || 0), 0) || 0;
+    console.log('✅ 지역 수:', regionCount);
+    console.log('✅ 등록된 맛집 수:', restaurantCount);
+    console.log('✅ 총 방문 기록:', totalVisits);
 
     return {
       regionCount,
-      restaurantCount: restaurantCount || 0,
+      restaurantCount,
       totalVisits
     };
   } catch (error) {
-    console.error('홈페이지 통계 조회 실패:', error);
+    console.error('❌ 홈페이지 통계 조회 실패:', error);
     throw error;
   }
 }; 
