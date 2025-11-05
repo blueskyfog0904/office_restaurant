@@ -37,13 +37,27 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareData }) =
   
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* 헤더 */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">공유하기</h3>
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -65,7 +79,11 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareData }) =
           {/* 링크 복사 버튼 */}
           <div>
             <button
-              onClick={handleCopyContent}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCopyContent();
+              }}
               className="w-full flex items-center justify-center p-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
             >
               <LinkIcon className="h-5 w-5 mr-2" />

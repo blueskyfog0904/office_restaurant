@@ -365,6 +365,7 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
       longitude: row.longitude,
       category: row.category,
       sub_category: row.category,
+      category2: row.category2, // category2 필드 추가
       region_id: 0,
       sub_add1: row.sub_add1,
       sub_add2: row.sub_add2,
@@ -413,6 +414,7 @@ export const getRestaurantById = async (id: string): Promise<RestaurantWithStats
     longitude: row.longitude,
     category: row.category,
     sub_category: row.category,
+    category2: row.category2, // category2 필드 추가
     region_id: 0,
     sub_add1: row.sub_add1,
     sub_add2: row.sub_add2,
@@ -506,11 +508,13 @@ export const getRestaurantByLocation = async (
     name: row.title || row.name,  // title 우선
     title: row.title || row.name,
     address: row.address,
+    road_address: row.road_address, // 도로명주소 필드 추가
     phone: row.phone,
     latitude: row.latitude,
     longitude: row.longitude,
     category: row.category,
     sub_category: row.category,
+    category2: row.category2, // category2 필드 추가
     region_id: 0,
     sub_add1: row.sub_add1,
     sub_add2: row.sub_add2,

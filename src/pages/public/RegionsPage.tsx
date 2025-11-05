@@ -58,14 +58,21 @@ const RegionsPage: React.FC = () => {
 
   // 카테고리별 필터링된 음식점 목록
   const filteredRestaurants = useMemo(() => {
+    console.log('🔍 카테고리 필터링:', selectedCategory, '총 음식점:', restaurants.length);
+    
     if (selectedCategory === 'all') {
       return restaurants;
     }
-    return restaurants.filter(restaurant => {
-      // sub_category가 있으면 사용, 없으면 category 사용
-      const category = (restaurant as any).sub_category || restaurant.category;
-      return category === selectedCategory;
+    
+    const filtered = restaurants.filter(restaurant => {
+      // category2 필드를 사용 (DB 컬럼명)
+      const category2 = (restaurant as any).category2;
+      console.log('음식점:', restaurant.title, 'category2:', category2);
+      return category2 === selectedCategory;
     });
+    
+    console.log('✅ 필터링 결과:', filtered.length, '개');
+    return filtered;
   }, [restaurants, selectedCategory]);
 
   // 지역 데이터 로드

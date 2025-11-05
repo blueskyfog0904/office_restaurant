@@ -14,7 +14,6 @@ import {
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import { RestaurantWithStats } from '../types';
 import NaverReviewButton from './NaverReviewButton';
-import MapModal from './MapModal';
 import ShareModal from './ShareModal';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { deleteRestaurant, setSkipAdminCheck } from '../services/adminApi';
@@ -40,7 +39,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const { isAdminLoggedIn } = useAdminAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [showMapModal, setShowMapModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -69,12 +67,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setShowShareModal(true);
-  };
-
-  const handleMapClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowMapModal(true);
   };
 
   const handleEditClick = (e: React.MouseEvent) => {
@@ -293,13 +285,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
         {/* 주소 */}
         {restaurant.address && (
-          <div 
-            className="flex items-start gap-2 mb-2 text-sm text-gray-600 cursor-pointer hover:text-blue-600 transition-colors"
-            onClick={handleMapClick}
-            title="지도에서 보기"
-          >
-            <MapPinIcon className="h-4 w-4 text-gray-400 hover:text-blue-500 mt-0.5 flex-shrink-0" />
-            <span className="line-clamp-1 hover:underline">{restaurant.address}</span>
+          <div className="flex items-start gap-2 mb-2 text-sm text-gray-600">
+            <MapPinIcon className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+            <span className="line-clamp-1">{restaurant.address}</span>
           </div>
         )}
 
@@ -316,13 +304,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           {renderStars(restaurant.avg_rating)}
         </div>
       </div>
-
-      {/* 지도 모달 */}
-      <MapModal
-        restaurant={restaurant}
-        isOpen={showMapModal}
-        onClose={() => setShowMapModal(false)}
-      />
 
       {/* 공유 모달 */}
       <ShareModal

@@ -2,18 +2,14 @@
 
 /**
  * 음식점 정보로 상세페이지 URL을 생성합니다
+ * 한글을 그대로 사용하여 URL이 깔끔하게 보이도록 합니다
  */
 export const generateRestaurantUrl = (
   subAdd1: string,
   subAdd2: string,
   title: string
 ): string => {
-  // URL 인코딩으로 특수문자 처리
-  const encodedSubAdd1 = encodeURIComponent(subAdd1);
-  const encodedSubAdd2 = encodeURIComponent(subAdd2);
-  const encodedTitle = encodeURIComponent(title);
-  
-  return `/restaurants/${encodedSubAdd1}/${encodedSubAdd2}/${encodedTitle}`;
+  return `/restaurants/${subAdd1}/${subAdd2}/${title}`;
 };
 
 /**
@@ -40,13 +36,14 @@ export const generateRestaurantUrlFromObject = (restaurant: {
 
 /**
  * URL에서 파라미터를 디코딩합니다
+ * React Router가 자동으로 디코딩해주므로 그대로 반환합니다
  */
 export const decodeUrlParams = (
   subAdd1: string,
   subAdd2: string,
   title: string
 ) => ({
-  subAdd1: decodeURIComponent(subAdd1),
-  subAdd2: decodeURIComponent(subAdd2),
-  title: decodeURIComponent(title)
+  subAdd1: subAdd1,
+  subAdd2: subAdd2,
+  title: title
 });

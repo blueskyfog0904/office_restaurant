@@ -311,10 +311,13 @@ const RestaurantDetailPage: React.FC = () => {
       };
     }
 
+    // 한글 URL 생성
+    const koreanUrl = `${window.location.origin}/restaurants/${restaurant.sub_add1}/${restaurant.sub_add2}/${restaurant.title || restaurant.name}`;
+
     return {
       title: `${restaurant.name} - ${restaurant.sub_add1} ${restaurant.sub_add2}`,
       description: `${restaurant.category || '음식점'} | ${restaurant.address}`,
-      url: window.location.href,
+      url: koreanUrl,
       image: 'https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=맛집',
       restaurantId: restaurant.id,
       restaurantName: restaurant.name
@@ -454,24 +457,55 @@ const RestaurantDetailPage: React.FC = () => {
             </div>
 
             {/* 주소 */}
-            <div className="flex items-start mb-4">
+            <div className="flex items-start mb-2">
               <MapPinIcon className="h-5 w-5 text-gray-500 mt-1 mr-2 flex-shrink-0" />
               <div className="flex-1">
                 <span className="text-sm font-medium text-gray-500">주소</span>
                 <div className="flex items-center gap-2">
-                  <p className="text-gray-900 flex-1">{restaurant.address}</p>
+                  <p className="text-gray-900">{restaurant.address}</p>
                   {restaurant.address && (
                     <button
                       onClick={copyAddress}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
                       title="주소 복사"
                     >
-                      <ClipboardDocumentIcon className="h-5 w-5" />
+                      <ClipboardDocumentIcon className="h-4 w-4" />
+                      <span>복사</span>
                     </button>
                   )}
                 </div>
               </div>
+              
             </div>
+
+            {/* 도로명주소 */}
+            {restaurant.road_address && (
+              <div className="flex items-start mb-4">
+                <MapPinIcon className="h-5 w-5 text-gray-500 mt-1 mr-2 flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-gray-500">도로명주소</span>
+                  <div className="flex items-center gap-2">
+                    <p className="text-gray-900">{restaurant.road_address}</p>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(restaurant.road_address || '');
+                          alert('도로명주소가 클립보드에 복사되었습니다.');
+                        } catch (error) {
+                          console.error('주소 복사 실패:', error);
+                          alert('주소 복사에 실패했습니다.');
+                        }
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="도로명주소 복사"
+                    >
+                      <ClipboardDocumentIcon className="h-4 w-4" />
+                      <span>복사</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 연락처 */}
             {restaurant.phone && (

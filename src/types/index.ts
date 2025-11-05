@@ -74,6 +74,7 @@ export interface Restaurant {
   name: string;
   title?: string;  // 음식점 표시명 (title이 있으면 title을, 없으면 name을 사용)
   address?: string;
+  road_address?: string;  // 도로명주소
   phone?: string;
   latitude?: number;
   longitude?: number;
