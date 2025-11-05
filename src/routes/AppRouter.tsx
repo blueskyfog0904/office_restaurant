@@ -51,6 +51,7 @@ import StatisticsPage from '../pages/admin/StatisticsPage';
 import SettingsPage from '../pages/admin/SettingsPage';
 import DataQualityPage from '../pages/admin/DataQualityPage';
 import RecommendationPage from '../pages/admin/RecommendationPage';
+import RegionOrderPage from '../pages/admin/RegionOrderPage';
 
 // Route Guards
 import PrivateRoute from './PrivateRoute';
@@ -312,6 +313,12 @@ const AppRouter: React.FC = () => {
           <Route path="/admin/recommendations" element={
             <AdminRoute>
               <RecommendationPage />
+            </AdminRoute>
+          } />
+
+          <Route path="/admin/region-order" element={
+            <AdminRoute>
+              <RegionOrderPage />
             </AdminRoute>
           } />
 

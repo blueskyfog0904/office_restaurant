@@ -16,7 +16,8 @@ import {
   CalendarIcon,
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
-  SparklesIcon
+  SparklesIcon,
+  MapIcon
 } from '@heroicons/react/24/outline';
 import { useAdminAuth } from '../../contexts/AdminAuthContext';
 
@@ -41,6 +42,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: '사용자 관리', href: '/admin/users', icon: UserGroupIcon },
     // { name: '추천 시스템', href: '/admin/recommendations', icon: SparklesIcon },
     { name: '약관 관리', href: '/admin/terms', icon: DocumentTextIcon },
+    { name: '지역 순서 관리', href: '/admin/region-order', icon: MapIcon },
     { name: '데이터 품질 관리', href: '/admin/data-quality', icon: ExclamationTriangleIcon },
     { name: '데이터 업로드/다운로드', href: '/admin/data-upload', icon: ArrowUpTrayIcon },
 

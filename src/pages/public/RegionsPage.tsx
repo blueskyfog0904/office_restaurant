@@ -17,6 +17,7 @@ import {
   RestaurantWithStats 
 } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { sortProvinces, sortDistricts } from '../../utils/regionOrder';
 
 const RegionsPage: React.FC = () => {
   const { isLoggedIn } = useAuth();
@@ -50,8 +51,13 @@ const RegionsPage: React.FC = () => {
       return acc;
     }, {} as Record<string, Region[]>);
 
-    const provinces = Object.keys(grouped);
-    const districts = selectedProvince ? grouped[selectedProvince] || [] : [];
+    // 시도는 지정된 순서대로 정렬
+    const provinces = sortProvinces(Object.keys(grouped));
+    
+    // 시군구는 가나다순으로 정렬
+    const districts = selectedProvince 
+      ? sortDistricts(grouped[selectedProvince] || [])
+      : [];
 
     return { provinces, districts, grouped };
   }, [regions, selectedProvince]);
