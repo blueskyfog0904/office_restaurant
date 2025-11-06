@@ -139,6 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.removeItem('user');
           sessionStorage.clear();
           setUser(null);
+          setIsLoading(false);
           return;
         }
 
@@ -161,8 +162,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 is_admin: profile?.role === 'admin',
               };
               
+              console.log('✅ 사용자 정보 업데이트:', {
+                email: enrichedUser.email,
+                role: enrichedUser.role,
+                is_admin: enrichedUser.is_admin
+              });
+              
               localStorage.setItem('user', JSON.stringify(enrichedUser));
               setUser(enrichedUser);
+              setIsLoading(false);
             } else {
               // currentUser가 null인 경우 fallback
               const fallbackUser: User = {
@@ -176,6 +184,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               };
               localStorage.setItem('user', JSON.stringify(fallbackUser));
               setUser(fallbackUser);
+              setIsLoading(false);
             }
           } catch (userError) {
             console.warn('사용자 정보 가져오기 실패:', userError);
@@ -191,9 +200,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             };
             localStorage.setItem('user', JSON.stringify(fallbackUser));
             setUser(fallbackUser);
+            setIsLoading(false);
           }
         } else {
           setUser(null);
+          setIsLoading(false);
         }
       } catch (e) {
         console.warn('onAuthStateChange 처리 중 오류:', e);
@@ -203,6 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           setUser(null);
         }
+        setIsLoading(false);
       }
     });
 
