@@ -89,22 +89,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const currentUser = await getCurrentUser();
             
             if (currentUser) {
-              // profiles 테이블에서 role 정보 가져오기
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('role, nickname')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              const enrichedUser: User = {
-                ...currentUser,
-                role: profile?.role || 'user',
-                nickname: profile?.nickname || currentUser.username,
-                is_admin: profile?.role === 'admin',
-              };
-              
-              setUser(enrichedUser);
-              localStorage.setItem('user', JSON.stringify(enrichedUser));
+              // getCurrentUser()에서 이미 profiles 정보를 포함하여 가져옴
+              // 이중 조회 제거
+              setUser(currentUser);
+              localStorage.setItem('user', JSON.stringify(currentUser));
             } else if (storedUser) {
               setUser(storedUser);
             }
@@ -148,28 +136,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const currentUser = await getCurrentUser();
             
             if (currentUser) {
-              // profiles 테이블에서 role 정보 가져오기
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('role, nickname')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              const enrichedUser: User = {
-                ...currentUser,
-                role: profile?.role || 'user',
-                nickname: profile?.nickname || currentUser.username,
-                is_admin: profile?.role === 'admin',
-              };
-              
+              // getCurrentUser()에서 이미 profiles 정보를 포함하여 가져옴
               console.log('✅ 사용자 정보 업데이트:', {
-                email: enrichedUser.email,
-                role: enrichedUser.role,
-                is_admin: enrichedUser.is_admin
+                email: currentUser.email,
+                username: currentUser.username,
+                role: currentUser.role,
+                is_admin: currentUser.is_admin
               });
               
-              localStorage.setItem('user', JSON.stringify(enrichedUser));
-              setUser(enrichedUser);
+              localStorage.setItem('user', JSON.stringify(currentUser));
+              setUser(currentUser);
               setIsLoading(false);
             } else {
               // currentUser가 null인 경우 fallback
@@ -291,22 +267,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentUser = await getCurrentUser();
         
         if (currentUser) {
-          // profiles 테이블에서 role 정보 가져오기
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, nickname')
-            .eq('user_id', data.user.id)
-            .single();
-          
-          const enrichedUser: User = {
-            ...currentUser,
-            role: profile?.role || 'user',
-            nickname: profile?.nickname || currentUser.username,
-            is_admin: profile?.role === 'admin',
-          };
-          
-          localStorage.setItem('user', JSON.stringify(enrichedUser));
-          setUser(enrichedUser);
+          // getCurrentUser()에서 이미 profiles 정보를 포함하여 가져옴
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          setUser(currentUser);
         } else {
           setUser(null);
         }

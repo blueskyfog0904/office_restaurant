@@ -47,38 +47,60 @@ export const getCurrentUser = async (): Promise<User | null> => {
   
   if (!user) return null;
 
+  // profiles 테이블에서 정보 조회 (필수)
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, nickname, profile_image_url')
+    .eq('user_id', user.id)
+    .single();
+
+  if (profileError) {
+    console.error('Profile 조회 실패:', profileError);
+    // profiles가 없는 경우 기본 프로필 생성 시도
+    const defaultNickname = user.user_metadata?.name || 
+                           user.user_metadata?.nickname || 
+                           user.email?.split('@')[0] || 
+                           'Unknown';
+    
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({
+        user_id: user.id,
+        nickname: defaultNickname,
+        role: 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    
+    if (insertError) {
+      console.error('Profile 생성 실패:', insertError);
+    }
+  }
+
   // Supabase Auth 사용자 정보를 기반으로 User 타입 생성
   const kakaoId = user.user_metadata?.sub || user.user_metadata?.kakao_id;
-  const nickname = user.user_metadata?.name || 
-                  user.user_metadata?.nickname || 
-                  user.user_metadata?.full_name ||
-                  user.email?.split('@')[0] || 
-                  'Unknown';
-
-  // profiles 테이블에서 추가 정보 조회 (에러 시에도 기본값 사용)
-  let profile = null;
-  try {
-    const { data } = await supabase
-      .from('profiles')
-      .select('role, nickname, profile_image_url')
-      .eq('user_id', user.id)
-      .single();
-    profile = data;
-  } catch (profileError) {
-    console.warn('Profile 정보 조회 실패 (기본값 사용):', profileError);
-    // 프로필이 없어도 계속 진행
-  }
+  
+  // profiles.nickname을 최우선으로 사용 (사용자가 수정한 이름 보존)
+  // 카카오 메타데이터는 fallback으로만 사용
+  const username = profile?.nickname || 
+                   user.user_metadata?.name || 
+                   user.user_metadata?.nickname || 
+                   user.user_metadata?.full_name ||
+                   user.email?.split('@')[0] || 
+                   'Unknown';
 
   return {
     id: user.id,
     email: user.email || '',
-    username: profile?.nickname || nickname,
+    username: username,
     is_active: true,
     is_admin: profile?.role === 'admin',
     created_at: user.created_at || new Date().toISOString(),
     kakao_id: kakaoId,
     profile_image_url: profile?.profile_image_url || user.user_metadata?.avatar_url,
-    provider: 'kakao'
+    provider: 'kakao',
+    role: profile?.role || 'user',
+    nickname: profile?.nickname,
   } as User & { kakao_id?: string; profile_image_url?: string; provider: string };
 };
 
