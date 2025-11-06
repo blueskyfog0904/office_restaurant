@@ -6,7 +6,7 @@ const getUserProfile = async (userId: string) => {
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('nickname, avatar_url')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
     
     if (error) {
@@ -135,12 +135,10 @@ export const getComments = async (
     
     // Fallback: 뷰나 RPC가 없으면 직접 테이블에서 조회
     try {
+      // FK 관계가 없으므로 별도로 profiles 조회
       let fallbackQuery = supabase
         .from('comments')
-        .select(`
-          *,
-          profiles!comments_user_id_fkey(nickname, avatar_url)
-        `)
+        .select('*')
         .eq('post_id', postId)
         .is('parent_id', null)
         .eq('status', 'published');
@@ -163,15 +161,22 @@ export const getComments = async (
       const { data: fallbackData, error: queryError } = await fallbackQuery;
       if (queryError) throw queryError;
 
-      // 데이터 변환
-      return (fallbackData || []).map((comment: any) => ({
-        ...comment,
-        author_nickname: comment.profiles?.nickname || 'Unknown',
-        author_avatar: comment.profiles?.avatar_url || null,
-        author_role: null,
-        user_liked: false,
-        user_reported: false
-      }));
+      // 각 댓글의 사용자 정보를 별도로 조회
+      const commentsWithProfiles = await Promise.all(
+        (fallbackData || []).map(async (comment: any) => {
+          const userProfile = await getUserProfile(comment.user_id);
+          return {
+            ...comment,
+            author_nickname: userProfile?.nickname || 'Unknown',
+            author_avatar: userProfile?.avatar_url || null,
+            author_role: null,
+            user_liked: false,
+            user_reported: false
+          };
+        })
+      );
+
+      return commentsWithProfiles;
     } catch (fallbackError) {
       console.error('Fallback 댓글 조회도 실패, 로컬 스토리지에서 조회:', fallbackError);
       
