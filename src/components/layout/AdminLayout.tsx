@@ -19,7 +19,7 @@ import {
   SparklesIcon,
   MapIcon
 } from '@heroicons/react/24/outline';
-import { useAdminAuth } from '../../contexts/AdminAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -29,7 +29,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { adminUser, logout } = useAdminAuth();
+  const { user, logout } = useAuth();
 
   const navigation = [
     { name: '대시보드', href: '/admin/dashboard', icon: HomeIcon },
@@ -154,11 +154,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <div className="flex items-center space-x-3">
                 <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                   <span className="text-sm font-medium text-gray-700">
-                    {adminUser?.username?.charAt(0).toUpperCase()}
+                    {user?.username?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-medium text-gray-900">{adminUser?.username}</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.username}</p>
                   <p className="text-xs text-gray-500">관리자</p>
                 </div>
               </div>

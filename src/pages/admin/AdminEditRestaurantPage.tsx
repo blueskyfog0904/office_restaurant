@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAdminAuth } from '../../contexts/AdminAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { updateRestaurant, RestaurantData, setSkipAdminCheck } from '../../services/adminApi';
 import { getRestaurantById } from '../../services/authService';
 import { RestaurantWithStats } from '../../types';
@@ -8,7 +8,7 @@ import { RestaurantWithStats } from '../../types';
 const AdminEditRestaurantPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAdminLoggedIn, loading: authLoading } = useAdminAuth();
+  const { isAdmin, isLoading: authLoading } = useAuth();
   
   const [restaurant, setRestaurant] = useState<RestaurantWithStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ const AdminEditRestaurantPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!authLoading && !isAdminLoggedIn) {
+    if (!authLoading && !isAdmin) {
       navigate('/admin/login');
       return;
     }
@@ -35,7 +35,7 @@ const AdminEditRestaurantPage: React.FC = () => {
     }
 
     loadRestaurant();
-  }, [id, isAdminLoggedIn, authLoading, navigate]);
+  }, [id, isAdmin, authLoading, navigate]);
 
   const loadRestaurant = async () => {
     try {

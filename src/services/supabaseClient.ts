@@ -22,16 +22,26 @@ const dummyUrl = url || 'https://dummy.supabase.co';
 const dummyKey = anonKey || 'dummy-key';
 
 // 일반 사용자용 클라이언트 (anon key 사용)
-export const supabase: SupabaseClient = createClient(dummyUrl, dummyKey);
+export const supabase: SupabaseClient = createClient(dummyUrl, dummyKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storageKey: 'supabase.auth.token', // 명시적 storage key
+  },
+});
 
 // 관리자용 클라이언트 (service role key 사용) - Admin API 접근 가능
+// auth를 비활성화하여 Multiple GoTrueClient 경고 방지
 export const supabaseAdmin: SupabaseClient = createClient(
   dummyUrl, 
   serviceRoleKey || dummyKey,
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
+      detectSessionInUrl: false,
+      storage: undefined, // storage 완전히 비활성화
     },
     db: {
       schema: 'public'

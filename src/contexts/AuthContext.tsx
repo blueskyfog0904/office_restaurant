@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
+import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
 
 // ===================================
@@ -11,8 +12,10 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isLoggedIn: boolean;
+  isAdmin: boolean;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
 }
 
 interface AuthProviderProps {
@@ -71,26 +74,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (await isTokenValid()) {
-          // 토큰이 있고 유효한 경우 사용자 정보 로드
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          // 세션이 있으면 사용자 정보 로드
           const storedUser = getStoredUser();
           
           if (storedUser) {
             setUser(storedUser);
+          }
+          
+          // 서버에서 최신 사용자 정보 가져오기
+          try {
+            const currentUser = await getCurrentUser();
             
-            // 서버에서 최신 사용자 정보 가져오기 (선택적)
-            try {
-              const currentUser = await getCurrentUser();
-              setUser(currentUser);
-              localStorage.setItem('user', JSON.stringify(currentUser));
-            } catch (error) {
-              // 서버에서 사용자 정보를 가져오지 못하면 저장된 정보 사용
-              console.warn('최신 사용자 정보 로드 실패:', error);
+            if (currentUser) {
+              // profiles 테이블에서 role 정보 가져오기
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role, nickname')
+                .eq('user_id', session.user.id)
+                .single();
+              
+              const enrichedUser: User = {
+                ...currentUser,
+                role: profile?.role || 'user',
+                nickname: profile?.nickname || currentUser.username,
+                is_admin: profile?.role === 'admin',
+              };
+              
+              setUser(enrichedUser);
+              localStorage.setItem('user', JSON.stringify(enrichedUser));
+            } else if (storedUser) {
+              setUser(storedUser);
+            }
+          } catch (error) {
+            console.warn('최신 사용자 정보 로드 실패:', error);
+            // fallback으로 세션 정보 사용
+            if (storedUser) {
+              setUser(storedUser);
             }
           }
         } else {
-          // 토큰이 없거나 유효하지 않은 경우 로그아웃 상태로 설정
+          // 세션이 없으면 로그아웃 상태
           setUser(null);
+          localStorage.removeItem('user');
         }
       } catch (error) {
         console.error('인증 초기화 실패:', error);
@@ -104,6 +132,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // 세션 변경 구독: 로그인/로그아웃/비밀번호변경 등 토큰 갱신 시 사용자 정보를 즉시 동기화
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔐 Auth state change:', event, session?.user?.email);
+      
       try {
         if (event === 'SIGNED_OUT') {
           localStorage.removeItem('user');
@@ -115,19 +145,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (session?.user) {
           try {
             const currentUser = await getCurrentUser();
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            setUser(currentUser);
+            
+            if (currentUser) {
+              // profiles 테이블에서 role 정보 가져오기
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role, nickname')
+                .eq('user_id', session.user.id)
+                .single();
+              
+              const enrichedUser: User = {
+                ...currentUser,
+                role: profile?.role || 'user',
+                nickname: profile?.nickname || currentUser.username,
+                is_admin: profile?.role === 'admin',
+              };
+              
+              localStorage.setItem('user', JSON.stringify(enrichedUser));
+              setUser(enrichedUser);
+            } else {
+              // currentUser가 null인 경우 fallback
+              const fallbackUser: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
+                is_active: true,
+                is_admin: false,
+                created_at: session.user.created_at || new Date().toISOString(),
+                role: 'user',
+              };
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
+            }
           } catch (userError) {
             console.warn('사용자 정보 가져오기 실패:', userError);
-            // 🔧 사용자 정보 가져오기 실패해도 세션은 유지
-            // 관리자 로그인 후 일반 사용자로 전환할 때 발생할 수 있는 문제 방지
-            const fallbackUser = {
+            // fallback: 세션 정보 사용
+            const fallbackUser: User = {
               id: session.user.id,
               email: session.user.email || '',
               username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
               is_active: true,
               is_admin: false,
               created_at: session.user.created_at || new Date().toISOString(),
+              role: 'user',
             };
             localStorage.setItem('user', JSON.stringify(fallbackUser));
             setUser(fallbackUser);
@@ -137,7 +197,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (e) {
         console.warn('onAuthStateChange 처리 중 오류:', e);
-        // 🔧 오류 발생해도 완전히 로그아웃하지 않고 기존 사용자 정보 유지
         const storedUser = getStoredUser();
         if (storedUser) {
           setUser(storedUser);
@@ -152,8 +211,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  // 카카오 OAuth는 별도 login/register 함수가 불필요
-  // loginWithKakao(), signupWithKakao() 함수를 직접 사용
+  // ===================================
+  // 이메일/비밀번호 로그인 (Admin 로그인용)
+  // ===================================
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const authResponse = await loginAPI({ email, password });
+
+      if (!authResponse.user?.id) {
+        return false;
+      }
+
+      // profiles 테이블에서 role 정보 가져오기
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, nickname')
+        .eq('user_id', authResponse.user.id)
+        .single();
+
+      const enrichedUser: User = {
+        ...authResponse.user,
+        role: profile?.role || 'user',
+        nickname: profile?.nickname || authResponse.user.username,
+        is_admin: profile?.role === 'admin',
+      };
+
+      localStorage.setItem('user', JSON.stringify(enrichedUser));
+      setUser(enrichedUser);
+      
+      return profile?.role === 'admin';
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ===================================
   // 로그아웃
@@ -164,6 +259,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       await logoutAPI();
       setUser(null);
+      localStorage.removeItem('user');
     } catch (error) {
       console.error('로그아웃 실패:', error);
       setUser(null);
@@ -181,14 +277,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
         const currentUser = await getCurrentUser();
-        localStorage.setItem('user', JSON.stringify(currentUser));
-        setUser(currentUser);
+        
+        if (currentUser) {
+          // profiles 테이블에서 role 정보 가져오기
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, nickname')
+            .eq('user_id', data.user.id)
+            .single();
+          
+          const enrichedUser: User = {
+            ...currentUser,
+            role: profile?.role || 'user',
+            nickname: profile?.nickname || currentUser.username,
+            is_admin: profile?.role === 'admin',
+          };
+          
+          localStorage.setItem('user', JSON.stringify(enrichedUser));
+          setUser(enrichedUser);
+        } else {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
     } catch (error) {
       console.error('사용자 정보 새로고침 실패:', error);
-      // 사용자 정보 로드 실패시 로그아웃
       await logout();
     }
   };
@@ -201,8 +315,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     isLoading,
     isLoggedIn: !!user,
+    isAdmin: user?.role === 'admin' || user?.is_admin === true,
     logout,
     refreshUser,
+    login,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

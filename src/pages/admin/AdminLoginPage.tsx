@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { useAdminAuth } from '../../contexts/AdminAuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, isAdminLoggedIn, loading } = useAdminAuth();
+  const { login, isAdmin, isLoading } = useAuth();
 
   // 이미 로그인된 경우 대시보드로 리다이렉트
   useEffect(() => {
-    if (isAdminLoggedIn) {
-      console.log('Already logged in, redirecting to dashboard');
+    if (isAdmin) {
+      console.log('Already logged in as admin, redirecting to dashboard');
       navigate('/admin/dashboard', { replace: true });
     }
-  }, [isAdminLoggedIn, navigate]);
+  }, [isAdmin, navigate]);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,7 +56,7 @@ const AdminLoginPage: React.FC = () => {
   };
 
   // 초기 로딩 중에는 로딩 스피너 표시
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">

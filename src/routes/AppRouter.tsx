@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
-import { AdminAuthProvider } from '../contexts/AdminAuthContext';
 
 // Layout Components
 import MainLayout from '../components/layout/MainLayout';
@@ -61,7 +60,6 @@ const AppRouter: React.FC = () => {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
-        <AdminAuthProvider>
           <Routes>
           {/* Public Routes */}
           <Route path="/" element={
@@ -336,7 +334,6 @@ const AppRouter: React.FC = () => {
             </MainLayout>
           } />
         </Routes>
-        </AdminAuthProvider>
       </AuthProvider>
     </Router>
   );

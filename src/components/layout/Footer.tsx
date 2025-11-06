@@ -32,11 +32,11 @@ const Footer: React.FC = () => {
                   게시판
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a href="/regions" className="text-gray-600 hover:text-blue-600 transition-colors">
                   지역별 검색
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -44,16 +44,16 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-md font-medium text-gray-900 mb-4">지원</h4>
             <ul className="space-y-2">
-              <li>
+              {/* <li>
                 <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                   서비스 소개
                 </a>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                   문의하기
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors">
                   개인정보처리방침

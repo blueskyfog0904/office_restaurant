@@ -15,7 +15,7 @@ import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroico
 import { RestaurantWithStats } from '../types';
 import NaverReviewButton from './NaverReviewButton';
 import ShareModal from './ShareModal';
-import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { deleteRestaurant, setSkipAdminCheck } from '../services/adminApi';
 
 interface RestaurantCardProps {
@@ -36,7 +36,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   className = ''
 }) => {
   const navigate = useNavigate();
-  const { isAdminLoggedIn } = useAdminAuth();
+  const { isAdmin } = useAuth();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -219,7 +219,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         {/* 액션 버튼들 */}
         <div className="absolute bottom-3 right-3 flex gap-2">
           {/* 관리자용 수정 버튼 */}
-          {isAdminLoggedIn && (
+          {isAdmin && (
             <button
               onClick={handleEditClick}
               className="p-2 bg-white/90 hover:bg-white rounded-full shadow-md transition-colors"
@@ -230,7 +230,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           )}
 
           {/* 관리자용 삭제 버튼 */}
-          {isAdminLoggedIn && (
+          {isAdmin && (
             <button
               onClick={handleDeleteClick}
               disabled={isDeleting}

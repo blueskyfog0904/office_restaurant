@@ -1,23 +1,23 @@
 import React, { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAdminAuth } from '../contexts/AdminAuthContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AdminRouteProps {
   children: ReactNode;
 }
 
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { isAdminLoggedIn, loading } = useAdminAuth();
+  const { isAdmin, isLoading } = useAuth();
   const location = useLocation();
 
   console.log('AdminRoute 상태:', { 
-    loading, 
-    isAdminLoggedIn, 
+    isLoading, 
+    isAdmin, 
     pathname: location.pathname 
   });
 
   // 로딩 중일 때는 로딩 스피너 표시
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -29,7 +29,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   }
 
   // 관리자 로그인하지 않은 경우 관리자 로그인 페이지로 리다이렉트
-  if (!isAdminLoggedIn) {
+  if (!isAdmin) {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 

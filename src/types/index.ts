@@ -28,6 +28,8 @@ export interface User {
   kakao_id?: string;
   profile_image_url?: string;
   provider?: string;
+  role?: 'admin' | 'user';
+  nickname?: string;
 }
 
 export interface LoginRequest {
