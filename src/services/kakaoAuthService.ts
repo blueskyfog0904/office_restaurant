@@ -54,6 +54,17 @@ export const getCurrentUser = async (): Promise<User | null> => {
     .eq('user_id', user.id)
     .single();
 
+  console.log('🔍 getCurrentUser - profiles 조회:', {
+    user_id: user.id,
+    email: user.email,
+    profile_nickname: profile?.nickname,
+    profile_role: profile?.role,
+    kakao_metadata_name: user.user_metadata?.name,
+    kakao_metadata_nickname: user.user_metadata?.nickname,
+    has_profile: !!profile,
+    has_error: !!profileError
+  });
+
   if (profileError) {
     console.error('Profile 조회 실패:', profileError);
     // profiles가 없는 경우 기본 프로필 생성 시도
@@ -61,6 +72,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
                            user.user_metadata?.nickname || 
                            user.email?.split('@')[0] || 
                            'Unknown';
+    
+    console.log('🆕 기본 프로필 생성 시도:', defaultNickname);
     
     const { error: insertError } = await supabase
       .from('profiles')
@@ -74,6 +87,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
     
     if (insertError) {
       console.error('Profile 생성 실패:', insertError);
+    } else {
+      console.log('✅ 기본 프로필 생성 성공');
     }
   }
 
@@ -88,6 +103,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
                    user.user_metadata?.full_name ||
                    user.email?.split('@')[0] || 
                    'Unknown';
+
+  console.log('✅ getCurrentUser 최종 username:', username, '(profile?.nickname:', profile?.nickname, ')');
 
   return {
     id: user.id,
@@ -125,24 +142,48 @@ export const updateProfile = async (nickname: string): Promise<User> => {
     throw new Error('로그인된 사용자를 찾을 수 없습니다.');
   }
 
+  console.log('🔄 프로필 업데이트 시작:', {
+    user_id: user.id,
+    new_nickname: nickname,
+    email: user.email
+  });
+
   // profiles 테이블 업데이트
-  const { error: updateError } = await supabase
+  const { data: updateData, error: updateError } = await supabase
     .from('profiles')
     .update({ 
       nickname: nickname,
       updated_at: new Date().toISOString()
     })
-    .eq('user_id', user.id);
+    .eq('user_id', user.id)
+    .select();
 
   if (updateError) {
+    console.error('❌ 프로필 업데이트 실패:', updateError);
     throw new Error(getErrorMessage(updateError));
   }
+
+  console.log('✅ 프로필 업데이트 성공:', updateData);
+
+  // 업데이트 확인 쿼리
+  const { data: verifyData } = await supabase
+    .from('profiles')
+    .select('nickname, role')
+    .eq('user_id', user.id)
+    .single();
+
+  console.log('✅ 업데이트 확인 (DB에서 다시 조회):', verifyData);
 
   // 업데이트된 사용자 정보 반환
   const updatedUser = await getCurrentUser();
   if (!updatedUser) {
     throw new Error('사용자 정보 업데이트 후 조회에 실패했습니다.');
   }
+
+  console.log('✅ getCurrentUser() 결과:', {
+    username: updatedUser.username,
+    nickname: updatedUser.nickname
+  });
 
   return updatedUser;
 };
