@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
         <div>
           <div className="mx-auto h-12 w-12 flex items-center justify-center">
             {/* 로고 또는 아이콘 */}
-            <div className="h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="h-12 w-12 bg-white rounded-lg flex items-center justify-center">
               {/* 로고 */}
               <img 
                 src="/images/project_logo.png" 
