@@ -516,11 +516,12 @@ const RegionsPage: React.FC = () => {
   };
 
   const handleLocateMe = () => {
-    if (!isLoggedIn) {
-      alert('로그인 후 사용하실 수 있는 서비스입니다.');
-      navigate('/login');
-      return;
-    }
+    // 임시로 로그인 체크 비활성화
+    // if (!isLoggedIn) {
+    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
+    //   navigate('/login');
+    //   return;
+    // }
 
     setGeoError(null);
 
@@ -597,11 +598,12 @@ const RegionsPage: React.FC = () => {
 
 
   const handleOpenRegionMap = () => {
-    if (!isLoggedIn) {
-      alert('로그인 후 사용하실 수 있는 서비스입니다.');
-      navigate('/login');
-      return;
-    }
+    // 임시로 로그인 체크 비활성화
+    // if (!isLoggedIn) {
+    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
+    //   navigate('/login');
+    //   return;
+    // }
 
     if (regionRestaurants.length === 0) {
       alert('선택된 지역에 등록된 맛집이 없습니다.');
@@ -1234,15 +1236,15 @@ const RegionsPage: React.FC = () => {
       )}
 
       {regionMapOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
-          <div data-region-map-modal className="bg-white rounded-xl shadow-2xl max-w-screen-2xl w-full max-h-full flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4" role="dialog" aria-modal="true">
+          <div data-region-map-modal className="bg-white rounded-xl shadow-2xl max-w-screen-2xl w-full h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 flex-shrink-0">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <MapIcon className="h-5 w-5 text-primary-500" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <MapIcon className="h-4 sm:h-5 w-4 sm:w-5 text-primary-500" />
                   지역 지도에서 보기
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   {selectedProvince} {selectedDistrict} · {regionRestaurants.length}개 맛집
                 </p>
               </div>
@@ -1251,12 +1253,13 @@ const RegionsPage: React.FC = () => {
                 className="p-2 rounded-md hover:bg-gray-100"
                 aria-label="지도 닫기"
               >
-                <XMarkIcon className="h-6 w-6 text-gray-500" />
+                <XMarkIcon className="h-5 sm:h-6 w-5 sm:w-6 text-gray-500" />
               </button>
             </div>
             <div className="flex flex-col md:flex-row md:divide-x divide-gray-200 flex-1 overflow-hidden">
-              <div className="md:flex-1" style={{ minHeight: '320px' }}>
+              <div className="flex-1 h-64 md:h-auto">
                 <AdvancedKakaoMap
+                  key={`region-map-${regionMapOpen}`}
                   height="100%"
                   markers={regionMarkers}
                   fitBounds={!regionMapInitialCenter}
