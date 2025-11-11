@@ -24,7 +24,6 @@ const AdminReviews: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterRating, setFilterRating] = useState<string>('all');
   const [filterRegion, setFilterRegion] = useState<string>('all');
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 

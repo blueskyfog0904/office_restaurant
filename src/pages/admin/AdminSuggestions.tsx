@@ -48,17 +48,6 @@ const AdminSuggestions: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case 'in_progress':
-        return '진행 중';
-      case 'completed':
-        return '완료';
-      case 'pending':
-      default:
-        return '담당자 확인';
-    }
-  };
 
   return (
     <AdminLayout>

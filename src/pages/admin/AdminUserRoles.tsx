@@ -161,6 +161,7 @@ const AdminUserRoles: React.FC = () => {
 
   useEffect(() => {
     loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, roleFilter]);
 
   const getRoleText = (role: string | null) => {
@@ -186,16 +187,6 @@ const AdminUserRoles: React.FC = () => {
     }
   };
 
-  const getRoleIcon = (role: string | null) => {
-    switch (role) {
-      case 'admin':
-        return <ShieldExclamationIcon className="w-5 h-5 text-red-500" />;
-      case 'moderator':
-        return <ShieldCheckIcon className="w-5 h-5 text-blue-500" />;
-      default:
-        return <UserIcon className="w-5 h-5 text-gray-500" />;
-    }
-  };
 
   if (loading) {
     return (
