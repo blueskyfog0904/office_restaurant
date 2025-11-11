@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Cog6ToothIcon,
   DocumentTextIcon,
   BellIcon,
   QuestionMarkCircleIcon,
@@ -9,9 +8,6 @@ import {
   CircleStackIcon,
   ShieldCheckIcon,
   InformationCircleIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  XCircleIcon,
   PlusIcon,
   PencilIcon,
   TrashIcon,
@@ -75,7 +71,6 @@ const SettingsPage: React.FC = () => {
   const [backups, setBackups] = useState<Backup[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'notices' | 'faqs' | 'formats' | 'backups'>('notices');
-  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // 임시 데이터
   const mockNotices: Notice[] = [
@@ -232,6 +227,7 @@ const SettingsPage: React.FC = () => {
       setBackups(mockBackups);
       setLoading(false);
     }, 1000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getTypeBadge = (type: string) => {

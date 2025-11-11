@@ -10,8 +10,6 @@ import {
 import AdminLayout from '../../components/layout/AdminLayout';
 import {
   getPopularRecommendations,
-  getLocationBasedRecommendations,
-  getUserPreferenceRecommendations,
   getTrendingRecommendations,
   getRecommendationStats,
   RestaurantData
@@ -23,8 +21,6 @@ const RecommendationPage: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('서울특별시');
-  const [selectedSubRegion, setSelectedSubRegion] = useState('강남구');
 
   useEffect(() => {
     loadRecommendations();

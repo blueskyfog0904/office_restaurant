@@ -42,7 +42,6 @@ const VisitRecordsPage: React.FC = () => {
   const [filterRegion, setFilterRegion] = useState<string>('all');
   const [filterDataSource, setFilterDataSource] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedRecord, setSelectedRecord] = useState<VisitRecord | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
@@ -200,7 +199,7 @@ const VisitRecordsPage: React.FC = () => {
               다운로드
             </button>
             <button
-              onClick={() => setSelectedRecord({} as VisitRecord)}
+              onClick={() => alert('새 기록 추가 기능은 준비 중입니다.')}
               className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
@@ -406,14 +405,14 @@ const VisitRecordsPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
                         <button
-                          onClick={() => setSelectedRecord(record)}
+                          onClick={() => alert('상세보기 기능은 준비 중입니다.')}
                           className="text-blue-600 hover:text-blue-900"
                           title="상세보기"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => setSelectedRecord(record)}
+                          onClick={() => alert('수정 기능은 준비 중입니다.')}
                           className="text-indigo-600 hover:text-indigo-900"
                           title="수정"
                         >
