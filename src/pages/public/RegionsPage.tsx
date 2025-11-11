@@ -86,6 +86,7 @@ const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number): Map
 const RegionsPage: React.FC = () => {
   const { isLoggedIn, user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate();
   const scrollPositionKey = 'regionsPageScrollPosition';
   
