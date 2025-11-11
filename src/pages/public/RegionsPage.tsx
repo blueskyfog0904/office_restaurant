@@ -518,11 +518,11 @@ const RegionsPage: React.FC = () => {
 
   const handleLocateMe = () => {
     // 임시로 로그인 체크 비활성화
-    // if (!isLoggedIn) {
-    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
-    //   navigate('/login');
-    //   return;
-    // }
+    if (!isLoggedIn) {
+      alert('로그인 후 사용하실 수 있는 서비스입니다.');
+      navigate('/login');
+      return;
+    }
 
     setGeoError(null);
 
@@ -600,11 +600,11 @@ const RegionsPage: React.FC = () => {
 
   const handleOpenRegionMap = () => {
     // 임시로 로그인 체크 비활성화
-    // if (!isLoggedIn) {
-    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
-    //   navigate('/login');
-    //   return;
-    // }
+    if (!isLoggedIn) {
+      alert('로그인 후 사용하실 수 있는 서비스입니다.');
+      navigate('/login');
+      return;
+    }
 
     if (regionRestaurants.length === 0) {
       alert('선택된 지역에 등록된 맛집이 없습니다.');
