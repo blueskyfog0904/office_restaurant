@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MagnifyingGlassIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { getAgencies, AgencyData } from '../../services/adminApi';
 

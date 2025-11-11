@@ -4,13 +4,9 @@ import {
   ArrowDownTrayIcon,
   DocumentArrowUpIcon,
   DocumentArrowDownIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
   ClockIcon,
   EyeIcon,
-  TrashIcon,
-  MagnifyingGlassIcon
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import AdminLayout from '../../components/layout/AdminLayout';
 
@@ -127,6 +123,7 @@ const DataUploadPage: React.FC = () => {
   React.useEffect(() => {
     setUploadJobs(mockUploadJobs);
     setDownloadTemplates(mockDownloadTemplates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
