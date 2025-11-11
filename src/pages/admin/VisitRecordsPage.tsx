@@ -12,7 +12,6 @@ import {
   ArrowUpTrayIcon,
   ArrowDownTrayIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
 import AdminLayout from '../../components/layout/AdminLayout';
@@ -43,8 +42,6 @@ const VisitRecordsPage: React.FC = () => {
   const [filterRegion, setFilterRegion] = useState<string>('all');
   const [filterDataSource, setFilterDataSource] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [selectedRecord, setSelectedRecord] = useState<VisitRecord | null>(null);
-  const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
@@ -103,6 +100,7 @@ const VisitRecordsPage: React.FC = () => {
       setVisitRecords(mockVisitRecords);
       setLoading(false);
     }, 1000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredRecords = visitRecords.filter(record => {

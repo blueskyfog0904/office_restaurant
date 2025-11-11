@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
-  MapPinIcon,
   BuildingOfficeIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   ExclamationTriangleIcon,
-  CalendarIcon,
-  MagnifyingGlassIcon,
   StarIcon,
   UsersIcon,
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import AdminLayout from '../../components/layout/AdminLayout';
 import { 
-  getStatistics, 
-  getRankings, 
-  getRestaurants,
   getRegions,
   Statistics,
   RankingData,
@@ -33,12 +27,14 @@ const StatisticsPage: React.FC = () => {
 
   useEffect(() => {
     loadStatistics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (selectedRegion !== 'all' || selectedCategory !== 'all') {
       loadRankings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRegion, selectedCategory]);
 
   const loadStatistics = async () => {

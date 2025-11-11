@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../services/supabaseClient';
 import { saveTermsConsent } from '../../services/kakaoAuthService';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
