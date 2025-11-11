@@ -518,11 +518,11 @@ const RegionsPage: React.FC = () => {
 
   const handleLocateMe = () => {
     // 임시로 로그인 체크 비활성화
-    if (!isLoggedIn) {
-      alert('로그인 후 사용하실 수 있는 서비스입니다.');
-      navigate('/login');
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
+    //   navigate('/login');
+    //   return;
+    // }
 
     setGeoError(null);
 
@@ -600,11 +600,11 @@ const RegionsPage: React.FC = () => {
 
   const handleOpenRegionMap = () => {
     // 임시로 로그인 체크 비활성화
-    if (!isLoggedIn) {
-      alert('로그인 후 사용하실 수 있는 서비스입니다.');
-      navigate('/login');
-      return;
-    }
+    // if (!isLoggedIn) {
+    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
+    //   navigate('/login');
+    //   return;
+    // }
 
     if (regionRestaurants.length === 0) {
       alert('선택된 지역에 등록된 맛집이 없습니다.');
@@ -1071,7 +1071,8 @@ const RegionsPage: React.FC = () => {
                 <MapPinIcon className="h-4 w-4" />
                 <span>선택된 지역: <strong>{selectedProvince} {selectedDistrict}</strong></span>
               </div>
-              <button
+              {/* 임시 비활성화: 지도에서 보기 버튼 */}
+              {/* <button
                 type="button"
                 onClick={handleOpenRegionMap}
                 disabled={regionRestaurants.length === 0}
@@ -1083,11 +1084,12 @@ const RegionsPage: React.FC = () => {
               >
                 <MapIcon className="h-5 w-5" />
                 지도에서 보기
-              </button>
+              </button> */}
             </div>
-            <p className="text-xs text-gray-600 text-right">
+            {/* 임시 비활성화: 로그인 안내 문구 */}
+            {/* <p className="text-xs text-gray-600 text-right">
               (<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)
-            </p>
+            </p> */}
           </div>
         )}
       </div>
@@ -1258,14 +1260,14 @@ const RegionsPage: React.FC = () => {
               </button>
             </div>
             <div className="flex flex-col md:flex-row md:divide-x divide-gray-200 flex-1 overflow-hidden">
-              <div className="flex-1 h-64 md:h-auto">
+              <div className="flex-1 min-h-[400px] md:min-h-0">
                 <AdvancedKakaoMap
-                  key={`region-map-${regionMapOpen}`}
+                  key={`region-map-${regionMapOpen ? 'open' : 'closed'}`}
                   height="100%"
                   markers={regionMarkers}
-                  fitBounds={!regionMapInitialCenter}
-                  initialCenter={regionMapInitialCenter}
-                  initialLevel={5}
+                  fitBounds={true}
+                  initialCenter={regionMapInitialCenter || undefined}
+                  initialLevel={8}
                   focusMarkerId={focusedRegionMarkerId ?? undefined}
                   onMarkerClick={handleRegionMarkerClick}
                   viewStateKey="region-map-view"
