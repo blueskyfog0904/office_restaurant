@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { updateRestaurant, RestaurantData, setSkipAdminCheck } from '../../services/adminApi';
+import { updateRestaurant, setSkipAdminCheck } from '../../services/adminApi';
 import { getRestaurantById } from '../../services/authService';
 import { RestaurantWithStats } from '../../types';
 
@@ -35,6 +35,7 @@ const AdminEditRestaurantPage: React.FC = () => {
     }
 
     loadRestaurant();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isAdmin, authLoading, navigate]);
 
   const loadRestaurant = async () => {

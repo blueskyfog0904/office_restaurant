@@ -7,7 +7,6 @@ import {
   StarIcon,
   HeartIcon,
   ShareIcon,
-  TrophyIcon,
   PencilIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';

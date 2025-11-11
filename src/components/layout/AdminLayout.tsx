@@ -7,8 +7,6 @@ import {
   BuildingOfficeIcon,
   UserGroupIcon,
   DocumentTextIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   MagnifyingGlassIcon,
   BellIcon,
@@ -16,7 +14,6 @@ import {
   CalendarIcon,
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
-  SparklesIcon,
   MapIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';

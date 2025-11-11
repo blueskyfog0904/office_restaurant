@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import ReportModal from './ReportModal';
@@ -88,6 +87,7 @@ const CommentList: React.FC<CommentListProps> = ({
       setLoading(false);
       setLoadingMore(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId, sortBy]);
 
   // 정렬 방식 변경
@@ -214,6 +214,7 @@ const CommentList: React.FC<CommentListProps> = ({
   // 초기 로드
   useEffect(() => {
     loadComments(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
 
   // 댓글 작성

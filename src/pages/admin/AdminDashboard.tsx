@@ -4,7 +4,6 @@ import {
   UsersIcon,
   ChatBubbleLeftRightIcon,
   ArrowTrendingUpIcon,
-  MapPinIcon,
   StarIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon

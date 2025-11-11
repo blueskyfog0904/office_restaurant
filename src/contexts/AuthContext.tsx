@@ -79,10 +79,6 @@ const getStoredUser = (): User | null => {
   }
 };
 
-const isTokenValid = async (): Promise<boolean> => {
-  const { data } = await supabase.auth.getSession();
-  return !!data.session;
-};
 
 // ===================================
 // Auth Provider 컴포넌트

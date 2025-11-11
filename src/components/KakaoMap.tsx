@@ -355,8 +355,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       mapMarkersRef.current = [];
       
       // 전역 인스턴스 추적에서 제거
-      if (mapContainer.current) {
-        activeMapInstances.delete(mapContainer.current);
+      const container = mapContainer.current;
+      if (container) {
+        activeMapInstances.delete(container);
       }
       
       mapInstance.current = null;

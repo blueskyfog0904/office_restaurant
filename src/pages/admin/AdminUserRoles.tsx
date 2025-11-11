@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   UserGroupIcon,
-  ShieldCheckIcon,
-  ShieldExclamationIcon,
   UserIcon,
   PlusIcon,
   TrashIcon,

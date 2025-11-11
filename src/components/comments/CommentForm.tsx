@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PaperAirplaneIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { searchUsers } from '../../services/commentApi';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -73,6 +73,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
     } else {
       setRemainingTime(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastCommentTime]);
 
   // 1분 제한 체크

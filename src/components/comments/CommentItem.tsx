@@ -41,7 +41,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
 }) => {
   const { user } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const isOwner = user?.id === comment.user_id;
   const canEdit = isOwner;
@@ -109,8 +108,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span
                   className="cursor-pointer hover:text-gray-700"
-                  onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
                   title={getAbsoluteTime()}
                 >
                   {getRelativeTime()}

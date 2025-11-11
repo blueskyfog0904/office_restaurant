@@ -6,7 +6,6 @@ import {
   XMarkIcon, 
   UserIcon, 
   ArrowRightOnRectangleIcon,
-  BuildingOfficeIcon,
   ChevronDownIcon
 } from '@heroicons/react/24/outline';
 
@@ -27,10 +26,6 @@ const Header: React.FC = () => {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const toggleBoardDropdown = () => {
-    setIsBoardDropdownOpen(!isBoardDropdownOpen);
   };
 
   return (

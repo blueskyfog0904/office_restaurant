@@ -42,7 +42,6 @@ const AdminCommentReports: React.FC = () => {
   const [reports, setReports] = useState<CommentReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'reviewed' | 'dismissed'>('pending');
-  const [selectedReport, setSelectedReport] = useState<CommentReport | null>(null);
 
   // 신고 목록 로드
   const loadReports = async () => {
@@ -174,6 +173,7 @@ const AdminCommentReports: React.FC = () => {
 
   useEffect(() => {
     loadReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const getStatusBadge = (status: string) => {
