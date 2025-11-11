@@ -195,6 +195,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   const isInitializingRef = useRef(false);
 
   useEffect(() => {
+    // cleanup 함수에서 사용할 컨테이너 참조를 미리 저장
+    const containerElement = mapContainer.current;
+
     // 이미 초기화 중이거나 완료된 경우 중복 실행 방지
     if (isInitializingRef.current || mapInstance.current) {
       console.log('⚠️ KakaoMap 이미 초기화됨 또는 초기화 중, 중복 실행 방지');
@@ -202,7 +205,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     }
 
     // 같은 컨테이너에 대한 중복 초기화 방지
-    if (mapContainer.current && activeMapInstances.has(mapContainer.current)) {
+    if (containerElement && activeMapInstances.has(containerElement)) {
       console.log('⚠️ 같은 컨테이너에 대한 중복 초기화 방지');
       return;
     }
@@ -354,10 +357,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       overlaysRef.current = [];
       mapMarkersRef.current = [];
       
-      // 전역 인스턴스 추적에서 제거
-      const container = mapContainer.current;
-      if (container) {
-        activeMapInstances.delete(container);
+      // 전역 인스턴스 추적에서 제거 (useEffect 시작 부분에서 저장한 containerElement 사용)
+      if (containerElement) {
+        activeMapInstances.delete(containerElement);
       }
       
       mapInstance.current = null;
