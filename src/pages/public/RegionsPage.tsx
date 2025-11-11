@@ -597,8 +597,8 @@ const RegionsPage: React.FC = () => {
     }
   }, [nearbyRestaurantData]);
 
-
-  const handleOpenRegionMap = () => {
+  // 임시 비활성화: 지도에서 보기 핸들러
+  /* const handleOpenRegionMap = () => {
     // 임시로 로그인 체크 비활성화
     // if (!isLoggedIn) {
     //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
@@ -612,7 +612,7 @@ const RegionsPage: React.FC = () => {
     }
     setFocusedRegionMarkerId(regionRestaurants[0]?.id ?? null);
     setRegionMapOpen(true);
-  };
+  }; */
 
   // 모달 관련 함수들
   const loadModalReviews = async (restaurantId: string) => {
