@@ -67,11 +67,13 @@ const Header: React.FC = () => {
             </Link>
             
             {/* 게시판 드롭다운 */}
-            <div className="relative">
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsBoardDropdownOpen(true)}
+              onMouseLeave={() => setIsBoardDropdownOpen(false)}
+            >
               <Link
                 to="/board"
-                onMouseEnter={() => setIsBoardDropdownOpen(true)}
-                onMouseLeave={() => setIsBoardDropdownOpen(false)}
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
               >
                 게시판
@@ -81,29 +83,29 @@ const Header: React.FC = () => {
               {/* 드롭다운 메뉴 */}
               {isBoardDropdownOpen && (
                 <div
-                  onMouseEnter={() => setIsBoardDropdownOpen(true)}
-                  onMouseLeave={() => setIsBoardDropdownOpen(false)}
-                  className="absolute top-full left-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+                  className="absolute top-full left-0 pt-2 w-48 z-50"
                 >
-                  <div className="py-1">
-                    <Link
-                      to="/board/notice"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      공지사항
-                    </Link>
-                    <Link
-                      to="/board/free"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      자유게시판
-                    </Link>
-                    <Link
-                      to="/board/suggestion"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      의견제안
-                    </Link>
+                  <div className="bg-white rounded-md shadow-lg border border-gray-200">
+                    <div className="py-1">
+                      <Link
+                        to="/board/notice"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        공지사항
+                      </Link>
+                      <Link
+                        to="/board/free"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        자유게시판
+                      </Link>
+                      <Link
+                        to="/board/suggestion"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        의견제안
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}

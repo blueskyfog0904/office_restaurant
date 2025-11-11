@@ -27,7 +27,12 @@ const HomePage: React.FC = () => {
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
       });
-      // 에러 발생 시 기본값 유지
+      // authService에서 이미 기본값을 반환하므로 상태만 업데이트
+      setStats({
+        regionCount: 0,
+        restaurantCount: 0,
+        totalVisits: 0
+      });
     } finally {
       setStatsLoading(false);
     }
@@ -62,7 +67,8 @@ const HomePage: React.FC = () => {
               to="/restaurants"
               className="bg-blue-600 text-white px-12 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg w-full sm:w-auto text-center"
             >
-              지역별 맛집 찾으러 가기!
+              공무원 맛집 찾으러 가기!
+              
             </Link>
           </div>
         </div>

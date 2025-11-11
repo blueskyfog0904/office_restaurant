@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   MapPinIcon,
@@ -59,6 +59,7 @@ const RestaurantDetailPage: React.FC = () => {
   // 소셜 공유 모달 상태
   const [showShareModal, setShowShareModal] = useState(false);
   const [isFavoriteRestaurant, setIsFavoriteRestaurant] = useState(false);
+  const [shouldLoadMap, setShouldLoadMap] = useState(false);
 
   // 사용자가 이미 리뷰를 작성했는지 확인
   const checkUserReview = () => {
@@ -68,14 +69,15 @@ const RestaurantDetailPage: React.FC = () => {
   };
 
   // 사용자의 리뷰 작성 여부를 직접 데이터베이스에서 확인
-  const checkUserReviewFromDB = async () => {
-    if (!isLoggedIn || !user || !restaurant) return false;
+  const checkUserReviewFromDB = async (restaurantId?: string | number) => {
+    const targetRestaurantId = restaurantId || restaurant?.id;
+    if (!isLoggedIn || !user || !targetRestaurantId) return false;
     
     try {
       const { data, error } = await supabase
         .from('reviews')
         .select('id')
-        .eq('restaurant_id', restaurant.id)
+        .eq('restaurant_id', targetRestaurantId)
         .eq('user_id', user.id)
         .single();
       
@@ -115,38 +117,37 @@ const RestaurantDetailPage: React.FC = () => {
 
   // 데이터 로드
   useEffect(() => {
-    // URL 패턴에 따라 다른 로딩 방식 사용
     const hasLocationParams = subAdd1 && subAdd2 && title;
     const hasIdParam = id;
     
     if (!hasLocationParams && !hasIdParam) return;
     
+    let cancelled = false;
+    
     const loadRestaurantData = async () => {
+      const startTime = performance.now();
       try {
         setLoading(true);
+        setError(null);
         
         let restaurantData: RestaurantWithStats;
         
         if (hasLocationParams) {
-          // 새로운 URL 파라미터로 음식점 검색
           restaurantData = await getRestaurantByLocation(subAdd1!, subAdd2!, title!);
         } else if (hasIdParam) {
-          // 기존 ID 기반 검색
           restaurantData = await getRestaurantById(id!);
         } else {
           throw new Error('유효하지 않은 URL 파라미터');
         }
         
-        // 병렬로 리뷰 요약 데이터 로드
-        const reviewSummaryData = await getRestaurantReviewSummary(restaurantData.id).catch(() => null);
+        if (cancelled) return;
+        
+        const basicLoadTime = performance.now() - startTime;
+        console.log(`⏱️ 음식점 기본 정보 로드: ${basicLoadTime.toFixed(2)}ms`);
         
         setRestaurant(restaurantData);
-        setReviewSummary(reviewSummaryData);
-        
-        // 즐겨찾기 상태 확인
         setIsFavoriteRestaurant(isFavorite(restaurantData.id));
         
-        // 최근 히스토리에 추가
         addToRecentHistory({
           id: restaurantData.id,
           name: restaurantData.name,
@@ -156,26 +157,63 @@ const RestaurantDetailPage: React.FC = () => {
           sub_add2: restaurantData.sub_add2 || ''
         });
         
-        // 리뷰 목록 로드
-        await loadReviews(String(restaurantData.id));
+        setLoading(false);
         
-        // 사용자 리뷰 작성 여부 확인
-        if (isLoggedIn && user) {
-          const userHasReviewed = await checkUserReviewFromDB();
-          console.log('페이지 로드 시 사용자 리뷰 확인:', { userHasReviewed });
-          setHasUserReviewed(userHasReviewed);
-        }
+        // 보조 데이터는 비동기로 로드 (로딩 바를 차단하지 않음)
+        const secondaryStartTime = performance.now();
+        
+        Promise.allSettled([
+          getRestaurantReviewSummary(String(restaurantData.id)).then((summary) => {
+            if (!cancelled) setReviewSummary(summary);
+          }).catch(() => {}),
+          loadReviews(String(restaurantData.id)),
+          isLoggedIn && user ? checkUserReviewFromDB(restaurantData.id).then((hasReviewed) => {
+            if (!cancelled) setHasUserReviewed(hasReviewed);
+          }).catch(() => {}) : Promise.resolve()
+        ]).then(() => {
+          const secondaryLoadTime = performance.now() - secondaryStartTime;
+          console.log(`⏱️ 보조 데이터 로드: ${secondaryLoadTime.toFixed(2)}ms`);
+          console.log(`⏱️ 총 로드 시간: ${(performance.now() - startTime).toFixed(2)}ms`);
+        });
         
       } catch (error) {
-        console.error('음식점 데이터 로드 실패:', error);
-        setError('음식점 정보를 불러올 수 없습니다.');
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          console.error('음식점 데이터 로드 실패:', error);
+          setError('음식점 정보를 불러올 수 없습니다.');
+          setLoading(false);
+        }
       }
     };
 
     loadRestaurantData();
-  }, [subAdd1, subAdd2, title, id, isLoggedIn, user]);
+    
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subAdd1, subAdd2, title, id]);
+  
+  // 사용자 리뷰 확인은 별도 useEffect로 분리 (로그인 상태 변경 시에만)
+  useEffect(() => {
+    if (isLoggedIn && user && restaurant) {
+      checkUserReviewFromDB(restaurant.id).then((hasReviewed) => {
+        setHasUserReviewed(hasReviewed);
+      }).catch(() => {});
+    } else {
+      setHasUserReviewed(false);
+    }
+  }, [isLoggedIn, user, restaurant?.id]);
+  
+  // 카카오맵 지연 로드 (음식점 정보가 로드된 후 약간의 지연)
+  useEffect(() => {
+    if (restaurant && !shouldLoadMap) {
+      const timer = setTimeout(() => {
+        setShouldLoadMap(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant]);
 
   // 리뷰 목록 로드
   const loadReviews = async (restaurantId: string) => {
@@ -580,15 +618,23 @@ const RestaurantDetailPage: React.FC = () => {
           </div>
         </div>
         <div className="w-full h-96 rounded-lg overflow-hidden border">
-          <KakaoMap
-            address={restaurant.address || ''}
-            width="100%"
-            height={384}
-            level={3}
-            restaurantName={restaurant.title || restaurant.name}
-            subAdd1={restaurant.sub_add1}
-            subAdd2={restaurant.sub_add2}
-          />
+          {shouldLoadMap && restaurant ? (
+            <KakaoMap
+              latitude={restaurant.latitude ? Number(restaurant.latitude) : undefined}
+              longitude={restaurant.longitude ? Number(restaurant.longitude) : undefined}
+              address={restaurant.address || ''}
+              width="100%"
+              height={384}
+              level={3}
+              restaurantName={restaurant.title || restaurant.name}
+              subAdd1={restaurant.sub_add1}
+              subAdd2={restaurant.sub_add2}
+            />
+          ) : (
+            <div className="w-full h-96 flex items-center justify-center bg-gray-100">
+              <div className="text-gray-500">지도를 불러오는 중...</div>
+            </div>
+          )}
         </div>
       </div>
 

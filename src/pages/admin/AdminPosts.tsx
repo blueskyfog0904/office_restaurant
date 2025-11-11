@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import AdminLayout from '../../components/layout/AdminLayout';
-import { getPosts, deletePost, updatePost, PostData } from '../../services/adminApi';
-import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { getPosts, deletePost, updatePost, createPost, PostData } from '../../services/adminApi';
+import { TrashIcon, PencilIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const AdminPosts: React.FC = () => {
   const [posts, setPosts] = useState<PostData[]>([]);
@@ -11,6 +11,16 @@ const AdminPosts: React.FC = () => {
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
   const [boardType, setBoardType] = useState<string>('all');
+  
+  const [showWriteModal, setShowWriteModal] = useState(false);
+  const [writeForm, setWriteForm] = useState({
+    title: '',
+    content: '',
+    board_type: 'notice' as 'notice' | 'free' | 'suggestion',
+    is_pinned: false,
+  });
+  const [writeLoading, setWriteLoading] = useState(false);
+  const [writeError, setWriteError] = useState('');
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
 
@@ -50,11 +60,75 @@ const AdminPosts: React.FC = () => {
     }
   };
 
+  const handleOpenWriteModal = () => {
+    setWriteForm({
+      title: '',
+      content: '',
+      board_type: 'notice',
+      is_pinned: false,
+    });
+    setWriteError('');
+    setShowWriteModal(true);
+  };
+
+  const handleCloseWriteModal = () => {
+    setShowWriteModal(false);
+    setWriteForm({
+      title: '',
+      content: '',
+      board_type: 'notice',
+      is_pinned: false,
+    });
+    setWriteError('');
+  };
+
+  const handleSubmitPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!writeForm.title.trim()) {
+      setWriteError('제목을 입력해주세요.');
+      return;
+    }
+    
+    if (!writeForm.content.trim()) {
+      setWriteError('내용을 입력해주세요.');
+      return;
+    }
+
+    setWriteLoading(true);
+    setWriteError('');
+
+    try {
+      const newPost = await createPost({
+        title: writeForm.title.trim(),
+        content: writeForm.content.trim(),
+        board_type: writeForm.board_type,
+        is_pinned: writeForm.is_pinned,
+      });
+      
+      setPosts(prev => [newPost, ...prev]);
+      setTotal(t => t + 1);
+      handleCloseWriteModal();
+      alert('게시글이 작성되었습니다.');
+    } catch (e) {
+      setWriteError(e instanceof Error ? e.message : '게시글 작성 실패');
+    } finally {
+      setWriteLoading(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">게시글 관리</h1>
+          <button
+            onClick={handleOpenWriteModal}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <PlusIcon className="h-5 w-5" />
+            게시글 작성
+          </button>
         </div>
 
         <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
@@ -118,6 +192,120 @@ const AdminPosts: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 게시글 작성 모달 */}
+      {showWriteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* 모달 헤더 */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">게시글 작성</h2>
+                <button
+                  onClick={handleCloseWriteModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </div>
+
+              {/* 작성 폼 */}
+              <form onSubmit={handleSubmitPost} className="space-y-6">
+                {/* 게시판 선택 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    게시판 *
+                  </label>
+                  <select
+                    value={writeForm.board_type}
+                    onChange={(e) => setWriteForm(prev => ({ ...prev, board_type: e.target.value as 'notice' | 'free' | 'suggestion' }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="notice">공지사항</option>
+                    <option value="free">자유게시판</option>
+                    <option value="suggestion">의견제안</option>
+                  </select>
+                </div>
+
+                {/* 상단 고정 */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="is_pinned"
+                    checked={writeForm.is_pinned}
+                    onChange={(e) => setWriteForm(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                  />
+                  <label htmlFor="is_pinned" className="text-sm text-gray-700">
+                    상단 고정
+                  </label>
+                </div>
+
+                {/* 제목 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    제목 *
+                  </label>
+                  <input
+                    type="text"
+                    value={writeForm.title}
+                    onChange={(e) => setWriteForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="제목을 입력해주세요"
+                    maxLength={100}
+                  />
+                  <div className="mt-1 text-sm text-gray-500">
+                    {writeForm.title.length}/100
+                  </div>
+                </div>
+
+                {/* 내용 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    내용 *
+                  </label>
+                  <textarea
+                    value={writeForm.content}
+                    onChange={(e) => setWriteForm(prev => ({ ...prev, content: e.target.value }))}
+                    rows={15}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md resize-y"
+                    placeholder="내용을 입력해주세요"
+                    maxLength={5000}
+                  />
+                  <div className="mt-1 text-sm text-gray-500">
+                    {writeForm.content.length}/5000
+                  </div>
+                </div>
+
+                {/* 에러 메시지 */}
+                {writeError && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                    <p className="text-sm text-red-600">{writeError}</p>
+                  </div>
+                )}
+
+                {/* 버튼 */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={handleCloseWriteModal}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={writeLoading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {writeLoading ? '작성 중...' : '작성하기'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };

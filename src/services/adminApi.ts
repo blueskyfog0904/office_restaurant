@@ -737,6 +737,54 @@ export const getPosts = async (boardType?: string, page: number = 1, limit: numb
   }
 };
 
+export const createPost = async (postData: {
+  title: string;
+  content: string;
+  board_type: 'notice' | 'free' | 'suggestion';
+  is_pinned?: boolean;
+}): Promise<PostData> => {
+  if (!(await checkAdminRole())) {
+    throw new Error('관리자 권한이 필요합니다.');
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('로그인이 필요합니다.');
+    }
+
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        author_id: user.id,
+        title: postData.title,
+        content: postData.content,
+        board_type: postData.board_type,
+        is_pinned: postData.is_pinned || false,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(getErrorMessage(error));
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('nickname, email')
+      .eq('user_id', data.author_id)
+      .single();
+
+    return {
+      ...data,
+      author: profile || { nickname: '알 수 없음', email: '' }
+    };
+  } catch (error) {
+    throw new Error(`게시글 작성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+  }
+};
+
 export const updatePost = async (id: string, data: Partial<PostData>): Promise<PostData> => {
   if (!(await checkAdminRole())) {
     throw new Error('관리자 권한이 필요합니다.');

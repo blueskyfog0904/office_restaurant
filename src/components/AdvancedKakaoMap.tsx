@@ -9,9 +9,6 @@ declare global {
 // 전역 SDK 로딩 상태 관리
 let kakaoSDKLoadPromise: Promise<void> | null = null;
 
-// 전역 지도 인스턴스 추적 (중복 생성 방지)
-const activeMapInstances = new WeakMap<HTMLDivElement, boolean>();
-
 const getKakaoApiKey = () => {
   const key = process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY || process.env.REACT_APP_KAKAO_MAP_API_KEY;
   if (!key) {
@@ -124,6 +121,7 @@ export interface MapMarker {
   address?: string;
   subAdd1?: string;
   subAdd2?: string;
+  ranking?: number; // 순위 정보 추가
 }
 
 export interface UserLocation {
@@ -132,7 +130,7 @@ export interface UserLocation {
   label?: string;
 }
 
-interface KakaoMapProps {
+interface AdvancedKakaoMapProps {
   latitude?: number;
   longitude?: number;
   address?: string;
@@ -153,9 +151,11 @@ interface KakaoMapProps {
   initialLevel?: number;
   preserveView?: boolean;
   onMapViewChange?: (view: { latitude: number; longitude: number; level: number }) => void;
+  viewStateKey?: string;
+  showControls?: boolean;
 }
 
-const KakaoMap: React.FC<KakaoMapProps> = ({
+const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   latitude,
   longitude,
   address,
@@ -176,6 +176,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   initialLevel,
   preserveView = false,
   onMapViewChange,
+  viewStateKey = 'kakaoMap:lastView',
+  showControls = false,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -189,24 +191,50 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const initialViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
   const fullscreenViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
+  const currentViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
   const idleHandlerRef = useRef<(() => void) | null>(null);
   const userInteractedRef = useRef(false);
   const lastMarkerSignatureRef = useRef<string>('');
-  const isInitializingRef = useRef(false);
+  const viewStateKeyRef = useRef(viewStateKey);
 
   useEffect(() => {
-    // 이미 초기화 중이거나 완료된 경우 중복 실행 방지
-    if (isInitializingRef.current || mapInstance.current) {
-      console.log('⚠️ KakaoMap 이미 초기화됨 또는 초기화 중, 중복 실행 방지');
-      return;
-    }
+    viewStateKeyRef.current = viewStateKey;
+  }, [viewStateKey]);
 
-    // 같은 컨테이너에 대한 중복 초기화 방지
-    if (mapContainer.current && activeMapInstances.has(mapContainer.current)) {
-      console.log('⚠️ 같은 컨테이너에 대한 중복 초기화 방지');
-      return;
+  const saveCurrentView = useCallback((view: { lat: number; lng: number; level: number }) => {
+    currentViewRef.current = view;
+    const storageKey = viewStateKeyRef.current;
+    if (!storageKey) return;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(view));
+    } catch (err) {
+      console.warn('카카오맵 뷰 상태 저장 실패', err);
     }
+  }, []);
 
+  const loadStoredView = useCallback((): { lat: number; lng: number; level: number } | null => {
+    const storageKey = viewStateKeyRef.current;
+    if (!storageKey) return null;
+    try {
+      const raw = sessionStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        typeof parsed.lat === 'number' &&
+        typeof parsed.lng === 'number' &&
+        typeof parsed.level === 'number'
+      ) {
+        return parsed;
+      }
+    } catch (err) {
+      console.warn('카카오맵 뷰 상태 로드 실패', err);
+    }
+    return null;
+  }, []);
+
+  useEffect(() => {
     let apiKey: string;
     try {
       apiKey = getKakaoApiKey();
@@ -233,7 +261,6 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
     // 이전 에러 상태 초기화
     setError(null);
-    isInitializingRef.current = true;
 
     const initializeMap = async () => {
       try {
@@ -282,36 +309,70 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         });
 
         mapInstance.current = map;
+        if (process.env.NODE_ENV !== 'production') {
+          (window as any).__OFFICE_RESTAURANT_KAKAO_MAP__ = map;
+        }
         geocoderRef.current = new kakao.maps.services.Geocoder();
         placesRef.current = new kakao.maps.services.Places();
-        
-        // 전역 인스턴스 추적에 추가
-        if (mapContainer.current) {
-          activeMapInstances.set(mapContainer.current, true);
-        }
+        const storedView = loadStoredView();
+        let appliedCenter = defaultCenter;
+        let appliedLevel = typeof initialLevel === 'number' ? initialLevel : map.getLevel();
+
         if (initialCenter && typeof initialCenter.latitude === 'number' && typeof initialCenter.longitude === 'number') {
-          const providedCenter = new kakao.maps.LatLng(initialCenter.latitude, initialCenter.longitude);
-          map.setCenter(providedCenter);
-        }
-        if (typeof initialLevel === 'number') {
+          appliedCenter = new kakao.maps.LatLng(initialCenter.latitude, initialCenter.longitude);
+          map.setCenter(appliedCenter);
+          if (typeof initialLevel === 'number') {
+            map.setLevel(initialLevel);
+            appliedLevel = initialLevel;
+          } else {
+            appliedLevel = map.getLevel();
+          }
+        } else if (storedView) {
+          appliedCenter = new kakao.maps.LatLng(storedView.lat, storedView.lng);
+          map.setCenter(appliedCenter);
+          map.setLevel(storedView.level);
+          appliedLevel = storedView.level;
+        } else if (typeof initialLevel === 'number') {
           map.setLevel(initialLevel);
+          appliedLevel = initialLevel;
         }
-        initialViewRef.current = initialCenter
-          ? {
-              lat: initialCenter.latitude,
-              lng: initialCenter.longitude,
-              level: typeof initialLevel === 'number' ? initialLevel : map.getLevel(),
-            }
-          : null;
+
+        initialViewRef.current = {
+          lat: appliedCenter.getLat(),
+          lng: appliedCenter.getLng(),
+          level: appliedLevel,
+        };
+        saveCurrentView(initialViewRef.current);
 
         if (onMapViewChange) {
           const handleIdle = () => {
             const center = map.getCenter();
+            const levelNow = map.getLevel();
+            const view = {
+              lat: center.getLat(),
+              lng: center.getLng(),
+              level: levelNow,
+            };
+            saveCurrentView(view);
             onMapViewChange({
-              latitude: center.getLat(),
-              longitude: center.getLng(),
-              level: map.getLevel(),
+              latitude: view.lat,
+              longitude: view.lng,
+              level: view.level,
             });
+          };
+          idleHandlerRef.current = handleIdle;
+          kakao.maps.event.addListener(map, 'idle', handleIdle);
+        }
+        if (!onMapViewChange) {
+          const handleIdle = () => {
+            const center = map.getCenter();
+            const levelNow = map.getLevel();
+            const view = {
+              lat: center.getLat(),
+              lng: center.getLng(),
+              level: levelNow,
+            };
+            saveCurrentView(view);
           };
           idleHandlerRef.current = handleIdle;
           kakao.maps.event.addListener(map, 'idle', handleIdle);
@@ -333,13 +394,11 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
         setMapLoaded(true);
         console.log('✅ 카카오맵 초기화 완료');
-        isInitializingRef.current = false;
 
       } catch (error) {
         console.error('❌ 카카오맵 초기화 실패:', error);
         setError(error instanceof Error ? error.message : '알 수 없는 오류');
         setMapLoaded(false);
-        isInitializingRef.current = false;
       }
     };
 
@@ -353,15 +412,8 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       overlaysRef.current.forEach((overlay) => overlay.setMap(null));
       overlaysRef.current = [];
       mapMarkersRef.current = [];
-      
-      // 전역 인스턴스 추적에서 제거
-      if (mapContainer.current) {
-        activeMapInstances.delete(mapContainer.current);
-      }
-      
-      mapInstance.current = null;
+        mapInstance.current = null;
       setMapLoaded(false);
-      isInitializingRef.current = false;
     };
     // 초기 1회만 실행
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -375,12 +427,23 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     if (initialCenter && typeof initialCenter.latitude === 'number' && typeof initialCenter.longitude === 'number') {
       const center = new kakao.maps.LatLng(initialCenter.latitude, initialCenter.longitude);
       map.setCenter(center);
+      saveCurrentView({
+        lat: center.getLat(),
+        lng: center.getLng(),
+        level: typeof initialLevel === 'number' ? initialLevel : map.getLevel(),
+      });
     }
 
     if (typeof initialLevel === 'number') {
       map.setLevel(initialLevel);
+      const center = map.getCenter();
+      saveCurrentView({
+        lat: center.getLat(),
+        lng: center.getLng(),
+        level: map.getLevel(),
+      });
     }
-  }, [initialCenter, initialCenter?.latitude, initialCenter?.longitude, initialLevel]);
+  }, [initialCenter, initialCenter?.latitude, initialCenter?.longitude, initialLevel, saveCurrentView]);
 
   const clearMapObjects = () => {
     mapMarkersRef.current.forEach((marker) => marker.setMap(null));
@@ -409,9 +472,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
   const resolveCoordinates = async (marker: MapMarker): Promise<{ lat: number; lng: number } | null> => {
     const { kakao } = window;
-    if (!kakao?.maps?.services) {
-      return null;
-    }
+    if (!kakao?.maps?.services) return null;
 
     if (typeof marker.latitude === 'number' && isFinite(marker.latitude) &&
         typeof marker.longitude === 'number' && isFinite(marker.longitude)) {
@@ -421,25 +482,17 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     const geocoder = ensureGeocoder();
     const places = ensurePlaces();
 
-    if (!geocoder || !places) {
-      return null;
-    }
-
     const tryAddress = async (query?: string | null) => {
       if (!query || !geocoder) return null;
       const trimmed = query.trim();
       if (!trimmed) return null;
 
       return new Promise<{ lat: number; lng: number } | null>((resolve) => {
-        geocoder.addressSearch(trimmed, (result: any, status: any) => {
-          if (status === kakao.maps.services.Status.OK && Array.isArray(result) && result.length > 0 && result[0]?.y && result[0]?.x) {
+        geocoder.addressSearch(trimmed, (result: any[], status: any) => {
+          if (status === kakao.maps.services.Status.OK && result.length > 0) {
             const lat = parseFloat(result[0].y);
             const lng = parseFloat(result[0].x);
-            if (isFinite(lat) && isFinite(lng)) {
-              resolve({ lat, lng });
-            } else {
-              resolve(null);
-            }
+            resolve({ lat, lng });
           } else {
             resolve(null);
           }
@@ -453,15 +506,11 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       if (!trimmed) return null;
 
       return new Promise<{ lat: number; lng: number } | null>((resolve) => {
-        places.keywordSearch(trimmed, (data: any, status: any) => {
-          if (status === kakao.maps.services.Status.OK && Array.isArray(data) && data.length > 0 && data[0]?.y && data[0]?.x) {
+        places.keywordSearch(trimmed, (data: any[], status: any) => {
+          if (status === kakao.maps.services.Status.OK && data.length > 0) {
             const lat = parseFloat(data[0].y);
             const lng = parseFloat(data[0].x);
-            if (isFinite(lat) && isFinite(lng)) {
-              resolve({ lat, lng });
-            } else {
-              resolve(null);
-            }
+            resolve({ lat, lng });
           } else {
             resolve(null);
           }
@@ -469,29 +518,17 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       });
     };
 
-    // 1. 주소로 먼저 시도
-    if (marker.address) {
-      const addressResult = await tryAddress(marker.address);
-      if (addressResult) return addressResult;
-    }
+    const addressFirst = await tryAddress(marker.address);
+    if (addressFirst) return addressFirst;
 
-    // 2. 지역명 + 음식점명으로 키워드 검색
     const combinedKeyword = [marker.subAdd1, marker.subAdd2, marker.name]
       .filter(Boolean)
       .join(' ');
 
-    if (combinedKeyword) {
-      const keywordResult = await tryKeyword(combinedKeyword);
-      if (keywordResult) return keywordResult;
-    }
+    const keywordResult = await tryKeyword(combinedKeyword);
+    if (keywordResult) return keywordResult;
 
-    // 3. 음식점명만으로 검색
-    if (marker.name) {
-      const nameResult = await tryKeyword(marker.name);
-      if (nameResult) return nameResult;
-    }
-
-    return null;
+    return await tryKeyword(marker.name);
   };
 
   const renderMarkers = async () => {
@@ -561,8 +598,16 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
       if (item.name) {
         const label = document.createElement('div');
-        label.textContent = item.name;
-        label.style.cssText = 'padding:6px 10px;background:#facc15;color:#1f2937;border-radius:6px;border:1px solid #facc15;box-shadow:0 4px 10px rgba(0,0,0,0.12);font-size:12px;font-weight:600;max-width:200px;text-align:center;white-space:nowrap;';
+        // 순위 정보 포함
+        const displayText = item.ranking 
+          ? `${item.name} | ${item.ranking}위`
+          : item.name;
+        label.textContent = displayText;
+        // isFocused일 때 파란색 배경, 하얀 글씨
+        const bgColor = isFocused ? '#2563eb' : '#facc15';
+        const textColor = isFocused ? '#ffffff' : '#1f2937';
+        const borderColor = isFocused ? '#2563eb' : '#facc15';
+        label.style.cssText = `padding:6px 10px;background:${bgColor};color:${textColor};border-radius:6px;border:1px solid ${borderColor};box-shadow:0 4px 10px rgba(0,0,0,0.12);font-size:12px;font-weight:600;max-width:200px;text-align:center;white-space:nowrap;`;
         wrapper.appendChild(label);
       }
 
@@ -580,11 +625,22 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
       overlay.setMap(map);
       overlaysRef.current.push(overlay);
+
+      // 포커스된 마커로 지도 중심 이동
+      if (isFocused) {
+        map.panTo(position);
+      }
     });
 
     if (validPositions.length === 0 && userLocation) {
-      map.setCenter(new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude));
+      const userCenter = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
+      map.setCenter(userCenter);
       map.setLevel(level);
+      saveCurrentView({
+        lat: userLocation.latitude,
+        lng: userLocation.longitude,
+        level: map.getLevel(),
+      });
       map.relayout();
       setMapLoaded(true);
       return;
@@ -592,6 +648,12 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
     if (validPositions.length === 0) {
       map.setLevel(level);
+      const center = map.getCenter();
+      saveCurrentView({
+        lat: center.getLat(),
+        lng: center.getLng(),
+        level: map.getLevel(),
+      });
       map.relayout();
       setMapLoaded(true);
       return;
@@ -603,17 +665,41 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       const view = initialViewRef.current;
       if (view) {
         map.setLevel(view.level);
-        map.setCenter(new kakao.maps.LatLng(view.lat, view.lng));
+        const preserved = new kakao.maps.LatLng(view.lat, view.lng);
+        map.setCenter(preserved);
+        saveCurrentView({
+          lat: preserved.getLat(),
+          lng: preserved.getLng(),
+          level: map.getLevel(),
+        });
       }
       initialViewRef.current = null;
       fullscreenViewRef.current = null;
       userInteractedRef.current = true;
     } else if (shouldAutoAdjust && fitBounds && (validPositions.length > 1 || userLocation)) {
       map.setBounds(bounds, 40, 40, 40, 40);
+      const center = map.getCenter();
+      saveCurrentView({
+        lat: center.getLat(),
+        lng: center.getLng(),
+        level: map.getLevel(),
+      });
     } else if (shouldAutoAdjust && validPositions.length > 0) {
       const first = validPositions[0].position;
       map.setLevel(level);
       map.setCenter(first);
+      saveCurrentView({
+        lat: first.getLat(),
+        lng: first.getLng(),
+        level: map.getLevel(),
+      });
+    } else {
+      const center = map.getCenter();
+      saveCurrentView({
+        lat: center.getLat(),
+        lng: center.getLng(),
+        level: map.getLevel(),
+      });
     }
 
     map.relayout();
@@ -622,23 +708,17 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
   const renderSingleLocation = async () => {
     const map = mapInstance.current;
-    if (!map) {
-      console.log('⚠️ renderSingleLocation: Map instance not available');
-      return;
-    }
+    if (!map) return;
     const { kakao } = window;
-    if (!kakao?.maps?.LatLng) {
-      console.log('⚠️ renderSingleLocation: Kakao Maps LatLng not available');
-      return;
-    }
-
-    console.log('🗺️ renderSingleLocation called with:', { latitude, longitude, address, restaurantName });
+    if (!kakao?.maps?.LatLng) return;
 
     clearMapObjects();
 
+    const hasValidCoords =
+      typeof latitude === 'number' && isFinite(latitude) &&
+      typeof longitude === 'number' && isFinite(longitude);
+
     const placeMarker = (lat: number, lng: number) => {
-      console.log(`📍 Placing marker at:`, { lat, lng });
-      
       const center = new kakao.maps.LatLng(lat, lng);
       map.relayout();
 
@@ -647,12 +727,22 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         const preservedCenter = new kakao.maps.LatLng(savedLat, savedLng);
         map.setLevel(savedLevel);
         map.setCenter(preservedCenter);
+        saveCurrentView({
+          lat: preservedCenter.getLat(),
+          lng: preservedCenter.getLng(),
+          level: map.getLevel(),
+        });
         initialViewRef.current = null;
         fullscreenViewRef.current = null;
         userInteractedRef.current = true;
       } else {
         map.setLevel(level);
         map.setCenter(center);
+        saveCurrentView({
+          lat: center.getLat(),
+          lng: center.getLng(),
+          level: map.getLevel(),
+        });
       }
 
       const marker = new kakao.maps.Marker({ position: center });
@@ -669,40 +759,43 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         overlay.setZIndex(1200);
         overlaysRef.current.push(overlay);
       }
-      console.log('✅ Marker placed successfully');
     };
 
-    // DB에서 가져온 좌표가 있으면 바로 사용 (geocoding 건너뛰기)
-    if (typeof latitude === 'number' && isFinite(latitude) &&
-        typeof longitude === 'number' && isFinite(longitude)) {
-      console.log('✅ Using coordinates from DB:', { latitude, longitude });
-      placeMarker(latitude, longitude);
+    if (hasValidCoords) {
+      placeMarker(latitude as number, longitude as number);
       setMapLoaded(true);
       return;
     }
 
-    // 좌표가 없는 경우 에러 표시
-    console.error('❌ No valid coordinates available');
-    setError('위치 정보가 없습니다.');
-    map.relayout();
+    const fallbackMarker: MapMarker = {
+      id: 'single',
+      name: restaurantName,
+      latitude,
+      longitude,
+      address,
+      subAdd1,
+      subAdd2
+    };
+
+    const coords = await resolveCoordinates(fallbackMarker);
+    if (coords) {
+      placeMarker(coords.lat, coords.lng);
+    } else {
+      console.log('⚠️ 위치를 찾을 수 없어 기본 위치(서울시청) 표시');
+      map.setCenter(new kakao.maps.LatLng(37.5665, 126.9780));
+      map.setLevel(level);
+      map.relayout();
+    }
+
     setMapLoaded(true);
   };
 
   useEffect(() => {
-    if (!mapInstance.current || !window.kakao) {
-      return;
-    }
-    
-    if (!mapLoaded) {
-      return;
-    }
-    
+    if (!mapInstance.current || !window.kakao) return;
     let cancelled = false;
 
     const updateMap = async () => {
-      if (!mapInstance.current) {
-        return;
-      }
+      if (!mapInstance.current) return;
 
       try {
         if (Array.isArray(markers)) {
@@ -711,6 +804,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
           await renderSingleLocation();
         }
       } catch (err) {
+        console.error('지도 업데이트 중 오류 발생:', err);
         if (!cancelled) {
           setError(err instanceof Error ? err.message : '지도 업데이트 중 오류가 발생했습니다.');
         }
@@ -723,7 +817,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markers, focusMarkerId, latitude, longitude, address, level, restaurantName, subAdd1, subAdd2, userLocation, fitBounds, showUserLocation, preserveView, mapLoaded]);
+  }, [markers, focusMarkerId, latitude, longitude, address, level, restaurantName, subAdd1, subAdd2, userLocation, fitBounds, showUserLocation, preserveView]);
 
   // 컨테이너 크기 변경 시 지도 크기 재조정
   useEffect(() => {
@@ -756,13 +850,23 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     const map = mapInstance.current;
     if (map && window.kakao?.maps?.LatLng) {
       const center = map.getCenter();
-      const view = {
+      const levelNow = map.getLevel();
+      const fallbackView = {
         lat: center.getLat(),
         lng: center.getLng(),
-        level: map.getLevel(),
+        level: levelNow,
       };
+      const view = currentViewRef.current ?? fallbackView;
       initialViewRef.current = view;
       fullscreenViewRef.current = view;
+      
+      console.log(
+        `%c📍 현재 지도 중심 좌표`,
+        'font-size: 14px; font-weight: bold; color: #2563eb; background: #eff6ff; padding: 4px 8px; border-radius: 4px;',
+        `\n위도: ${view.lat.toFixed(6)}`,
+        `\n경도: ${view.lng.toFixed(6)}`,
+        `\n줌 레벨: ${view.level}`
+      );
     }
     if (!isFullscreen) {
       wrapper.requestFullscreen?.().catch(err => console.error('전체보기 실패:', err));
@@ -784,6 +888,11 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         map.setLevel(level);
         map.setCenter(center);
         map.relayout();
+        saveCurrentView({
+          lat: center.getLat(),
+          lng: center.getLng(),
+          level: map.getLevel(),
+        });
         initialViewRef.current = { lat, lng, level };
         userInteractedRef.current = true;
         fullscreenViewRef.current = null;
@@ -792,7 +901,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  }, [saveCurrentView]);
 
   useEffect(() => {
     if (userLocation && !preserveView) {
@@ -874,7 +983,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         )}
       </div>
 
-      {mapLoaded && (
+      {mapLoaded && showControls && (
         <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200]">
           {userLocation && showUserLocation && (
             <button
@@ -885,6 +994,42 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
               내 위치 보기
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => {
+              const map = mapInstance.current;
+              if (!map) return;
+              const { kakao } = window;
+              if (!kakao?.maps) return;
+              
+              // 모든 마커를 포함하는 bounds 계산
+              if (overlaysRef.current.length > 0) {
+                const bounds = new kakao.maps.LatLngBounds();
+                overlaysRef.current.forEach((overlay: any) => {
+                  const position = overlay.getPosition();
+                  if (position) {
+                    bounds.extend(position);
+                  }
+                });
+                map.setBounds(bounds);
+              }
+            }}
+            className="px-3 py-2 rounded-md bg-white text-sm text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50"
+          >
+            전체보기
+          </button>
+        </div>
+      )}
+      
+      {mapLoaded && !showControls && (userLocation && showUserLocation) && (
+        <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200] nearby-map-controls">
+          <button
+            type="button"
+            onClick={handleFocusUserLocation}
+            className="px-3 py-2 rounded-md bg-white text-sm text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50"
+          >
+            내 위치 보기
+          </button>
           <button
             type="button"
             onClick={handleToggleFullscreen}
@@ -898,4 +1043,31 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   );
 };
 
-export default KakaoMap;
+const AdvancedKakaoMap = React.memo(AdvancedKakaoMapComponent, (prevProps, nextProps) => {
+  // props가 변경되지 않았으면 true 반환 (재렌더링 방지)
+  return (
+    prevProps.latitude === nextProps.latitude &&
+    prevProps.longitude === nextProps.longitude &&
+    prevProps.address === nextProps.address &&
+    prevProps.width === nextProps.width &&
+    prevProps.height === nextProps.height &&
+    prevProps.level === nextProps.level &&
+    prevProps.className === nextProps.className &&
+    prevProps.restaurantName === nextProps.restaurantName &&
+    prevProps.subAdd1 === nextProps.subAdd1 &&
+    prevProps.subAdd2 === nextProps.subAdd2 &&
+    prevProps.focusMarkerId === nextProps.focusMarkerId &&
+    prevProps.fitBounds === nextProps.fitBounds &&
+    prevProps.showUserLocation === nextProps.showUserLocation &&
+    prevProps.preserveView === nextProps.preserveView &&
+    prevProps.viewStateKey === nextProps.viewStateKey &&
+    prevProps.initialLevel === nextProps.initialLevel &&
+    JSON.stringify(prevProps.markers) === JSON.stringify(nextProps.markers) &&
+    JSON.stringify(prevProps.userLocation) === JSON.stringify(nextProps.userLocation) &&
+    JSON.stringify(prevProps.initialCenter) === JSON.stringify(nextProps.initialCenter)
+  );
+});
+
+AdvancedKakaoMap.displayName = 'AdvancedKakaoMap';
+
+export default AdvancedKakaoMap;

@@ -1,36 +1,168 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon,
-  FunnelIcon 
+  FunnelIcon,
+  MapIcon,
+  XMarkIcon,
+  PhoneIcon,
+  ChatBubbleLeftIcon,
+  ArrowTopRightOnSquareIcon,
+  ShareIcon,
+  HeartIcon,
+  ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import RestaurantCard from '../../components/RestaurantCard';
 import { 
   getRegions, 
   searchRestaurants,
   toggleFavorite,
-  shareRestaurant
+  shareRestaurant,
+  getNearbyRestaurants,
+  getRestaurantReviews,
+  getRestaurantReviewSummary,
+  createReview
 } from '../../services/authService';
 import { 
   Region, 
-  RestaurantWithStats 
+  RestaurantWithStats,
+  UserReview,
+  RestaurantReviewSummary,
+  UserReviewCreateRequest
 } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { sortProvinces, sortDistricts } from '../../utils/regionOrder';
+import AdvancedKakaoMap, { MapMarker } from '../../components/AdvancedKakaoMap';
+import KakaoMap from '../../components/KakaoMap';
+import ShareModal from '../../components/ShareModal';
+import { ShareData } from '../../utils/socialShare';
+import { isFavorite, addToFavorites, removeFromFavorites } from '../../utils/favorites';
+import { supabase } from '../../services/supabaseClient';
+
+const NEARBY_RADIUS_KM = 100;
+const MAP_VIEW_STATE_KEY = 'regionsNearbyMapView';
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (!Number.isNaN(parsed) && Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+};
+
+const toRadians = (value: number) => (value * Math.PI) / 180;
+
+const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371;
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// 음식점을 MapMarker로 변환하는 헬퍼 함수
+const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number): MapMarker => ({
+  id: restaurant.id,
+  name: restaurant.title || restaurant.name,
+  latitude: toNumber(restaurant.latitude) ?? undefined,
+  longitude: toNumber(restaurant.longitude) ?? undefined,
+  address: restaurant.address,
+  subAdd1: restaurant.sub_add1,
+  subAdd2: restaurant.sub_add2,
+  ranking,
+});
 
 const RegionsPage: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
+  const navigate = useNavigate();
   const scrollPositionKey = 'regionsPageScrollPosition';
   
   // 상태 관리
+  const [mapViewState, setMapViewState] = useState<{ latitude: number; longitude: number; level: number } | null>(null);
+  const mapViewStateRef = useRef<{ latitude: number; longitude: number; level: number } | null>(null);
+  const scrollPositionRef = useRef<number>(0); // 스크롤 위치를 지속적으로 추적
   const [regions, setRegions] = useState<Region[]>([]);
   const [restaurants, setRestaurants] = useState<RestaurantWithStats[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [nearbyPool, setNearbyPool] = useState<RestaurantWithStats[]>([]);
+  const [nearbyPoolLoading, setNearbyPoolLoading] = useState(false);
+  const [regionMapOpen, setRegionMapOpen] = useState(false);
+  const [focusedRegionMarkerId, setFocusedRegionMarkerId] = useState<string | null>(null);
+  const [selectedNearbyRadius, setSelectedNearbyRadius] = useState<number>(1);
+  const [centerOnUserLocation, setCenterOnUserLocation] = useState(false);
+  const [hoveredRestaurantId, setHoveredRestaurantId] = useState<string | null>(null);
+  const [selectedRestaurantForModal, setSelectedRestaurantForModal] = useState<RestaurantWithStats | null>(null);
+  
+  // 모달 관련 state
+  const [modalReviews, setModalReviews] = useState<UserReview[]>([]);
+  const [modalReviewSummary, setModalReviewSummary] = useState<RestaurantReviewSummary | null>(null);
+  const [modalReviewsLoading, setModalReviewsLoading] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewContent, setReviewContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [hasUserReviewed, setHasUserReviewed] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [isFavoriteRestaurant, setIsFavoriteRestaurant] = useState(false);
+  const [shouldLoadModalMap, setShouldLoadModalMap] = useState(false);
+  
+  useEffect(() => {
+    const stored = sessionStorage.getItem(MAP_VIEW_STATE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (
+          parsed &&
+          typeof parsed.latitude === 'number' &&
+          typeof parsed.longitude === 'number' &&
+          typeof parsed.level === 'number'
+        ) {
+          setMapViewState(parsed);
+          mapViewStateRef.current = parsed;
+        }
+      } catch (err) {
+        console.warn('저장된 지도 상태 복원 실패:', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    mapViewStateRef.current = mapViewState;
+  }, [mapViewState]);
+
+  // 스크롤 위치를 지속적으로 추적
+  useEffect(() => {
+    const handleScroll = () => {
+      scrollPositionRef.current = window.scrollY;
+    };
+
+    // 초기 스크롤 위치 저장
+    scrollPositionRef.current = window.scrollY;
+    console.log('📜 초기 스크롤 위치:', scrollPositionRef.current);
+
+    // 스크롤 이벤트 리스너 등록
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   
   // 검색 폼 상태
   const [selectedProvince, setSelectedProvince] = useState(
@@ -81,18 +213,118 @@ const RegionsPage: React.FC = () => {
     return filtered;
   }, [restaurants, selectedCategory]);
 
+  const regionRestaurants = useMemo(() => {
+    if (!selectedProvince || !selectedDistrict) {
+      return [] as RestaurantWithStats[];
+    }
+    const filtered = restaurants.filter((restaurant) =>
+      restaurant.sub_add1 === selectedProvince && restaurant.sub_add2 === selectedDistrict
+    );
+    // region_rank 기준으로 오름차순 정렬
+    return filtered.sort((a, b) => {
+      const rankA = a.region_rank ?? Number.MAX_SAFE_INTEGER;
+      const rankB = b.region_rank ?? Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    });
+  }, [restaurants, selectedProvince, selectedDistrict]);
+
+  const regionMarkers = useMemo<MapMarker[]>(() => {
+    return regionRestaurants.map((restaurant) => 
+      createMapMarker(restaurant, restaurant.region_rank)
+    );
+  }, [regionRestaurants]);
+
+  const nearbyRestaurantData = useMemo(() => {
+    if (!userLocation) return [] as Array<{ restaurant: RestaurantWithStats; distance: number }>;
+
+    return nearbyPool
+      .map((restaurant) => {
+        const lat = toNumber(restaurant.latitude);
+        const lng = toNumber(restaurant.longitude);
+
+        if (lat === null || lng === null) {
+          return null;
+        }
+
+        const distance = calculateDistanceKm(
+          userLocation.latitude,
+          userLocation.longitude,
+          lat,
+          lng
+        );
+
+        return {
+          restaurant: {
+            ...restaurant,
+            latitude: lat,
+            longitude: lng,
+          } as RestaurantWithStats,
+          distance,
+        };
+      })
+      .filter((item): item is { restaurant: RestaurantWithStats; distance: number } => !!item)
+      .sort((a, b) => a.distance - b.distance)
+      .filter((item) => item.distance <= selectedNearbyRadius);
+  }, [userLocation, nearbyPool, selectedNearbyRadius]);
+
+  const nearbyMarkers = useMemo<MapMarker[]>(() => {
+    if (!userLocation) return [];
+    return nearbyRestaurantData.map(({ restaurant }, index) => 
+      createMapMarker(restaurant, index + 1)
+    );
+  }, [nearbyRestaurantData, userLocation]);
+
+  const memoizedUserLocation = useMemo(() => {
+    if (!userLocation) return null;
+    return { ...userLocation, label: '내 위치' };
+  }, [userLocation]);
+
+  const memoizedInitialCenter = useMemo(() => {
+    if (centerOnUserLocation && userLocation) {
+      return { latitude: userLocation.latitude, longitude: userLocation.longitude };
+    }
+    if (mapViewState) {
+      return { latitude: mapViewState.latitude, longitude: mapViewState.longitude };
+    }
+    return undefined;
+  }, [centerOnUserLocation, userLocation, mapViewState]);
+
+  const memoizedInitialLevel = useMemo(() => {
+    return centerOnUserLocation ? 5 : mapViewState?.level;
+  }, [centerOnUserLocation, mapViewState]);
+
+  const memoizedFitBounds = useMemo(() => {
+    return !centerOnUserLocation && !mapViewState;
+  }, [centerOnUserLocation, mapViewState]);
+
+  const memoizedPreserveView = useMemo(() => {
+    return !!mapViewState && !centerOnUserLocation;
+  }, [mapViewState, centerOnUserLocation]);
+
+  // 지역 지도 모달의 초기 중심 좌표 (1위 음식점 기준)
+  const regionMapInitialCenter = useMemo(() => {
+    if (regionRestaurants.length === 0) return undefined;
+    const topRestaurant = regionRestaurants[0];
+    const lat = toNumber(topRestaurant.latitude);
+    const lng = toNumber(topRestaurant.longitude);
+    if (lat === null || lng === null) return undefined;
+    return { latitude: lat, longitude: lng };
+  }, [regionRestaurants]);
+
+  // 지역 지도 모달 - 마커 클릭 핸들러
+  const handleRegionMarkerClick = useCallback((marker: MapMarker) => {
+    const restaurant = regionRestaurants.find(r => r.id === marker.id);
+    if (restaurant) {
+      setSelectedRestaurantForModal(restaurant);
+    }
+  }, [regionRestaurants]);
+
   // 지역 데이터 로드
   useEffect(() => {
     const loadRegions = async () => {
       try {
         const response = await getRegions();
         console.log('✅ 지역 데이터 로드 성공:', response.data.length, '개 지역');
-        
-        // 전라북도 지역만 필터링해서 확인
-        const jeonbukRegions = response.data.filter(r => r.sub_add1 === '전라북도');
-        console.log('🔍 전라북도 지역:', jeonbukRegions.length, '개');
-        console.log('전라북도 시군구 목록:', jeonbukRegions.map(r => r.sub_add2));
-        
         setRegions(response.data);
       } catch (error) {
         console.error('지역 데이터 로드 실패:', error);
@@ -148,12 +380,13 @@ const RegionsPage: React.FC = () => {
     };
   }, [restaurants, scrollPositionKey]);
 
-  // URL 파라미터에서 초기 검색 실행
+  // URL 파라미터에서 초기 검색 실행 (한 번만)
   useEffect(() => {
     const province = searchParams.get('province');
     const district = searchParams.get('district');
     
-    if (province && district && regions.length > 0) {
+    // URL 파라미터가 있고, regions가 로드되었고, 아직 검색을 수행하지 않은 경우에만 실행
+    if (province && district && regions.length > 0 && !searchPerformed) {
       // URL 파라미터로부터 상태 업데이트
       setSelectedProvince(province);
       setSelectedDistrict(district);
@@ -189,7 +422,7 @@ const RegionsPage: React.FC = () => {
         executeSearch();
       }
     }
-  }, [regions, searchParams]); // regions와 searchParams 모두 감시
+  }, [regions, searchParams, searchPerformed]); // searchPerformed 추가하여 중복 실행 방지
 
   // 시도 변경 시 시군구 초기화 (사용자 직접 변경 시에만)
   useEffect(() => {
@@ -219,16 +452,23 @@ const RegionsPage: React.FC = () => {
       return;
     }
 
+    // ref에 저장된 스크롤 위치 사용
+    const savedScrollY = scrollPositionRef.current;
+    console.log('📜 검색 전 저장된 스크롤 위치:', savedScrollY);
+
     setLoading(true);
     setSearchPerformed(true);
 
     try {
+      const startTime = performance.now();
       const response = await searchRestaurants({
-        region_id: selectedDistrict,
+        region_id: `${selectedProvince}|${selectedDistrict}`,
         order_by: 'total_count',
         page: 1,
         size: 1000,
       });
+      const endTime = performance.now();
+      console.log(`⏱️ 검색 완료 시간: ${(endTime - startTime).toFixed(2)}ms`);
       
       setRestaurants(response.data);
       
@@ -237,6 +477,12 @@ const RegionsPage: React.FC = () => {
       params.set('province', selectedProvince);
       params.set('district', selectedDistrict);
       setSearchParams(params);
+
+      // 스크롤 위치 복원
+      requestAnimationFrame(() => {
+        window.scrollTo(0, savedScrollY);
+        console.log('📜 스크롤 위치 복원 완료:', savedScrollY);
+      });
       
     } catch (error) {
       console.error('음식점 검색 실패:', error);
@@ -255,6 +501,307 @@ const RegionsPage: React.FC = () => {
     setSearchPerformed(false);
     setSearchParams(new URLSearchParams());
   };
+
+  const loadNearbyPool = async (center: { latitude: number; longitude: number }, radius: number = NEARBY_RADIUS_KM) => {
+    setNearbyPoolLoading(true);
+    try {
+      const nearbyRestaurants = await getNearbyRestaurants(center.latitude, center.longitude, radius);
+      setNearbyPool(nearbyRestaurants);
+    } catch (error) {
+      console.error('내 주변 맛집 데이터 로드 실패:', error);
+      setGeoError('내 주변 맛집 데이터를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setNearbyPoolLoading(false);
+    }
+  };
+
+  const handleLocateMe = () => {
+    if (!isLoggedIn) {
+      alert('로그인 후 사용하실 수 있는 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+
+    setGeoError(null);
+
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setGeoStatus('error');
+      setGeoError('브라우저에서 위치 정보를 지원하지 않습니다.');
+      return;
+    }
+
+    setGeoStatus('loading');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        sessionStorage.removeItem(MAP_VIEW_STATE_KEY);
+        setMapViewState(null);
+        mapViewStateRef.current = null;
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setCenterOnUserLocation(true);
+        setGeoStatus('success');
+      },
+      (err) => {
+        console.error('위치 정보를 가져오지 못했습니다:', err);
+        setGeoStatus('error');
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoError('위치 정보 접근이 차단되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setGeoError('현재 위치 정보를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+        } else if (err.code === err.TIMEOUT) {
+          setGeoError('위치 정보를 가져오는 데 시간이 초과되었습니다. 다시 시도해주세요.');
+        } else {
+          setGeoError('위치 정보를 가져오는 중 오류가 발생했습니다.');
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const handleResetLocation = () => {
+    setUserLocation(null);
+    setGeoStatus('idle');
+    setGeoError(null);
+    sessionStorage.removeItem(MAP_VIEW_STATE_KEY);
+    setMapViewState(null);
+    mapViewStateRef.current = null;
+  };
+
+  useEffect(() => {
+    if (!userLocation) return;
+    loadNearbyPool(userLocation, selectedNearbyRadius);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLocation, selectedNearbyRadius]);
+
+
+  const handleMapViewChange = useCallback((view: { latitude: number; longitude: number; level: number }) => {
+    setMapViewState(view);
+    mapViewStateRef.current = view;
+    sessionStorage.setItem(MAP_VIEW_STATE_KEY, JSON.stringify(view));
+    setCenterOnUserLocation(false);
+  }, []);
+
+  const handleMarkerNavigate = useCallback((marker: MapMarker) => {
+    if (!marker) return;
+    const matched = nearbyRestaurantData.find(({ restaurant }) => restaurant.id === marker.id);
+    if (matched) {
+      setSelectedRestaurantForModal(matched.restaurant);
+    }
+  }, [nearbyRestaurantData]);
+
+
+  const handleOpenRegionMap = () => {
+    if (!isLoggedIn) {
+      alert('로그인 후 사용하실 수 있는 서비스입니다.');
+      navigate('/login');
+      return;
+    }
+
+    if (regionRestaurants.length === 0) {
+      alert('선택된 지역에 등록된 맛집이 없습니다.');
+      return;
+    }
+    setFocusedRegionMarkerId(regionRestaurants[0]?.id ?? null);
+    setRegionMapOpen(true);
+  };
+
+  // 모달 관련 함수들
+  const loadModalReviews = async (restaurantId: string) => {
+    try {
+      setModalReviewsLoading(true);
+      const reviewsData = await getRestaurantReviews(restaurantId, 1, 10);
+      setModalReviews(reviewsData.data);
+    } catch (error) {
+      console.error('리뷰 로드 실패:', error);
+    } finally {
+      setModalReviewsLoading(false);
+    }
+  };
+
+  const checkUserReviewFromDB = useCallback(async (restaurantId: string | number) => {
+    if (!isLoggedIn || !user) return false;
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('restaurant_id', restaurantId)
+        .eq('user_id', user.id)
+        .single();
+      if (error && error.code !== 'PGRST116') {
+        console.error('사용자 리뷰 확인 실패:', error);
+        return false;
+      }
+      return !!data;
+    } catch (error) {
+      console.error('사용자 리뷰 확인 중 오류:', error);
+      return false;
+    }
+  }, [isLoggedIn, user]);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRestaurantForModal || !isLoggedIn) return;
+
+    try {
+      setSubmitting(true);
+      const reviewData: UserReviewCreateRequest = {
+        restaurant_id: selectedRestaurantForModal.id,
+        rating: reviewRating,
+        content: reviewContent.trim() || undefined
+      };
+
+      await createReview(reviewData);
+      setHasUserReviewed(true);
+      setReviewContent('');
+      setReviewRating(5);
+
+      await Promise.all([
+        loadModalReviews(String(selectedRestaurantForModal.id)),
+        getRestaurantReviewSummary(String(selectedRestaurantForModal.id))
+          .then(setModalReviewSummary)
+          .catch(() => {})
+      ]);
+
+      alert('리뷰가 성공적으로 작성되었습니다!');
+    } catch (error) {
+      console.error('리뷰 작성 실패:', error);
+      if (error instanceof Error && error.message.includes('이미 이 음식점에 리뷰를 작성하셨습니다')) {
+        alert('이미 이 음식점에 리뷰를 작성하셨습니다.');
+        setHasUserReviewed(true);
+        await loadModalReviews(String(selectedRestaurantForModal.id));
+      } else {
+        alert('리뷰 작성에 실패했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const renderStars = (rating: number, size: 'sm' | 'md' | 'lg' = 'md') => {
+    const sizeClasses = {
+      sm: 'h-4 w-4',
+      md: 'h-5 w-5',
+      lg: 'h-6 w-6'
+    };
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <StarIconSolid
+            key={star}
+            className={`${sizeClasses[size]} ${
+              star <= rating ? 'text-yellow-400' : 'text-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getNaverSearchUrl = (restaurant: RestaurantWithStats) => {
+    const query = `${restaurant.sub_add1} ${restaurant.sub_add2} ${restaurant.title || '음식점'}`;
+    return `https://search.naver.com/search.naver?query=${encodeURIComponent(query)}`;
+  };
+
+  const getShareData = (restaurant: RestaurantWithStats): ShareData => {
+    const koreanUrl = `${window.location.origin}/restaurants/${restaurant.sub_add1}/${restaurant.sub_add2}/${restaurant.title || restaurant.name}`;
+    return {
+      title: `${restaurant.name} - ${restaurant.sub_add1} ${restaurant.sub_add2}`,
+      description: `${restaurant.category || '음식점'} | ${restaurant.address}`,
+      url: koreanUrl,
+      image: 'https://via.placeholder.com/300x200/FF6B35/FFFFFF?text=맛집',
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name
+    };
+  };
+
+  const openKakaoMap = (restaurant: RestaurantWithStats) => {
+    const searchQuery = restaurant.address || `${restaurant.sub_add1} ${restaurant.sub_add2} ${restaurant.title || restaurant.name}`;
+    const url = `https://map.kakao.com/link/search/${encodeURIComponent(searchQuery)}`;
+    window.open(url, '_blank');
+  };
+
+  const openNaverMap = (restaurant: RestaurantWithStats) => {
+    const searchQuery = restaurant.address || `${restaurant.sub_add1} ${restaurant.sub_add2} ${restaurant.title || restaurant.name}`;
+    const url = `https://map.naver.com/v5/search/${encodeURIComponent(searchQuery)}`;
+    window.open(url, '_blank');
+  };
+
+  const copyAddress = async (address: string) => {
+    if (!address) {
+      alert('복사할 주소가 없습니다.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(address);
+      alert('주소가 클립보드에 복사되었습니다.');
+    } catch (error) {
+      console.error('주소 복사 실패:', error);
+      alert('주소 복사에 실패했습니다.');
+    }
+  };
+
+  const toggleModalFavorite = () => {
+    if (!selectedRestaurantForModal) return;
+    if (!isLoggedIn) {
+      alert('로그인 후 사용하실 수 있습니다.');
+      return;
+    }
+    if (isFavoriteRestaurant) {
+      removeFromFavorites(selectedRestaurantForModal.id);
+      setIsFavoriteRestaurant(false);
+    } else {
+      addToFavorites({
+        id: selectedRestaurantForModal.id,
+        name: selectedRestaurantForModal.title || '음식점',
+        address: selectedRestaurantForModal.address || '',
+        category: selectedRestaurantForModal.category,
+        sub_add1: selectedRestaurantForModal.sub_add1 || '',
+        sub_add2: selectedRestaurantForModal.sub_add2 || ''
+      });
+      setIsFavoriteRestaurant(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!regionMapOpen) {
+      setFocusedRegionMarkerId(null);
+    }
+  }, [regionMapOpen]);
+
+  // 모달이 열릴 때 리뷰 및 관련 데이터 로드
+  useEffect(() => {
+    if (selectedRestaurantForModal) {
+      setIsFavoriteRestaurant(isFavorite(selectedRestaurantForModal.id));
+      setReviewRating(5);
+      setReviewContent('');
+      setShouldLoadModalMap(false);
+      
+      Promise.allSettled([
+        getRestaurantReviewSummary(String(selectedRestaurantForModal.id))
+          .then(setModalReviewSummary)
+          .catch(() => {}),
+        loadModalReviews(String(selectedRestaurantForModal.id)),
+        isLoggedIn && user
+          ? checkUserReviewFromDB(selectedRestaurantForModal.id)
+              .then(setHasUserReviewed)
+              .catch(() => {})
+          : Promise.resolve()
+      ]);
+
+      setTimeout(() => setShouldLoadModalMap(true), 100);
+    } else {
+      setModalReviews([]);
+      setModalReviewSummary(null);
+      setHasUserReviewed(false);
+      setShouldLoadModalMap(false);
+    }
+  }, [selectedRestaurantForModal, isLoggedIn, user, checkUserReviewFromDB]);
 
   // 즐겨찾기 토글
   const handleFavoriteToggle = async (restaurantId: string, isFavorite: boolean) => {
@@ -300,6 +847,148 @@ const RegionsPage: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">맛집 찾기</h1>
         <p className="text-gray-600">원하는 지역을 선택하여 검증된 맛집을 찾아보세요</p>
+      </div>
+
+      {/* 내 주변 맛집 지도 */}
+      <div className="mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                <MapPinIcon className="h-6 w-6 text-primary-500" />
+                내 주변 맛집 지도
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                현재 위치 기준으로 반경 {selectedNearbyRadius}km 이내의 등록된 맛집을 확인해보세요.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleLocateMe}
+                className="flex items-center gap-2 px-4 py-2 text-sm rounded-md bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-60"
+                disabled={geoStatus === 'loading'}
+              >
+                {geoStatus === 'loading' ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin h-4 w-4 border-b-2 border-white rounded-full" />
+                    위치 확인 중...
+                  </span>
+                ) : (
+                  <>
+                    <MapPinIcon className="h-5 w-5" />
+                    내 위치 불러오기
+                  </>
+                )}
+              </button>
+              {userLocation && (
+                <button
+                  onClick={handleResetLocation}
+                  className="px-4 py-2 text-sm border border-gray-200 rounded-md text-gray-600 hover:bg-gray-50"
+                >
+                  위치 초기화
+                </button>
+              )}
+            </div>
+          </div>
+
+          {geoError && (
+            <div className="mt-4 p-3 rounded-md bg-red-50 text-sm text-red-600 border border-red-100">
+              {geoError}
+            </div>
+          )}
+
+          {userLocation && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                검색 반경
+              </label>
+              <div className="flex gap-4">
+                {[1, 5, 10].map((radius) => (
+                  <label
+                    key={radius}
+                    className="flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      name="nearbyRadius"
+                      value={radius}
+                      checked={selectedNearbyRadius === radius}
+                      onChange={(e) => setSelectedNearbyRadius(Number(e.target.value))}
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500 focus:ring-2"
+                    />
+                    <span className="ml-2 text-gray-700">{radius}km</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {userLocation ? (
+            <div className="mt-4">
+              {nearbyPoolLoading && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                  <span className="animate-spin h-4 w-4 border-b-2 border-primary-500 rounded-full" />
+                  내 주변 맛집 데이터를 불러오는 중입니다...
+                </div>
+              )}
+
+              <div className="h-80">
+                <AdvancedKakaoMap
+                  height="100%"
+                  markers={nearbyMarkers}
+                  userLocation={memoizedUserLocation}
+                  showUserLocation
+                  fitBounds={memoizedFitBounds}
+                  initialCenter={memoizedInitialCenter}
+                  initialLevel={memoizedInitialLevel}
+                  preserveView={memoizedPreserveView}
+                  onMapViewChange={handleMapViewChange}
+                  onMarkerClick={handleMarkerNavigate}
+                  viewStateKey="nearby-map-view"
+                  focusMarkerId={hoveredRestaurantId || undefined}
+                />
+              </div>
+
+              <div className="mt-4">
+                {nearbyRestaurantData.length > 0 ? (
+                  <>
+                    <p className="text-sm text-gray-600 mb-2">
+                      반경 {selectedNearbyRadius}km 이내에 {nearbyRestaurantData.length}개 맛집이 있습니다.
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {nearbyRestaurantData.map(({ restaurant, distance }) => (
+                        <button
+                          key={restaurant.id}
+                          onClick={() => setSelectedRestaurantForModal(restaurant)}
+                          onMouseEnter={() => setHoveredRestaurantId(restaurant.id)}
+                          onMouseLeave={() => setHoveredRestaurantId(null)}
+                          className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full"
+                        >
+                          <p className="font-medium text-gray-900 truncate">
+                            {restaurant.title || restaurant.name}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1 truncate">
+                            {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    반경 {selectedNearbyRadius}km 이내에 등록된 맛집을 찾지 못했습니다. 범위를 넓혀보거나 다른 지역을 검색해보세요.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4 p-4 border border-dashed border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-600">
+              <p>위치 정보를 불러오면 내 주변 맛집을 지도에서 확인할 수 있습니다. 위치 공유를 허용하고 "내 위치 불러오기" 버튼을 눌러주세요.</p>
+              <p>(<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)</p>
+              
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 지역 검색 폼 */}
@@ -373,9 +1062,29 @@ const RegionsPage: React.FC = () => {
 
         {/* 선택된 지역 표시 */}
         {selectedProvince && selectedDistrict && (
-          <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-md">
-            <MapPinIcon className="h-4 w-4" />
-            <span>선택된 지역: <strong>{selectedProvince} {selectedDistrict}</strong></span>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-sm bg-gray-50 px-3 py-3 rounded-md">
+              <div className="flex items-center gap-2 text-gray-600">
+                <MapPinIcon className="h-4 w-4" />
+                <span>선택된 지역: <strong>{selectedProvince} {selectedDistrict}</strong></span>
+              </div>
+              <button
+                type="button"
+                onClick={handleOpenRegionMap}
+                disabled={regionRestaurants.length === 0}
+                className={`inline-flex items-center gap-2 self-start md:self-auto px-3 py-2 text-sm rounded-md transition-colors ${
+                  regionRestaurants.length === 0
+                    ? 'border border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed'
+                    : 'border border-primary-500 text-primary-600 hover:bg-primary-50'
+                }`}
+              >
+                <MapIcon className="h-5 w-5" />
+                지도에서 보기
+              </button>
+            </div>
+            <p className="text-xs text-gray-600 text-right">
+              (<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)
+            </p>
           </div>
         )}
       </div>
@@ -455,21 +1164,14 @@ const RegionsPage: React.FC = () => {
           {!loading && restaurants.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredRestaurants.map((restaurant) => (
-                <div key={restaurant.id} className="relative">
-                  {/* 순위 표시 - DB의 실제 순위 사용 (동점자 처리 포함) */}
-                  {restaurant.region_rank && (
-                    <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2 py-1 rounded-full text-sm font-bold shadow-lg">
-                      {restaurant.region_rank}위
-                    </div>
-                  )}
-                  <RestaurantCard
-                    restaurant={restaurant}
-                    isFavorite={favorites.has(restaurant.id.toString())} // Set<string>으로 변경
-                    isLoggedIn={isLoggedIn}
-                    onFavoriteToggle={handleFavoriteToggle}
-                    onShare={handleShare}
-                  />
-                </div>
+                <RestaurantCard
+                  key={restaurant.id}
+                  restaurant={restaurant}
+                  isFavorite={favorites.has(restaurant.id.toString())}
+                  isLoggedIn={isLoggedIn}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  onShare={handleShare}
+                />
               ))}
             </div>
           )}
@@ -529,6 +1231,473 @@ const RegionsPage: React.FC = () => {
             해당 지역의 공공기관이 자주 방문하는 검증된 맛집들을 보여드립니다.
           </p>
         </div>
+      )}
+
+      {regionMapOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
+          <div data-region-map-modal className="bg-white rounded-xl shadow-2xl max-w-screen-2xl w-full max-h-full flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <MapIcon className="h-5 w-5 text-primary-500" />
+                  지역 지도에서 보기
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {selectedProvince} {selectedDistrict} · {regionRestaurants.length}개 맛집
+                </p>
+              </div>
+              <button
+                onClick={() => setRegionMapOpen(false)}
+                className="p-2 rounded-md hover:bg-gray-100"
+                aria-label="지도 닫기"
+              >
+                <XMarkIcon className="h-6 w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex flex-col md:flex-row md:divide-x divide-gray-200 flex-1 overflow-hidden">
+              <div className="md:flex-1" style={{ minHeight: '320px' }}>
+                <AdvancedKakaoMap
+                  height="100%"
+                  markers={regionMarkers}
+                  fitBounds={!regionMapInitialCenter}
+                  initialCenter={regionMapInitialCenter}
+                  initialLevel={5}
+                  focusMarkerId={focusedRegionMarkerId ?? undefined}
+                  onMarkerClick={handleRegionMarkerClick}
+                  viewStateKey="region-map-view"
+                  showControls={true}
+                  userLocation={memoizedUserLocation}
+                  showUserLocation={true}
+                />
+              </div>
+              <div className="md:w-80 max-h-96 md:max-h-full overflow-y-auto bg-gray-50">
+                {regionRestaurants.length === 0 ? (
+                  <div className="p-6 text-sm text-gray-500">
+                    선택된 지역의 음식점 데이터가 없습니다.
+                  </div>
+                ) : (
+                  <ul className="divide-y divide-gray-200">
+                    {regionRestaurants.map((restaurant) => {
+                      const isFocused = focusedRegionMarkerId === restaurant.id;
+                      return (
+                        <li key={restaurant.id}>
+                          <button
+                            onClick={() => setSelectedRestaurantForModal(restaurant)}
+                            className={`block w-full text-left px-5 py-4 transition-colors ${
+                              isFocused ? 'bg-primary-50 border-l-4 border-primary-500' : 'hover:bg-white'
+                            }`}
+                            onMouseEnter={() => setFocusedRegionMarkerId(restaurant.id)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {restaurant.title || restaurant.name}
+                              </p>
+                              {restaurant.region_rank && (
+                                <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
+                                  {restaurant.region_rank}위
+                                </span>
+                              )}
+                              {restaurant.category && (
+                                <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                  {restaurant.category}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1 truncate">
+                              {restaurant.address || '주소 정보 없음'}
+                            </p>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 음식점 상세 모달 */}
+      {selectedRestaurantForModal && (
+        <>
+          <style>
+            {`
+              .nearby-map-controls {
+                display: none !important;
+              }
+            `}
+          </style>
+          <div 
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50"
+            onClick={() => setSelectedRestaurantForModal(null)}
+          >
+            <div 
+              className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 모달 헤더 */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {selectedRestaurantForModal.title || selectedRestaurantForModal.name}
+                </h2>
+                <button
+                  onClick={() => setSelectedRestaurantForModal(null)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="닫기"
+                >
+                  <XMarkIcon className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
+
+              {/* 모달 내용 */}
+              <div className="p-6">
+                {/* 음식점 기본 정보 */}
+                <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex-1">
+                      {/* 평점 및 리뷰 수 */}
+                      <div className="flex items-center mb-4">
+                        {renderStars(Math.round(Number(modalReviewSummary?.average_rating || 0)), 'lg')}
+                        <span className="ml-2 text-lg font-medium text-gray-900">
+                          {modalReviewSummary?.average_rating ? Number(modalReviewSummary.average_rating).toFixed(1) : '0.0'}
+                        </span>
+                        <span className="ml-2 text-gray-600">
+                          ({modalReviewSummary?.total_reviews || 0}개 리뷰)
+                        </span>
+                      </div>
+
+                      {/* 카테고리 */}
+                      <div className="mb-4">
+                        <span className="text-sm font-medium text-gray-500">카테고리</span>
+                        <p className="text-lg text-gray-900">
+                          {selectedRestaurantForModal.category || '정보 없음'}
+                        </p>
+                      </div>
+
+                      {/* 주소 */}
+                      <div className="flex items-start mb-2">
+                        <MapPinIcon className="h-5 w-5 text-gray-500 mt-1 mr-2 flex-shrink-0" />
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-gray-500">주소</span>
+                          <div className="flex items-center gap-2">
+                            <p className="text-gray-900">{selectedRestaurantForModal.address}</p>
+                            {selectedRestaurantForModal.address && (
+                              <button
+                                onClick={() => copyAddress(selectedRestaurantForModal.address || '')}
+                                className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                title="주소 복사"
+                              >
+                                <ClipboardDocumentIcon className="h-4 w-4" />
+                                <span>복사</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 도로명주소 */}
+                      {selectedRestaurantForModal.road_address && (
+                        <div className="flex items-start mb-4">
+                          <MapPinIcon className="h-5 w-5 text-gray-500 mt-1 mr-2 flex-shrink-0" />
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-500">도로명주소</span>
+                            <div className="flex items-center gap-2">
+                              <p className="text-gray-900">{selectedRestaurantForModal.road_address}</p>
+                              <button
+                                onClick={() => copyAddress(selectedRestaurantForModal.road_address || '')}
+                                className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                title="도로명주소 복사"
+                              >
+                                <ClipboardDocumentIcon className="h-4 w-4" />
+                                <span>복사</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 연락처 */}
+                      {selectedRestaurantForModal.phone && (
+                        <div className="flex items-center mb-4">
+                          <PhoneIcon className="h-5 w-5 text-gray-500 mr-2" />
+                          <div>
+                            <span className="text-sm font-medium text-gray-500">연락처</span>
+                            <p className="text-gray-900">{selectedRestaurantForModal.phone}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 액션 버튼들 */}
+                    <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3">
+                      <button
+                        onClick={toggleModalFavorite}
+                        className={`flex items-center justify-center px-4 py-2 rounded-md transition-colors ${
+                          isFavoriteRestaurant 
+                            ? 'bg-red-500 text-white hover:bg-red-600' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {isFavoriteRestaurant ? (
+                          <HeartIconSolid className="h-5 w-5 mr-2" />
+                        ) : (
+                          <HeartIcon className="h-5 w-5 mr-2" />
+                        )}
+                        {isFavoriteRestaurant ? '즐겨찾기 해제' : '즐겨찾기'}
+                      </button>
+                      
+                      <button
+                        onClick={() => setShowShareModal(true)}
+                        className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                      >
+                        <ShareIcon className="h-5 w-5 mr-2" />
+                        공유하기
+                      </button>
+                      
+                      <a
+                        href={getNaverSearchUrl(selectedRestaurantForModal)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                      >
+                        <ArrowTopRightOnSquareIcon className="h-5 w-5 mr-2" />
+                        네이버 블로그 리뷰
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 카카오 지도 */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">위치</h2>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => openKakaoMap(selectedRestaurantForModal)}
+                        className="flex items-center px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md text-sm transition-colors"
+                      >
+                        <MapPinIcon className="h-4 w-4 mr-1" />
+                        카카오맵으로 보기
+                      </button>
+                      <button
+                        onClick={() => openNaverMap(selectedRestaurantForModal)}
+                        className="flex items-center px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm transition-colors"
+                      >
+                        <MapPinIcon className="h-4 w-4 mr-1" />
+                        네이버지도로 보기
+                      </button>
+                    </div>
+                  </div>
+                  <div className="w-full h-96 rounded-lg overflow-hidden border">
+                    {shouldLoadModalMap && selectedRestaurantForModal ? (
+                      <KakaoMap
+                        latitude={selectedRestaurantForModal.latitude ? Number(selectedRestaurantForModal.latitude) : undefined}
+                        longitude={selectedRestaurantForModal.longitude ? Number(selectedRestaurantForModal.longitude) : undefined}
+                        address={selectedRestaurantForModal.address || ''}
+                        width="100%"
+                        height={384}
+                        level={3}
+                        restaurantName={selectedRestaurantForModal.title || selectedRestaurantForModal.name}
+                        subAdd1={selectedRestaurantForModal.sub_add1}
+                        subAdd2={selectedRestaurantForModal.sub_add2}
+                      />
+                    ) : (
+                      <div className="w-full h-96 flex items-center justify-center bg-gray-100">
+                        <div className="text-gray-500">지도를 불러오는 중...</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 사용자 리뷰 목록 */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 mb-6">
+                    사용자 리뷰 ({modalReviewSummary?.total_reviews || 0})
+                  </h2>
+
+                  {modalReviewsLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                      <span className="ml-2 text-gray-600">리뷰를 불러오는 중...</span>
+                    </div>
+                  ) : modalReviews.length > 0 ? (
+                    <div className="space-y-6">
+                      {modalReviews.map((review) => (
+                        <div key={review.id} className="border-b border-gray-200 pb-6 last:border-b-0">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0">
+                                <div className="h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white font-medium">
+                                    {review.user?.username?.charAt(0) || '?'}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="ml-3">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {review.user?.username || '익명'}
+                                </p>
+                                <div className="flex items-center mt-1">
+                                  {renderStars(review.rating, 'sm')}
+                                  <span className="ml-2 text-sm text-gray-600">
+                                    {review.rating}점
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                              {new Date(review.created_at).toLocaleDateString('ko-KR', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                          <div className="mt-3">
+                            {review.content ? (
+                              <p className="text-gray-900 leading-relaxed">
+                                {review.content}
+                              </p>
+                            ) : (
+                              <p className="text-gray-500 italic">
+                                리뷰 내용이 없습니다.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <ChatBubbleLeftIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        아직 리뷰가 없습니다
+                      </h3>
+                      <p className="text-gray-600">
+                        이 음식점의 첫 번째 리뷰를 작성해보세요!
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 로그인 안내 */}
+                {!isLoggedIn && (
+                  <div className="bg-blue-50 rounded-lg p-6 mb-6">
+                    <div className="flex items-center">
+                      <ChatBubbleLeftIcon className="h-6 w-6 text-blue-500 mr-3" />
+                      <div>
+                        <h3 className="text-lg font-medium text-blue-900">
+                          리뷰를 작성하려면 로그인이 필요합니다
+                        </h3>
+                        <p className="text-blue-700 mt-1">
+                          로그인 후 이 음식점에 대한 리뷰를 남겨보세요!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 사용자가 이미 리뷰를 작성한 경우 안내 */}
+                {isLoggedIn && hasUserReviewed && (
+                  <div className="bg-green-50 rounded-lg p-6 mb-6">
+                    <div className="flex items-center">
+                      <ChatBubbleLeftIcon className="h-6 w-6 text-green-500 mr-3" />
+                      <div>
+                        <h3 className="text-lg font-medium text-green-900">
+                          이미 리뷰를 작성한 음식점입니다
+                        </h3>
+                        <p className="text-green-700 mt-1">
+                          이 음식점에 대한 리뷰를 이미 작성하셨습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 리뷰 작성 폼 */}
+                {isLoggedIn && !hasUserReviewed && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">리뷰 작성</h2>
+                    <form onSubmit={handleSubmitReview}>
+                      {/* 평점 선택 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          평점
+                        </label>
+                        <div className="flex items-center space-x-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewRating(star)}
+                              className="p-1"
+                            >
+                              <StarIconSolid
+                                className={`h-8 w-8 ${
+                                  star <= reviewRating ? 'text-yellow-400' : 'text-gray-300'
+                                } hover:text-yellow-400 transition-colors`}
+                              />
+                            </button>
+                          ))}
+                          <span className="ml-2 text-sm text-gray-600">
+                            {reviewRating}점
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 리뷰 내용 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          리뷰 내용 (선택사항)
+                        </label>
+                        <textarea
+                          value={reviewContent}
+                          onChange={(e) => setReviewContent(e.target.value)}
+                          rows={4}
+                          maxLength={500}
+                          placeholder="음식점에 대한 솔직한 리뷰를 작성해주세요..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                        <p className="mt-1 text-sm text-gray-500">
+                          {reviewContent.length}/500자
+                        </p>
+                      </div>
+
+                      {/* 버튼들 */}
+                      <div className="flex space-x-3">
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {submitting ? '작성 중...' : '리뷰 작성'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReviewContent('');
+                            setReviewRating(5);
+                          }}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 소셜 공유 모달 */}
+          <ShareModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            shareData={getShareData(selectedRestaurantForModal)}
+          />
+        </>
       )}
     </div>
   );

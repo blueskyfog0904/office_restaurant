@@ -205,6 +205,15 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           </div>
         )}
 
+        {/* 순위 배지 */}
+        {restaurant.region_rank && (
+          <div className="absolute top-3 left-3">
+            <div className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg">
+              {restaurant.region_rank}위
+            </div>
+          </div>
+        )}
+
         {/* 네이버 리뷰 버튼 */}
         <div className="absolute top-3 right-3">
           <NaverReviewButton

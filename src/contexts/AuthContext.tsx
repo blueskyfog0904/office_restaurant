@@ -44,10 +44,35 @@ export const useAuth = () => {
 // 유틸리티 함수들
 // ===================================
 
+// 사용자 역할에 따라 스토리지 키 결정
+const getUserStorageKey = (isAdmin?: boolean): string => {
+  // 명시적으로 isAdmin이 제공되면 그것을 우선 사용
+  if (isAdmin !== undefined) {
+    return isAdmin ? 'admin_user' : 'user';
+  }
+  // 그렇지 않으면 경로로 판단
+  return window.location.pathname.startsWith('/admin') ? 'admin_user' : 'user';
+};
+
 const getStoredUser = (): User | null => {
   try {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    // 먼저 admin_user 확인
+    let userStr = localStorage.getItem('admin_user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      console.log('🔍 admin_user에서 사용자 정보 로드:', user.email);
+      return user;
+    }
+    
+    // admin_user가 없으면 user 확인
+    userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      console.log('🔍 user에서 사용자 정보 로드:', user.email);
+      return user;
+    }
+    
+    return null;
   } catch (error) {
     console.error('사용자 정보 파싱 실패:', error);
     return null;
@@ -92,7 +117,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               // getCurrentUser()에서 이미 profiles 정보를 포함하여 가져옴
               // 이중 조회 제거
               setUser(currentUser);
-              localStorage.setItem('user', JSON.stringify(currentUser));
+              const storageKey = getUserStorageKey(currentUser.is_admin || currentUser.role === 'admin');
+              localStorage.setItem(storageKey, JSON.stringify(currentUser));
+              console.log('💾 사용자 정보 저장:', storageKey, currentUser.email);
             } else if (storedUser) {
               setUser(storedUser);
             }
@@ -106,6 +133,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           // 세션이 없으면 로그아웃 상태
           setUser(null);
+          // 두 키 모두 삭제
+          localStorage.removeItem('admin_user');
           localStorage.removeItem('user');
         }
       } catch (error) {
@@ -124,6 +153,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       try {
         if (event === 'SIGNED_OUT') {
+          // 두 키 모두 삭제
+          localStorage.removeItem('admin_user');
           localStorage.removeItem('user');
           sessionStorage.clear();
           setUser(null);
@@ -144,7 +175,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 is_admin: currentUser.is_admin
               });
               
-              localStorage.setItem('user', JSON.stringify(currentUser));
+              const storageKey = getUserStorageKey(currentUser.is_admin || currentUser.role === 'admin');
+              localStorage.setItem(storageKey, JSON.stringify(currentUser));
+              console.log('💾 사용자 정보 저장:', storageKey, currentUser.email);
               setUser(currentUser);
               setIsLoading(false);
             } else {
@@ -226,7 +259,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         is_admin: profile?.role === 'admin',
       };
 
-      localStorage.setItem('user', JSON.stringify(enrichedUser));
+      const storageKey = getUserStorageKey(profile?.role === 'admin');
+      localStorage.setItem(storageKey, JSON.stringify(enrichedUser));
+      console.log('💾 로그인 - 사용자 정보 저장:', storageKey, enrichedUser.email);
       setUser(enrichedUser);
       
       return profile?.role === 'admin';
@@ -247,6 +282,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       await logoutAPI();
       setUser(null);
+      // 두 키 모두 삭제
+      localStorage.removeItem('admin_user');
       localStorage.removeItem('user');
     } catch (error) {
       console.error('로그아웃 실패:', error);
@@ -268,7 +305,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         if (currentUser) {
           // getCurrentUser()에서 이미 profiles 정보를 포함하여 가져옴
-          localStorage.setItem('user', JSON.stringify(currentUser));
+          const storageKey = getUserStorageKey(currentUser.is_admin || currentUser.role === 'admin');
+          localStorage.setItem(storageKey, JSON.stringify(currentUser));
+          console.log('💾 새로고침 - 사용자 정보 저장:', storageKey, currentUser.email);
           setUser(currentUser);
         } else {
           setUser(null);

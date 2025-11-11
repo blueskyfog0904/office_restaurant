@@ -33,7 +33,7 @@ const RegisterPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-                      <div className="mx-auto h-32 w-32 flex items-center justify-center">
+                      <div className="mx-auto h-32 w-32 flex items-center justify-cente4r">
               {/* 로고 */}
               <img 
                 src="/images/project_logo.png" 

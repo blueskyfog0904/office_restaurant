@@ -54,10 +54,17 @@ const RestaurantsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   
-  // 필터 상태
+  // 필터 상태 - URL 파라미터에서 초기값 설정
+  const provinceParam = searchParams.get('province');
+  const districtParam = searchParams.get('district');
+  const regionIdFromUrl = provinceParam && districtParam ? `${provinceParam}|${districtParam}` : undefined;
+  
   const [searchKeyword, setSearchKeyword] = useState(searchParams.get('keyword') || '');
-  const [selectedRegion, setSelectedRegion] = useState<string | undefined>(undefined);
+  const [selectedRegion, setSelectedRegion] = useState<string | undefined>(
+    searchParams.get('region_id') || regionIdFromUrl
+  );
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedYear, setSelectedYear] = useState<number | undefined>(
     searchParams.get('year') ? parseInt(searchParams.get('year')!) : undefined
@@ -120,51 +127,47 @@ const RestaurantsPage: React.FC = () => {
     loadRegions();
   }, []);
 
-  // 스크롤 위치 복원 (뒤로가기 시)
-  useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
-    
-    if (savedScrollPosition && restaurants.length > 0) {
-      // 데이터가 로드되고 DOM이 완전히 렌더링된 후에 스크롤 복원
-      const scrollTimeout = setTimeout(() => {
-        const position = parseInt(savedScrollPosition, 10);
-        console.log('🔄 스크롤 복원 시도:', position);
-        
-        // requestAnimationFrame을 사용하여 브라우저 렌더링 후 스크롤
-        requestAnimationFrame(() => {
-          window.scrollTo(0, position);
-          console.log('✅ 스크롤 위치 복원 완료:', window.scrollY);
-          sessionStorage.removeItem(scrollPositionKey);
-        });
-      }, 300);
-
-      return () => clearTimeout(scrollTimeout);
-    }
-  }, [restaurants, scrollPositionKey]);
-
-  // 스크롤 이벤트 감지하여 지속적으로 위치 저장
+  // 페이지 접속 시 즉시 스크롤 이벤트 저장 시작
   useEffect(() => {
     let scrollTimeout: number | undefined;
     
-    const handleScroll = () => {
-      // 디바운싱: 스크롤이 멈춘 후 200ms 후에 저장
+    const saveScrollPosition = () => {
       if (scrollTimeout) clearTimeout(scrollTimeout);
       scrollTimeout = window.setTimeout(() => {
-        if (restaurants.length > 0) {
-          const currentScroll = window.scrollY;
-          sessionStorage.setItem(scrollPositionKey, currentScroll.toString());
-          console.log('📜 스크롤 위치 저장:', currentScroll);
-        }
+        const currentScroll = window.scrollY;
+        sessionStorage.setItem(scrollPositionKey, currentScroll.toString());
+        console.log('📜 스크롤 위치 저장:', currentScroll);
       }, 200);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', saveScrollPosition);
 
     return () => {
       if (scrollTimeout) clearTimeout(scrollTimeout);
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', saveScrollPosition);
     };
-  }, [restaurants, scrollPositionKey]);
+  }, [scrollPositionKey]);
+
+  // 검색 결과 로드 후 스크롤 위치 복원
+  useEffect(() => {
+    if (!loading && restaurants.length > 0) {
+      const savedScrollPosition = sessionStorage.getItem(scrollPositionKey);
+      
+      if (savedScrollPosition) {
+        const position = parseInt(savedScrollPosition, 10);
+        console.log('🔄 스크롤 복원 시도:', position);
+        
+        const scrollTimeout = setTimeout(() => {
+          requestAnimationFrame(() => {
+            window.scrollTo(0, position);
+            console.log('✅ 스크롤 위치 복원 완료:', window.scrollY);
+          });
+        }, 100);
+
+        return () => clearTimeout(scrollTimeout);
+      }
+    }
+  }, [loading, restaurants.length, scrollPositionKey]);
 
   // 음식점 데이터 로드
   const loadRestaurants = useCallback(async (reset = false) => {
@@ -192,11 +195,25 @@ const RestaurantsPage: React.FC = () => {
     }
   }, [searchRequest, loading]);
 
-  // 검색 조건 변경 시 리셋하여 로드
+  // URL 파라미터에서 초기 검색 실행 (한 번만)
   useEffect(() => {
+    const hasUrlParams = provinceParam && districtParam;
+    const hasSearchParams = searchParams.get('keyword') || searchParams.get('region_id') || searchParams.get('category') || searchParams.get('year');
+    
+    if ((hasUrlParams || hasSearchParams) && !searchPerformed && regions.length > 0) {
+      setSearchPerformed(true);
+      setPage(1);
+      loadRestaurants(true);
+    }
+  }, [regions, provinceParam, districtParam, searchParams, searchPerformed]);
+
+  // 검색 조건 변경 시 리셋하여 로드 (검색이 이미 수행된 경우에만)
+  useEffect(() => {
+    if (!searchPerformed) return;
+    
     setPage(1);
     loadRestaurants(true);
-  }, [searchKeyword, selectedRegion, selectedCategory, selectedYear, selectedMonth, sortBy]);
+  }, [searchKeyword, selectedRegion, selectedCategory, selectedYear, selectedMonth, sortBy, searchPerformed]);
 
   // URL 파라미터 업데이트
   useEffect(() => {
@@ -267,6 +284,13 @@ const RestaurantsPage: React.FC = () => {
     }
   };
 
+  // 검색 실행 핸들러
+  const handleSearch = () => {
+    setSearchPerformed(true);
+    setPage(1);
+    loadRestaurants(true);
+  };
+
   // 필터 초기화
   const handleResetFilters = () => {
     setSearchKeyword('');
@@ -275,6 +299,8 @@ const RestaurantsPage: React.FC = () => {
     setSelectedYear(undefined);
     setSelectedMonth(undefined);
     setSortBy('visit_count');
+    setSearchPerformed(false);
+    setRestaurants([]);
   };
 
   return (
@@ -288,15 +314,29 @@ const RestaurantsPage: React.FC = () => {
       {/* 검색 및 필터 */}
       <div className="mb-8 space-y-4">
         {/* 검색바 */}
-        <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="음식점 이름이나 주소로 검색하세요..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          />
+        <div className="relative flex gap-2">
+          <div className="flex-1 relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="음식점 이름이나 주소로 검색하세요..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+          <button
+            onClick={handleSearch}
+            disabled={loading}
+            className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+          >
+            검색
+          </button>
         </div>
 
         {/* 필터 토글 버튼 */}
@@ -390,12 +430,19 @@ const RestaurantsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleResetFilters}
                 className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
               >
                 필터 초기화
+              </button>
+              <button
+                onClick={handleSearch}
+                disabled={loading}
+                className="px-4 py-2 text-sm bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                검색
               </button>
             </div>
           </div>
