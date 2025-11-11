@@ -316,7 +316,7 @@ const SettingsPage: React.FC = () => {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => alert('새 공지 작성 기능은 준비 중입니다.')}
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
