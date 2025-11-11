@@ -42,6 +42,7 @@ const VisitRecordsPage: React.FC = () => {
   const [filterRegion, setFilterRegion] = useState<string>('all');
   const [filterDataSource, setFilterDataSource] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [selectedRecord, setSelectedRecord] = useState<VisitRecord | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
@@ -185,7 +186,7 @@ const VisitRecordsPage: React.FC = () => {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={() => setShowUploadModal(true)}
+              onClick={() => alert('일괄 업로드 기능은 준비 중입니다.')}
               className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
             >
               <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
