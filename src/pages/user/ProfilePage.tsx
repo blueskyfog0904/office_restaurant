@@ -5,7 +5,6 @@ import {
   EnvelopeIcon,
   CalendarIcon,
   PencilIcon,
-  KeyIcon,
   TrashIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -72,6 +71,7 @@ const ProfilePage: React.FC = () => {
     if (user) {
       loadUserActivities();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // 메시지 자동 제거
@@ -123,7 +123,7 @@ const ProfilePage: React.FC = () => {
     try {
       setLoading(true);
       // kakaoAuthService의 updateProfile은 nickname(string)만 받음
-      const updatedUser = await updateProfile(formData.username);
+      await updateProfile(formData.username);
       
       // 사용자 정보 새로고침
       await refreshUser();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   MapPinIcon,
@@ -103,6 +103,7 @@ const RestaurantDetailPage: React.FC = () => {
       userHasReviewed
     });
     setHasUserReviewed(userHasReviewed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviews, isLoggedIn, user]);
 
   // hasUserReviewed 상태 변경 추적
@@ -202,6 +203,7 @@ const RestaurantDetailPage: React.FC = () => {
     } else {
       setHasUserReviewed(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn, user, restaurant?.id]);
   
   // 카카오맵 지연 로드 (음식점 정보가 로드된 후 약간의 지연)

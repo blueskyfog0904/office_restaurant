@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { getErrorMessage } from './api';
-import { User, AuthResponse } from '../types';
+import { User } from '../types';
 
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
