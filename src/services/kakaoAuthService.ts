@@ -39,9 +39,32 @@ export const signupWithKakao = async (): Promise<void> => {
 
 // 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
 export const getCurrentUser = async (): Promise<User | null> => {
+  // 먼저 세션 확인 및 갱신 시도
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  
+  // 세션이 없거나 에러가 있으면 갱신 시도
+  if (sessionError || !sessionData.session) {
+    try {
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError || !refreshData.session) {
+        // 갱신 실패 시 null 반환 (로그아웃 상태)
+        console.warn('getCurrentUser: 세션 갱신 실패:', refreshError?.message);
+        return null;
+      }
+    } catch (refreshErr) {
+      console.warn('getCurrentUser: 세션 갱신 시도 실패:', refreshErr);
+      return null;
+    }
+  }
+  
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error) {
+    // 인증 관련 에러인 경우 null 반환 (로그아웃 상태로 처리)
+    if (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401')) {
+      console.warn('getCurrentUser: 인증 토큰 오류:', error.message);
+      return null;
+    }
     throw new Error(getErrorMessage(error));
   }
   

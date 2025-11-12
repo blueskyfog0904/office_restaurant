@@ -153,6 +153,8 @@ interface AdvancedKakaoMapProps {
   onMapViewChange?: (view: { latitude: number; longitude: number; level: number }) => void;
   viewStateKey?: string;
   showControls?: boolean;
+  onRequestLocation?: () => void;
+  regionCenter?: { latitude: number; longitude: number };
 }
 
 const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
@@ -178,6 +180,8 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   onMapViewChange,
   viewStateKey = 'kakaoMap:lastView',
   showControls = false,
+  onRequestLocation,
+  regionCenter,
 }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -189,6 +193,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   const geocoderRef = useRef<any>(null);
   const placesRef = useRef<any>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [locationViewMode, setLocationViewMode] = useState<'user' | 'region'>('user');
   const initialViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
   const fullscreenViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
   const currentViewRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
@@ -196,6 +201,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   const userInteractedRef = useRef(false);
   const lastMarkerSignatureRef = useRef<string>('');
   const viewStateKeyRef = useRef(viewStateKey);
+  const ignoreFocusMarkerRef = useRef(false);
 
   useEffect(() => {
     viewStateKeyRef.current = viewStateKey;
@@ -312,6 +318,11 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
         if (process.env.NODE_ENV !== 'production') {
           (window as any).__OFFICE_RESTAURANT_KAKAO_MAP__ = map;
         }
+        
+        // 드래그 및 스크롤 휠 명시적으로 활성화
+        map.setDraggable(true);
+        map.setZoomable(true);
+        
         geocoderRef.current = new kakao.maps.services.Geocoder();
         placesRef.current = new kakao.maps.services.Places();
         const storedView = loadStoredView();
@@ -626,8 +637,8 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       overlay.setMap(map);
       overlaysRef.current.push(overlay);
 
-      // 포커스된 마커로 지도 중심 이동
-      if (isFocused) {
+      // 포커스된 마커로 지도 중심 이동 (사용자가 '내 위치보기' 버튼을 클릭한 경우 무시)
+      if (isFocused && !ignoreFocusMarkerRef.current) {
         map.panTo(position);
       }
     });
@@ -703,6 +714,13 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
     }
 
     map.relayout();
+    
+    // 지도 업데이트 후에도 드래그 및 줌 활성화 유지
+    if (map && map.setDraggable) {
+      map.setDraggable(true);
+      map.setZoomable(true);
+    }
+    
     setMapLoaded(true);
   };
 
@@ -787,11 +805,17 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       map.relayout();
     }
 
+    // 지도 업데이트 후에도 드래그 및 줌 활성화 유지
+    if (map && map.setDraggable) {
+      map.setDraggable(true);
+      map.setZoomable(true);
+    }
+
     setMapLoaded(true);
   };
 
   useEffect(() => {
-    if (!mapInstance.current || !window.kakao) return;
+    if (!mapInstance.current || !window.kakao || !mapLoaded) return;
     let cancelled = false;
 
     const updateMap = async () => {
@@ -817,7 +841,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markers, focusMarkerId, latitude, longitude, address, level, restaurantName, subAdd1, subAdd2, userLocation, fitBounds, showUserLocation, preserveView]);
+  }, [markers, focusMarkerId, latitude, longitude, address, level, restaurantName, subAdd1, subAdd2, userLocation, fitBounds, showUserLocation, preserveView, mapLoaded]);
 
   // 컨테이너 크기 변경 시 지도 크기 재조정
   useEffect(() => {
@@ -836,13 +860,68 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   };
 
   const handleFocusUserLocation = useCallback(() => {
-    if (!mapInstance.current || !userLocation || !window.kakao) return;
+    if (!mapInstance.current || !window.kakao) return;
+    
+    // '내 위치보기' 버튼 클릭 시 focusMarkerId로 인한 자동 이동 무시
+    ignoreFocusMarkerRef.current = true;
+    
+    if (userLocation) {
+      const { kakao } = window;
+      const position = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
+      mapInstance.current.setLevel(level);
+      mapInstance.current.panTo(position);
+      userInteractedRef.current = true;
+      
+      // 일정 시간 후 다시 focusMarkerId 자동 이동 허용
+      setTimeout(() => {
+        ignoreFocusMarkerRef.current = false;
+      }, 1000);
+    } else if (onRequestLocation) {
+      onRequestLocation();
+      setTimeout(() => {
+        ignoreFocusMarkerRef.current = false;
+      }, 1000);
+    }
+  }, [level, userLocation, onRequestLocation]);
+
+  const handleToggleLocationView = useCallback(() => {
+    if (!mapInstance.current || !window.kakao) return;
     const { kakao } = window;
-    const position = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
-    mapInstance.current.setLevel(level);
-    mapInstance.current.panTo(position);
-    userInteractedRef.current = true;
-  }, [level, userLocation]);
+    
+    if (locationViewMode === 'user') {
+      // 현재 '내 위치보기' 모드 → 내 위치로 이동 후 '지역위치 보기'로 전환
+      ignoreFocusMarkerRef.current = true;
+      if (userLocation) {
+        const position = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
+        mapInstance.current.setLevel(level);
+        mapInstance.current.panTo(position);
+        userInteractedRef.current = true;
+        setLocationViewMode('region');
+        setTimeout(() => {
+          ignoreFocusMarkerRef.current = false;
+        }, 1000);
+      } else if (onRequestLocation) {
+        onRequestLocation();
+        setLocationViewMode('region');
+        setTimeout(() => {
+          ignoreFocusMarkerRef.current = false;
+        }, 1000);
+      }
+    } else {
+      // 현재 '지역위치 보기' 모드 → 지역 1위 음식점 위치로 이동 후 '내 위치보기'로 전환
+      ignoreFocusMarkerRef.current = true;
+      if (regionCenter && typeof regionCenter.latitude === 'number' && typeof regionCenter.longitude === 'number') {
+        const position = new kakao.maps.LatLng(regionCenter.latitude, regionCenter.longitude);
+        mapInstance.current.setLevel(level);
+        mapInstance.current.panTo(position);
+        userInteractedRef.current = true;
+        setLocationViewMode('user');
+        setTimeout(() => {
+          ignoreFocusMarkerRef.current = false;
+        }, 1000);
+      }
+    }
+  }, [level, userLocation, regionCenter, locationViewMode, onRequestLocation]);
 
   const handleToggleFullscreen = useCallback(() => {
     const wrapper = wrapperRef.current;
@@ -985,38 +1064,19 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
 
       {mapLoaded && showControls && (
         <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200]">
-          {userLocation && showUserLocation && (
-            <button
-              type="button"
-              onClick={handleFocusUserLocation}
-              className="px-3 py-2 rounded-md bg-white text-sm text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50"
-            >
-              내 위치 보기
-            </button>
-          )}
           <button
             type="button"
-            onClick={() => {
-              const map = mapInstance.current;
-              if (!map) return;
-              const { kakao } = window;
-              if (!kakao?.maps) return;
-              
-              // 모든 마커를 포함하는 bounds 계산
-              if (overlaysRef.current.length > 0) {
-                const bounds = new kakao.maps.LatLngBounds();
-                overlaysRef.current.forEach((overlay: any) => {
-                  const position = overlay.getPosition();
-                  if (position) {
-                    bounds.extend(position);
-                  }
-                });
-                map.setBounds(bounds);
-              }
-            }}
+            onClick={handleToggleLocationView}
             className="px-3 py-2 rounded-md bg-white text-sm text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50"
           >
-            전체보기
+            {locationViewMode === 'user' ? '내 위치 보기' : '지역위치 보기'}
+          </button>
+          <button
+            type="button"
+            onClick={handleToggleFullscreen}
+            className="px-3 py-2 rounded-md bg-white text-sm text-gray-700 shadow-md border border-gray-200 hover:bg-gray-50"
+          >
+            {isFullscreen ? '전체보기 종료' : '전체보기'}
           </button>
         </div>
       )}
@@ -1062,9 +1122,12 @@ const AdvancedKakaoMap = React.memo(AdvancedKakaoMapComponent, (prevProps, nextP
     prevProps.preserveView === nextProps.preserveView &&
     prevProps.viewStateKey === nextProps.viewStateKey &&
     prevProps.initialLevel === nextProps.initialLevel &&
+    prevProps.showControls === nextProps.showControls &&
+    prevProps.onRequestLocation === nextProps.onRequestLocation &&
     JSON.stringify(prevProps.markers) === JSON.stringify(nextProps.markers) &&
     JSON.stringify(prevProps.userLocation) === JSON.stringify(nextProps.userLocation) &&
-    JSON.stringify(prevProps.initialCenter) === JSON.stringify(nextProps.initialCenter)
+    JSON.stringify(prevProps.initialCenter) === JSON.stringify(nextProps.initialCenter) &&
+    JSON.stringify(prevProps.regionCenter) === JSON.stringify(nextProps.regionCenter)
   );
 });
 

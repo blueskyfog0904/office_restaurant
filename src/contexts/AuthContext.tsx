@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
@@ -70,6 +70,7 @@ const getStoredUser = (): User | null => {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const logoutCalledRef = useRef(false);
 
   // ===================================
   // 초기 로그인 상태 확인
@@ -78,7 +79,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // 세션 갱신 시도 (만료된 세션 자동 갱신)
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        // 세션 에러가 있거나 세션이 만료된 경우 갱신 시도
+        if (sessionError || !session) {
+          try {
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError || !refreshData.session) {
+              // 갱신 실패 시 로그아웃 상태로 처리
+              console.warn('세션 갱신 실패, 로그아웃 처리:', refreshError?.message);
+              setUser(null);
+              localStorage.removeItem(STORAGE_KEY);
+              localStorage.removeItem('admin_user');
+              setIsLoading(false);
+              return;
+            }
+            // 갱신 성공 시 새 세션 사용
+            const refreshedSession = refreshData.session;
+            if (refreshedSession?.user) {
+              try {
+                const currentUser = await getCurrentUser();
+                if (currentUser) {
+                  setUser(currentUser);
+                  localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+                  console.log('💾 세션 갱신 후 사용자 정보 저장:', currentUser.email);
+                }
+              } catch (userError) {
+                console.warn('세션 갱신 후 사용자 정보 로드 실패:', userError);
+                setUser(null);
+                localStorage.removeItem(STORAGE_KEY);
+              }
+            }
+            setIsLoading(false);
+            return;
+          } catch (refreshErr) {
+            console.warn('세션 갱신 시도 실패:', refreshErr);
+            setUser(null);
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('admin_user');
+            setIsLoading(false);
+            return;
+          }
+        }
         
         if (session?.user) {
           // 세션이 있으면 사용자 정보 로드
@@ -101,7 +144,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           } catch (error) {
             console.warn('최신 사용자 정보 로드 실패:', error);
-            if (storedUser) {
+            // 에러가 인증 관련이면 세션 정리
+            if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid'))) {
+              console.warn('인증 토큰 오류 감지, 세션 정리');
+              setUser(null);
+              localStorage.removeItem(STORAGE_KEY);
+              localStorage.removeItem('admin_user');
+              await supabase.auth.signOut();
+            } else if (storedUser) {
               setUser(storedUser);
             }
           }
@@ -115,6 +165,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('인증 초기화 실패:', error);
         setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
       } finally {
         setIsLoading(false);
       }
@@ -133,13 +185,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           sessionStorage.clear();
           setUser(null);
           setIsLoading(false);
+          
+          // 로그아웃 상태 알림 (logout 함수에서 이미 띄운 경우를 제외)
+          // logout 함수가 호출되지 않은 경우(자동 로그아웃, 세션 만료 등)에만 알림 띄우기
+          if (!logoutCalledRef.current) {
+            alert('로그아웃이 되었습니다.');
+          }
+          // 플래그 리셋
+          logoutCalledRef.current = false;
           return;
         }
 
-        // TOKEN_REFRESHED는 너무 자주 발생하므로 필터링
+        // TOKEN_REFRESHED 이벤트 처리: 토큰 갱신 후 사용자 정보 확인
         if (event === 'TOKEN_REFRESHED') {
           console.log('✅ 토큰이 자동으로 갱신되었습니다.');
-          // localStorage 정보는 그대로 유지, API 호출 생략
+          // 토큰 갱신 후 사용자 정보가 유효한지 확인
+          if (session?.user) {
+            try {
+              const currentUser = await getCurrentUser();
+              if (currentUser) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+                setUser(currentUser);
+                console.log('💾 토큰 갱신 후 사용자 정보 업데이트:', currentUser.email);
+              }
+            } catch (userError) {
+              console.warn('토큰 갱신 후 사용자 정보 확인 실패:', userError);
+              // 사용자 정보 확인 실패해도 계속 진행 (토큰은 유효할 수 있음)
+            }
+          }
+          setIsLoading(false);
           return;
         }
 
@@ -248,13 +322,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
+      logoutCalledRef.current = true; // 로그아웃 함수 호출 플래그 설정
       await logoutAPI();
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('admin_user'); // 레거시 키도 정리
+      
+      // 로그아웃 성공 알림
+      alert('로그아웃이 되었습니다.');
     } catch (error) {
       console.error('로그아웃 실패:', error);
       setUser(null);
+      logoutCalledRef.current = true; // 에러가 발생해도 플래그 설정
     } finally {
       setIsLoading(false);
     }
@@ -266,6 +345,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUser = async (): Promise<void> => {
     try {
+      // 먼저 세션 갱신 시도
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        // 세션이 없거나 에러가 있으면 갱신 시도
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError || !refreshData.session) {
+          console.warn('세션 갱신 실패:', refreshError?.message);
+          setUser(null);
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('admin_user');
+          return;
+        }
+      }
+      
       const { data } = await supabase.auth.getUser();
       if (data.user) {
         const currentUser = await getCurrentUser();
@@ -279,10 +373,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } else {
         setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
       }
     } catch (error) {
       console.error('사용자 정보 새로고침 실패:', error);
-      await logout();
+      // 인증 관련 에러인 경우에만 로그아웃 처리
+      if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401'))) {
+        console.warn('인증 토큰 오류로 인한 로그아웃 처리');
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
+        // logout() 호출 시 무한 루프 방지를 위해 signOut만 호출
+        try {
+          await supabase.auth.signOut();
+        } catch (signOutError) {
+          console.error('로그아웃 처리 실패:', signOutError);
+        }
+      } else {
+        // 다른 에러는 로그아웃하지 않고 기존 사용자 정보 유지
+        const storedUser = getStoredUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      }
     }
   };
 

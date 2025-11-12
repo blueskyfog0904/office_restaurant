@@ -105,11 +105,13 @@ const RegionsPage: React.FC = () => {
   const [nearbyPool, setNearbyPool] = useState<RestaurantWithStats[]>([]);
   const [nearbyPoolLoading, setNearbyPoolLoading] = useState(false);
   const [regionMapOpen, setRegionMapOpen] = useState(false);
+  const [regionMapKey, setRegionMapKey] = useState<number>(Date.now());
   const [focusedRegionMarkerId, setFocusedRegionMarkerId] = useState<string | null>(null);
   const [selectedNearbyRadius, setSelectedNearbyRadius] = useState<number>(1);
   const [centerOnUserLocation, setCenterOnUserLocation] = useState(false);
   const [hoveredRestaurantId, setHoveredRestaurantId] = useState<string | null>(null);
   const [selectedRestaurantForModal, setSelectedRestaurantForModal] = useState<RestaurantWithStats | null>(null);
+  const [lastClickedRestaurantId, setLastClickedRestaurantId] = useState<string | null>(null);
   
   // 모달 관련 state
   const [modalReviews, setModalReviews] = useState<UserReview[]>([]);
@@ -304,11 +306,34 @@ const RegionsPage: React.FC = () => {
 
   // 지역 지도 모달의 초기 중심 좌표 (1위 음식점 기준)
   const regionMapInitialCenter = useMemo(() => {
-    if (regionRestaurants.length === 0) return undefined;
-    const topRestaurant = regionRestaurants[0];
+    if (regionRestaurants.length === 0) {
+      console.log('🗺️ 지역 지도 중심: 음식점 없음');
+      return undefined;
+    }
+    
+    // region_rank 기준으로 정렬하여 1위 음식점 찾기
+    const sortedRestaurants = [...regionRestaurants].sort((a, b) => {
+      const rankA = a.region_rank ?? 999999;
+      const rankB = b.region_rank ?? 999999;
+      return rankA - rankB;
+    });
+    
+    const topRestaurant = sortedRestaurants[0];
     const lat = toNumber(topRestaurant.latitude);
     const lng = toNumber(topRestaurant.longitude);
-    if (lat === null || lng === null) return undefined;
+    
+    console.log('🗺️ 지역 지도 중심 설정:', {
+      restaurant: topRestaurant.name,
+      rank: topRestaurant.region_rank,
+      latitude: lat,
+      longitude: lng
+    });
+    
+    if (lat === null || lng === null) {
+      console.warn('⚠️ 1위 음식점 좌표 없음:', topRestaurant.name);
+      return undefined;
+    }
+    
     return { latitude: lat, longitude: lng };
   }, [regionRestaurants]);
 
@@ -611,8 +636,13 @@ const RegionsPage: React.FC = () => {
       alert('선택된 지역에 등록된 맛집이 없습니다.');
       return;
     }
+    
+    // 지역 지도용 새로운 키 생성 (매번 완전히 새로운 지도 인스턴스 생성)
+    setRegionMapKey(Date.now());
     setFocusedRegionMarkerId(regionRestaurants[0]?.id ?? null);
     setRegionMapOpen(true);
+    
+    console.log('🗺️ 지역 지도 모달 열기 - 새 지도 인스턴스 생성');
   };
 
   // 모달 관련 함수들
@@ -959,23 +989,64 @@ const RegionsPage: React.FC = () => {
                     <p className="text-sm text-gray-600 mb-2">
                       반경 {selectedNearbyRadius}km 이내에 {nearbyRestaurantData.length}개 맛집이 있습니다.
                     </p>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {nearbyRestaurantData.map(({ restaurant, distance }) => (
-                        <button
-                          key={restaurant.id}
-                          onClick={() => setSelectedRestaurantForModal(restaurant)}
-                          onMouseEnter={() => setHoveredRestaurantId(restaurant.id)}
-                          onMouseLeave={() => setHoveredRestaurantId(null)}
-                          className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full"
-                        >
-                          <p className="font-medium text-gray-900 truncate">
-                            {restaurant.title || restaurant.name}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1 truncate">
-                            {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}
-                          </p>
-                        </button>
-                      ))}
+                    <style>
+                      {`
+                        .nearby-restaurant-scroll::-webkit-scrollbar {
+                          width: 8px;
+                        }
+                        .nearby-restaurant-scroll::-webkit-scrollbar-track {
+                          background: #f1f5f9;
+                          border-radius: 4px;
+                        }
+                        .nearby-restaurant-scroll::-webkit-scrollbar-thumb {
+                          background: #cbd5e1;
+                          border-radius: 4px;
+                        }
+                        .nearby-restaurant-scroll::-webkit-scrollbar-thumb:hover {
+                          background: #94a3b8;
+                        }
+                      `}
+                    </style>
+                    <div className="px-4 sm:px-0">
+                      <div 
+                        className="max-h-[216px] overflow-y-auto pr-2 nearby-restaurant-scroll"
+                        style={{
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#cbd5e1 #f1f5f9'
+                        }}
+                      >
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                          {nearbyRestaurantData.map(({ restaurant, distance }) => {
+                            const handleNearbyRestaurantCardClick = () => {
+                              // 모든 모드에서 동일하게 동작: 첫 번째 클릭은 지도 이동, 두 번째 클릭은 모달 열기
+                              if (lastClickedRestaurantId === restaurant.id) {
+                                // 같은 음식점을 두 번째 클릭하면 모달 열기
+                                setSelectedRestaurantForModal(restaurant);
+                                setLastClickedRestaurantId(null);
+                              } else {
+                                // 첫 번째 클릭이면 지도로 이동
+                                setHoveredRestaurantId(restaurant.id);
+                                setLastClickedRestaurantId(restaurant.id);
+                              }
+                            };
+                            
+                            return (
+                              <button
+                                key={restaurant.id}
+                                onClick={handleNearbyRestaurantCardClick}
+                                className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full"
+                              >
+                                <p className="font-medium text-gray-900 truncate">
+                                  {restaurant.title || restaurant.name}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1 truncate">
+                                  {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}
+                                </p>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -988,7 +1059,9 @@ const RegionsPage: React.FC = () => {
           ) : (
             <div className="mt-4 p-4 border border-dashed border-gray-200 rounded-lg bg-gray-50 text-sm text-gray-600">
               <p>위치 정보를 불러오면 내 주변 맛집을 지도에서 확인할 수 있습니다. 위치 공유를 허용하고 "내 위치 불러오기" 버튼을 눌러주세요.</p>
-              <p>(<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)</p>
+              {!(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+                <p>(<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)</p>
+              )}
               
             </div>
           )}
@@ -1086,9 +1159,11 @@ const RegionsPage: React.FC = () => {
                 지도에서 보기
               </button>
             </div>
-            <p className="text-xs text-gray-600 text-right">
-              (<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)
-            </p>
+            {!(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+              <p className="text-xs text-gray-600 text-right">
+                (<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -1248,6 +1323,7 @@ const RegionsPage: React.FC = () => {
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-500">
                   {selectedProvince} {selectedDistrict} · {regionRestaurants.length}개 맛집
+                   (우측 음식점 카드 1번 클릭시 지도로 이동, 2번 클릭시 음식점 정보 열기)
                 </p>
               </div>
               <button
@@ -1261,18 +1337,20 @@ const RegionsPage: React.FC = () => {
             <div className="flex flex-col md:flex-row md:divide-x divide-gray-200 flex-1 overflow-hidden">
               <div className="flex-1 min-h-[400px] md:min-h-0">
                 <AdvancedKakaoMap
-                  key={`region-map-${regionMapOpen ? 'open' : 'closed'}`}
+                  key={`region-map-modal-${regionMapKey}`}
                   height="100%"
                   markers={regionMarkers}
-                  fitBounds={true}
-                  initialCenter={regionMapInitialCenter || undefined}
-                  initialLevel={8}
+                  fitBounds={false}
+                  initialCenter={regionMapInitialCenter}
+                  initialLevel={6}
                   focusMarkerId={focusedRegionMarkerId ?? undefined}
                   onMarkerClick={handleRegionMarkerClick}
-                  viewStateKey="region-map-view"
+                  viewStateKey={undefined}
                   showControls={true}
                   userLocation={memoizedUserLocation}
                   showUserLocation={true}
+                  onRequestLocation={handleLocateMe}
+                  regionCenter={regionMapInitialCenter}
                 />
               </div>
               <div className="md:w-80 max-h-96 md:max-h-full overflow-y-auto bg-gray-50">
@@ -1284,14 +1362,26 @@ const RegionsPage: React.FC = () => {
                   <ul className="divide-y divide-gray-200">
                     {regionRestaurants.map((restaurant) => {
                       const isFocused = focusedRegionMarkerId === restaurant.id;
+                      const handleRestaurantCardClick = () => {
+                        // 모든 모드에서 동일하게 동작: 첫 번째 클릭은 지도 이동, 두 번째 클릭은 모달 열기
+                        if (lastClickedRestaurantId === restaurant.id) {
+                          // 같은 음식점을 두 번째 클릭하면 모달 열기
+                          setSelectedRestaurantForModal(restaurant);
+                          setLastClickedRestaurantId(null);
+                        } else {
+                          // 첫 번째 클릭이면 지도로 이동
+                          setFocusedRegionMarkerId(restaurant.id);
+                          setLastClickedRestaurantId(restaurant.id);
+                        }
+                      };
+                      
                       return (
                         <li key={restaurant.id}>
                           <button
-                            onClick={() => setSelectedRestaurantForModal(restaurant)}
+                            onClick={handleRestaurantCardClick}
                             className={`block w-full text-left px-5 py-4 transition-colors ${
                               isFocused ? 'bg-primary-50 border-l-4 border-primary-500' : 'hover:bg-white'
                             }`}
-                            onMouseEnter={() => setFocusedRegionMarkerId(restaurant.id)}
                           >
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-semibold text-gray-900 truncate">
@@ -1335,7 +1425,10 @@ const RegionsPage: React.FC = () => {
           </style>
           <div 
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50"
-            onClick={() => setSelectedRestaurantForModal(null)}
+            onClick={() => {
+              setSelectedRestaurantForModal(null);
+              setLastClickedRestaurantId(null);
+            }}
           >
             <div 
               className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
@@ -1347,7 +1440,10 @@ const RegionsPage: React.FC = () => {
                   {selectedRestaurantForModal.title || selectedRestaurantForModal.name}
                 </h2>
                 <button
-                  onClick={() => setSelectedRestaurantForModal(null)}
+                  onClick={() => {
+                    setSelectedRestaurantForModal(null);
+                    setLastClickedRestaurantId(null);
+                  }}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                   aria-label="닫기"
                 >
