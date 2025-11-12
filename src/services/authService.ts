@@ -25,15 +25,26 @@ export const login = async (credentials: LoginRequest): Promise<AuthResponse> =>
   const session = data.session;
   const user = data.user;
   if (!session || !user) throw new Error('로그인에 실패했습니다.');
+  
+  // profiles 테이블에서 role 정보 가져오기
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, nickname')
+    .eq('user_id', user.id)
+    .single();
+  
+  console.log('🔍 로그인 - profile 조회:', { user_id: user.id, role: profile?.role, nickname: profile?.nickname });
+  
   return {
     access_token: data.session?.access_token || '',
     token_type: 'bearer',
     user: {
       id: user.id,
       email: user.email ?? '',
-      username: user.user_metadata?.nickname ?? user.email ?? '',
+      username: profile?.nickname ?? user.user_metadata?.nickname ?? user.email ?? '',
       is_active: true,
-      is_admin: false,
+      is_admin: profile?.role === 'admin',
+      role: profile?.role || 'user',
       created_at: user.created_at ?? new Date().toISOString(),
     } as import('../types').User,
   };
@@ -79,15 +90,25 @@ export const register = async (userData: RegisterRequest): Promise<AuthResponse>
     console.error('약관 동의 처리 중 오류:', e);
   }
 
+  // profiles 테이블에서 role 정보 가져오기 (회원가입 직후에는 아직 없을 수 있음)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, nickname')
+    .eq('user_id', user.id)
+    .single();
+
+  console.log('🔍 회원가입 - profile 조회:', { user_id: user.id, role: profile?.role, nickname: profile?.nickname });
+
   return {
     access_token: data.session?.access_token || '',
     token_type: 'bearer',
     user: {
       id: user.id,
       email: user.email ?? '',
-      username: user.user_metadata?.nickname ?? userData.username,
+      username: profile?.nickname ?? user.user_metadata?.nickname ?? userData.username,
       is_active: true,
-      is_admin: false,
+      is_admin: profile?.role === 'admin',
+      role: profile?.role || 'user',
       created_at: user.created_at ?? new Date().toISOString(),
     } as import('../types').User,
   };

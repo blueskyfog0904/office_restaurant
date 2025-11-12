@@ -517,8 +517,9 @@ const RegionsPage: React.FC = () => {
   };
 
   const handleLocateMe = () => {
-    // 임시로 로그인 체크 비활성화
-    if (!isLoggedIn) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (!isLocalhost && !isLoggedIn) {
       alert('로그인 후 사용하실 수 있는 서비스입니다.');
       navigate('/login');
       return;
@@ -597,14 +598,14 @@ const RegionsPage: React.FC = () => {
     }
   }, [nearbyRestaurantData]);
 
-  // 임시 비활성화: 지도에서 보기 핸들러
-  /* const handleOpenRegionMap = () => {
-    // 임시로 로그인 체크 비활성화
-    // if (!isLoggedIn) {
-    //   alert('로그인 후 사용하실 수 있는 서비스입니다.');
-    //   navigate('/login');
-    //   return;
-    // }
+  const handleOpenRegionMap = () => {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (!isLocalhost && !isLoggedIn) {
+      alert('로그인 후 사용하실 수 있는 서비스입니다.');
+      navigate('/login');
+      return;
+    }
 
     if (regionRestaurants.length === 0) {
       alert('선택된 지역에 등록된 맛집이 없습니다.');
@@ -612,7 +613,7 @@ const RegionsPage: React.FC = () => {
     }
     setFocusedRegionMarkerId(regionRestaurants[0]?.id ?? null);
     setRegionMapOpen(true);
-  }; */
+  };
 
   // 모달 관련 함수들
   const loadModalReviews = async (restaurantId: string) => {
@@ -1071,8 +1072,7 @@ const RegionsPage: React.FC = () => {
                 <MapPinIcon className="h-4 w-4" />
                 <span>선택된 지역: <strong>{selectedProvince} {selectedDistrict}</strong></span>
               </div>
-              {/* 임시 비활성화: 지도에서 보기 버튼 */}
-              {/* <button
+              <button
                 type="button"
                 onClick={handleOpenRegionMap}
                 disabled={regionRestaurants.length === 0}
@@ -1084,12 +1084,11 @@ const RegionsPage: React.FC = () => {
               >
                 <MapIcon className="h-5 w-5" />
                 지도에서 보기
-              </button> */}
+              </button>
             </div>
-            {/* 임시 비활성화: 로그인 안내 문구 */}
-            {/* <p className="text-xs text-gray-600 text-right">
+            <p className="text-xs text-gray-600 text-right">
               (<span className="text-primary-500 font-bold">로그인 후</span> 사용하실 수 있는 서비스입니다.)
-            </p> */}
+            </p>
           </div>
         )}
       </div>
