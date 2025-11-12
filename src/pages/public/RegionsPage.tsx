@@ -1007,15 +1007,15 @@ const RegionsPage: React.FC = () => {
                         }
                       `}
                     </style>
-                    <div className="px-4 sm:px-0">
+                    <div className="px-4 sm:px-0 w-full min-w-0">
                       <div 
-                        className="max-h-[216px] overflow-y-auto pr-2 nearby-restaurant-scroll"
+                        className="max-h-[216px] overflow-y-auto overflow-x-hidden pr-2 nearby-restaurant-scroll w-full min-w-0"
                         style={{
                           scrollbarWidth: 'thin',
                           scrollbarColor: '#cbd5e1 #f1f5f9'
                         }}
                       >
-                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 justify-items-start w-full min-w-0">
                           {nearbyRestaurantData.map(({ restaurant, distance }) => {
                             const handleNearbyRestaurantCardClick = () => {
                               // 모든 모드에서 동일하게 동작: 첫 번째 클릭은 지도 이동, 두 번째 클릭은 모달 열기
@@ -1034,7 +1034,7 @@ const RegionsPage: React.FC = () => {
                               <button
                                 key={restaurant.id}
                                 onClick={handleNearbyRestaurantCardClick}
-                                className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full"
+                                className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full min-w-0 max-w-full"
                               >
                                 <p className="font-medium text-gray-900 truncate">
                                   {restaurant.title || restaurant.name}
