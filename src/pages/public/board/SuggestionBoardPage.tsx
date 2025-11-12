@@ -13,14 +13,24 @@ const SuggestionBoardPage: React.FC = () => {
     const loadPosts = async () => {
       setLoading(true);
       
+      // 타임아웃 설정 (15초)
+      const timeoutId = window.setTimeout(() => {
+        console.warn('⚠️ 의견제안 로드 타임아웃');
+        setLoading(false);
+        setPosts([]);
+      }, 15000);
+      
       try {
         const response = await getPosts('suggestion', currentPage, 20);
+        window.clearTimeout(timeoutId);
         setPosts(response.data);
         setTotalPages(response.pagination.pages);
       } catch (error) {
+        window.clearTimeout(timeoutId);
         console.error('의견제안 로드 실패:', error);
         setPosts([]);
       } finally {
+        window.clearTimeout(timeoutId);
         setLoading(false);
       }
     };

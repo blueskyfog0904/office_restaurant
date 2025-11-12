@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode, useCallback } from 'react';
 import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
+import { useActivityTracker } from '../hooks/useActivityTracker';
 
 // ===================================
 // 인증 Context 타입 정의
@@ -71,6 +72,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const logoutCalledRef = useRef(false);
+  const initTimeoutRef = useRef<number | null>(null);
+  
+  const handleInactivity = useCallback(async () => {
+    if (user && !logoutCalledRef.current) {
+      console.log('⏰ 10분 이상 비활성 상태 감지, 자동 로그아웃');
+      logoutCalledRef.current = true;
+      try {
+        await logoutAPI();
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('lastActivityTime');
+        alert('10분 이상 활동이 없어 자동으로 로그아웃되었습니다.');
+      } catch (error) {
+        console.error('자동 로그아웃 실패:', error);
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('lastActivityTime');
+      } finally {
+        logoutCalledRef.current = false;
+      }
+    }
+  }, [user]);
+  
+  useActivityTracker(handleInactivity);
 
   // ===================================
   // 초기 로그인 상태 확인
@@ -78,6 +105,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      // 타임아웃 설정 (10초) - 무한 로딩 방지
+      initTimeoutRef.current = window.setTimeout(() => {
+        console.warn('⚠️ 인증 초기화 타임아웃, 로딩 해제');
+        setIsLoading(false);
+      }, 10000);
+
       try {
         // 세션 갱신 시도 (만료된 세션 자동 갱신)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -99,6 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const refreshedSession = refreshData.session;
             if (refreshedSession?.user) {
               try {
+                localStorage.setItem('lastActivityTime', Date.now().toString());
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
                   setUser(currentUser);
@@ -124,23 +158,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         
         if (session?.user) {
+          localStorage.setItem('lastActivityTime', Date.now().toString());
+          
           // 세션이 있으면 사용자 정보 로드
           const storedUser = getStoredUser();
           
+          // 먼저 저장된 사용자 정보를 설정 (즉시 UI 업데이트)
           if (storedUser) {
             setUser(storedUser);
+            console.log('💾 저장된 사용자 정보 사용 (즉시):', storedUser.email, 'is_admin:', storedUser.is_admin);
           }
           
-          // 서버에서 최신 사용자 정보 가져오기
+          // 서버에서 최신 사용자 정보 가져오기 (타임아웃 적용, 백그라운드)
           try {
-            const currentUser = await getCurrentUser();
+            // Promise.race로 타임아웃 적용 (5초)
+            const timeoutPromise = new Promise<null>((resolve) => {
+              window.setTimeout(() => resolve(null), 5000);
+            });
+            
+            const currentUser = await Promise.race([
+              getCurrentUser(),
+              timeoutPromise
+            ]);
             
             if (currentUser) {
+              // 최신 사용자 정보로 업데이트
               setUser(currentUser);
               localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
               console.log('💾 초기화 - 사용자 정보 저장:', currentUser.email, 'is_admin:', currentUser.is_admin);
-            } else if (storedUser) {
-              setUser(storedUser);
+            } else {
+              // 타임아웃 또는 null 반환 시 저장된 사용자 정보 유지
+              if (storedUser) {
+                console.warn('⚠️ getCurrentUser 타임아웃 또는 null, 저장된 사용자 정보 유지');
+                // 이미 storedUser로 설정되어 있으므로 추가 작업 불필요
+              } else {
+                // 저장된 사용자 정보도 없으면 세션 정보로 fallback
+                console.warn('⚠️ 사용자 정보 없음, 세션 정보로 fallback');
+                const fallbackUser: User = {
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
+                  is_active: true,
+                  is_admin: false,
+                  created_at: session.user.created_at || new Date().toISOString(),
+                  role: 'user',
+                };
+                setUser(fallbackUser);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
+              }
             }
           } catch (error) {
             console.warn('최신 사용자 정보 로드 실패:', error);
@@ -150,9 +215,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               setUser(null);
               localStorage.removeItem(STORAGE_KEY);
               localStorage.removeItem('admin_user');
-              await supabase.auth.signOut();
+              try {
+                await supabase.auth.signOut();
+              } catch (signOutError) {
+                console.error('로그아웃 처리 실패:', signOutError);
+              }
             } else if (storedUser) {
-              setUser(storedUser);
+              // 다른 에러는 저장된 사용자 정보 유지 (이미 설정되어 있음)
+              console.log('💾 에러 발생, 저장된 사용자 정보 유지');
+            } else {
+              // 저장된 사용자 정보도 없으면 세션 정보로 fallback
+              const fallbackUser: User = {
+                id: session.user.id,
+                email: session.user.email || '',
+                username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
+                is_active: true,
+                is_admin: false,
+                created_at: session.user.created_at || new Date().toISOString(),
+                role: 'user',
+              };
+              setUser(fallbackUser);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
             }
           }
         } else {
@@ -168,6 +251,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('admin_user');
       } finally {
+        // 타임아웃 클리어
+        if (initTimeoutRef.current !== null) {
+          window.clearTimeout(initTimeoutRef.current);
+          initTimeoutRef.current = null;
+        }
+        // 항상 로딩 해제 보장
         setIsLoading(false);
       }
     };
@@ -220,6 +309,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // SIGNED_IN, INITIAL_SESSION만 처리
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
           try {
+            localStorage.setItem('lastActivityTime', Date.now().toString());
+            
             const currentUser = await getCurrentUser();
             
             if (currentUser) {
@@ -282,6 +373,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     return () => {
+      // 타임아웃 클리어
+      if (initTimeoutRef.current !== null) {
+        window.clearTimeout(initTimeoutRef.current);
+        initTimeoutRef.current = null;
+      }
       subscription.unsubscribe();
     };
   }, []);

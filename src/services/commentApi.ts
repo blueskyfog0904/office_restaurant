@@ -5,7 +5,7 @@ const getUserProfile = async (userId: string) => {
   try {
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('nickname, avatar_url')
+      .select('nickname, avatar_url, role')
       .eq('user_id', userId)
       .single();
     
@@ -169,7 +169,7 @@ export const getComments = async (
             ...comment,
             author_nickname: userProfile?.nickname || 'Unknown',
             author_avatar: userProfile?.avatar_url || null,
-            author_role: null,
+            author_role: (userProfile?.role as 'user' | 'moderator' | 'admin' | null) || null,
             user_liked: false,
             user_reported: false
           };
@@ -198,7 +198,8 @@ export const getComments = async (
             return {
               ...comment,
               author_nickname: userProfile?.nickname || comment.author_nickname || 'Unknown',
-              author_avatar: userProfile?.avatar_url || comment.author_avatar || null
+              author_avatar: userProfile?.avatar_url || comment.author_avatar || null,
+              author_role: (userProfile?.role as 'user' | 'moderator' | 'admin' | null) || comment.author_role || null
             };
           })
         );
@@ -262,7 +263,8 @@ export const getReplies = async (
           return {
             ...comment,
             author_nickname: userProfile?.nickname || comment.author_nickname || 'Unknown',
-            author_avatar: userProfile?.avatar_url || comment.author_avatar || null
+            author_avatar: userProfile?.avatar_url || comment.author_avatar || null,
+            author_role: (userProfile?.role as 'user' | 'moderator' | 'admin' | null) || comment.author_role || null
           };
         })
       );
@@ -323,15 +325,15 @@ export const createComment = async (commentData: CreateCommentData): Promise<Com
         // 사용자 정보와 함께 반환
         const { data: profile } = await supabase
           .from('profiles')
-          .select('nickname, avatar_url')
-          .eq('id', user.id)
+          .select('nickname, avatar_url, role')
+          .eq('user_id', user.id)
           .single();
 
         return {
           ...comment,
           author_nickname: profile?.nickname || 'Unknown',
           author_avatar: profile?.avatar_url || null,
-          author_role: null,
+          author_role: (profile?.role as 'user' | 'moderator' | 'admin' | null) || null,
           user_liked: false,
           user_reported: false
         };
@@ -345,7 +347,7 @@ export const createComment = async (commentData: CreateCommentData): Promise<Com
     // 로컬 스토리지 fallback
     console.log('💾 로컬 스토리지 임시 댓글 생성...');
     
-    // profiles 테이블에서 nickname 가져오기
+    // profiles 테이블에서 nickname과 role 가져오기
     const userProfile = await getUserProfile(user.id);
     
     const tempComment: Comment = {
@@ -365,7 +367,7 @@ export const createComment = async (commentData: CreateCommentData): Promise<Com
       deleted_at: null,
       author_nickname: userProfile?.nickname || user.email?.split('@')[0] || 'Unknown',
       author_avatar: userProfile?.avatar_url || null,
-      author_role: null,
+      author_role: (userProfile?.role as 'user' | 'moderator' | 'admin' | null) || null,
       user_liked: false,
       user_reported: false
     };

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,12 +9,34 @@ interface AdminRouteProps {
 const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { isAdmin, isLoading } = useAuth();
   const location = useLocation();
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  // 타임아웃 설정 (15초) - 무한 로딩 방지
+  useEffect(() => {
+    if (isLoading) {
+      const timeout = setTimeout(() => {
+        console.warn('⚠️ AdminRoute 로딩 타임아웃 (15초)');
+        setTimeoutReached(true);
+      }, 15000);
+
+      return () => clearTimeout(timeout);
+    } else {
+      setTimeoutReached(false);
+    }
+  }, [isLoading]);
 
   console.log('AdminRoute 상태:', { 
     isLoading, 
     isAdmin, 
-    pathname: location.pathname 
+    pathname: location.pathname,
+    timeoutReached
   });
+
+  // 타임아웃 발생 시 로그인 페이지로 리다이렉트
+  if (timeoutReached) {
+    console.error('❌ AdminRoute 타임아웃 - 로그인 페이지로 리다이렉트');
+    return <Navigate to="/admin/login" state={{ from: location, timeout: true }} replace />;
+  }
 
   // 로딩 중일 때는 로딩 스피너 표시
   if (isLoading) {

@@ -791,22 +791,51 @@ export const updatePost = async (id: string, data: Partial<PostData>): Promise<P
   }
 
   try {
-    const { data: post, error } = await supabase
+    console.log('🔄 게시글 업데이트 시작:', { id, data });
+    
+    const updateData = {
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+    
+    console.log('📤 실제 전송 데이터:', updateData);
+
+    // 관리자 권한이 필요한 작업이므로 supabaseAdmin 사용 (RLS 우회)
+    const { data: post, error } = await supabaseAdmin
       .from('posts')
-      .update({
-        ...data,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
 
+    console.log('📥 Supabase 응답:', { post, error });
+
     if (error) {
+      console.error('❌ Supabase 에러:', error);
       throw new Error(getErrorMessage(error));
     }
 
-    return post;
+    if (!post) {
+      console.error('❌ 업데이트된 데이터가 없음');
+      throw new Error('업데이트된 게시글 정보를 찾을 수 없습니다.');
+    }
+
+    // 작성자 정보 조회 (일반 supabase 사용 가능)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('nickname, email')
+      .eq('user_id', post.author_id)
+      .single();
+
+    const result = {
+      ...post,
+      author: profile || { nickname: '알 수 없음', email: '' }
+    };
+
+    console.log('✅ 게시글 업데이트 성공:', result);
+    return result;
   } catch (error) {
+    console.error('💥 updatePost 전체 에러:', error);
     throw new Error(`게시글 수정 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
   }
 };

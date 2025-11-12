@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, isAdmin, isLoading } = useAuth();
+  const [timeoutMessage, setTimeoutMessage] = useState<string | null>(null);
+
+  // 타임아웃 메시지 확인
+  useEffect(() => {
+    const state = location.state as { timeout?: boolean } | null;
+    if (state?.timeout) {
+      setTimeoutMessage('인증 확인 시간이 초과되었습니다. 다시 로그인해주세요.');
+      // URL에서 state 제거
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // 이미 로그인된 경우 대시보드로 리다이렉트
   useEffect(() => {
@@ -81,6 +93,11 @@ const AdminLoginPage: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {timeoutMessage && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <p className="text-sm text-yellow-700">{timeoutMessage}</p>
+              </div>
+            )}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-4">
                 <p className="text-sm text-red-700">{error}</p>
