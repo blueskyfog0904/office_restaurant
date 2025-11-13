@@ -551,6 +551,24 @@ const RegionsPage: React.FC = () => {
     }
 
     setGeoError(null);
+    
+    if (isLocalhost) {
+      console.log('🏠 localhost 환경 감지 - 테스트용 좌표 사용');
+      setGeoStatus('loading');
+      setTimeout(() => {
+        sessionStorage.removeItem(MAP_VIEW_STATE_KEY);
+        setMapViewState(null);
+        mapViewStateRef.current = null;
+        setUserLocation({
+          latitude: 35.40063854,
+          longitude: 127.37603443,
+        });
+        setCenterOnUserLocation(true);
+        setGeoStatus('success');
+        console.log('✅ 테스트용 위치 설정 완료:', { latitude: 35.40063854, longitude: 127.37603443 });
+      }, 100);
+      return;
+    }
 
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       setGeoStatus('error');
@@ -1038,6 +1056,11 @@ const RegionsPage: React.FC = () => {
                               >
                                 <p className="font-medium text-gray-900 truncate">
                                   {restaurant.title || restaurant.name}
+                                  {restaurant.category && (
+                                    <span className="ml-2 text-xs font-normal text-gray-500">
+                                      {restaurant.category}
+                                    </span>
+                                  )}
                                 </p>
                                 <p className="text-xs text-gray-500 mt-1 truncate">
                                   {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}

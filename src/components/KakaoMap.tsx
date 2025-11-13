@@ -558,16 +558,16 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       const wrapper = document.createElement('div');
       wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;transform:translateY(-6px);';
 
-      const pin = document.createElement('div');
-      pin.style.cssText = `width:${isFocused ? 18 : 14}px;height:${isFocused ? 18 : 14}px;border-radius:9999px;background:#2563eb;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(37,99,235,0.6);`;
-      wrapper.appendChild(pin);
-
       if (item.name) {
         const label = document.createElement('div');
         label.textContent = item.name;
         label.style.cssText = 'padding:6px 10px;background:#facc15;color:#1f2937;border-radius:6px;border:1px solid #facc15;box-shadow:0 4px 10px rgba(0,0,0,0.12);font-size:12px;font-weight:600;max-width:200px;text-align:center;white-space:nowrap;';
         wrapper.appendChild(label);
       }
+
+      const pin = document.createElement('div');
+      pin.style.cssText = `width:${isFocused ? 18 : 14}px;height:${isFocused ? 18 : 14}px;border-radius:9999px;background:#2563eb;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(37,99,235,0.6);`;
+      wrapper.appendChild(pin);
 
       if (onMarkerClick) {
         wrapper.style.cursor = 'pointer';
