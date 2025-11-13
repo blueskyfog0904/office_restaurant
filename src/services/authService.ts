@@ -1141,12 +1141,24 @@ export const getHomePageStats = async (): Promise<HomePageStats> => {
     console.log('📊 홈페이지 통계 데이터 로딩 시작...');
     
     const fetchStats = async () => {
-      const [regionResult, restaurantResult, visitResult] = await Promise.all([
+      const [regionCountResult, restaurantResult, visitResult] = await Promise.all([
         retryWithBackoff(async () => {
-          const { data, error } = await supabase
-            .from('restaurants')
-            .select('region, sub_region', { count: 'exact', head: false });
-          if (error) throw error;
+          // RPC 함수를 사용하여 sub_add2의 DISTINCT 개수 가져오기
+          const { data, error } = await supabase.rpc('get_distinct_sub_add2_count');
+          if (error) {
+            console.warn('RPC 함수 호출 실패, fallback 사용:', error);
+            // Fallback: 직접 쿼리로 계산
+            const { data: fallbackData, error: fallbackError } = await supabase
+              .from('restaurants')
+              .select('sub_add2')
+              .not('sub_add2', 'is', null)
+              .limit(100000);
+            if (fallbackError) throw fallbackError;
+            const uniqueSubAdd2 = new Set(
+              fallbackData?.map((r: any) => r.sub_add2).filter((val: any) => val != null) || []
+            );
+            return uniqueSubAdd2.size;
+          }
           return data;
         }),
         retryWithBackoff(async () => {
@@ -1165,14 +1177,11 @@ export const getHomePageStats = async (): Promise<HomePageStats> => {
         })
       ]);
 
-      const uniqueRegions = new Set(
-        regionResult?.map((r: any) => `${r.region}-${r.sub_region}`) || []
-      );
-      const regionCount = uniqueRegions.size;
+      const regionCount = regionCountResult || 0;
       const restaurantCount = restaurantResult || 0;
       const totalVisits = visitResult?.reduce((sum: number, item: any) => sum + (item.total_count || 0), 0) || 0;
 
-      console.log('✅ 지역 수:', regionCount);
+      console.log('✅ 지역 수 (sub_add2 DISTINCT):', regionCount);
       console.log('✅ 등록된 맛집 수:', restaurantCount);
       console.log('✅ 총 방문 기록:', totalVisits);
 
