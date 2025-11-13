@@ -1120,60 +1120,72 @@ export interface HomePageStats {
   totalVisits: number;
 }
 
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> => {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+    }
+  }
+  throw new Error('재시도 실패');
+};
+
 export const getHomePageStats = async (): Promise<HomePageStats> => {
   try {
     console.log('📊 홈페이지 통계 데이터 로딩 시작...');
     
-    // 지역 수 계산 (DISTINCT region + sub_region 조합)
-    const { data: regionData, error: regionError } = await supabase
-      .from('restaurants')
-      .select('region, sub_region', { count: 'exact', head: false });
-    
-    if (regionError) {
-      console.error('❌ 지역 수 조회 실패:', regionError);
-      throw regionError;
-    }
+    const fetchStats = async () => {
+      const [regionResult, restaurantResult, visitResult] = await Promise.all([
+        retryWithBackoff(async () => {
+          const { data, error } = await supabase
+            .from('restaurants')
+            .select('region, sub_region', { count: 'exact', head: false });
+          if (error) throw error;
+          return data;
+        }),
+        retryWithBackoff(async () => {
+          const { count, error } = await supabase
+            .from('restaurants')
+            .select('*', { count: 'exact', head: true });
+          if (error) throw error;
+          return count;
+        }),
+        retryWithBackoff(async () => {
+          const { data, error } = await supabase
+            .from('visit_summary')
+            .select('total_count');
+          if (error) throw error;
+          return data;
+        })
+      ]);
 
-    // DISTINCT 조합 계산
-    const uniqueRegions = new Set(
-      regionData?.map(r => `${r.region}-${r.sub_region}`) || []
-    );
-    const regionCount = uniqueRegions.size;
+      const uniqueRegions = new Set(
+        regionResult?.map((r: any) => `${r.region}-${r.sub_region}`) || []
+      );
+      const regionCount = uniqueRegions.size;
+      const restaurantCount = restaurantResult || 0;
+      const totalVisits = visitResult?.reduce((sum: number, item: any) => sum + (item.total_count || 0), 0) || 0;
 
-    // 맛집 수 계산
-    const { count: restaurantCount, error: restaurantError } = await supabase
-      .from('restaurants')
-      .select('*', { count: 'exact', head: true });
-    
-    if (restaurantError) {
-      console.error('❌ 맛집 수 조회 실패:', restaurantError);
-      throw restaurantError;
-    }
+      console.log('✅ 지역 수:', regionCount);
+      console.log('✅ 등록된 맛집 수:', restaurantCount);
+      console.log('✅ 총 방문 기록:', totalVisits);
 
-    // 방문 기록 수 계산 (visit_summary의 total_count 합계)
-    const { data: visitData, error: visitsError } = await supabase
-      .from('visit_summary')
-      .select('total_count');
-    
-    if (visitsError) {
-      console.error('❌ 방문 기록 조회 실패:', visitsError);
-      throw visitsError;
-    }
-
-    const totalVisits = visitData?.reduce((sum, item) => sum + (item.total_count || 0), 0) || 0;
-
-    console.log('✅ 지역 수:', regionCount);
-    console.log('✅ 등록된 맛집 수:', restaurantCount);
-    console.log('✅ 총 방문 기록:', totalVisits);
-
-    return {
-      regionCount: regionCount || 0,
-      restaurantCount: restaurantCount || 0,
-      totalVisits: totalVisits || 0
+      return {
+        regionCount: regionCount || 0,
+        restaurantCount: restaurantCount || 0,
+        totalVisits: totalVisits || 0
+      };
     };
+
+    return await fetchStats();
   } catch (error) {
     console.error('❌ 홈페이지 통계 조회 실패:', error);
-    // 기본값 반환
     return {
       regionCount: 0,
       restaurantCount: 0,

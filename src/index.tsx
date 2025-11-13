@@ -4,6 +4,55 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const APP_VERSION = '1.0.0';
+const STORAGE_VERSION_KEY = 'app_version';
+
+const clearOldCache = () => {
+  const storedVersion = localStorage.getItem(STORAGE_VERSION_KEY);
+  
+  if (storedVersion !== APP_VERSION) {
+    console.log('🔄 앱 버전 변경 감지, 캐시 정리 중...', {
+      stored: storedVersion,
+      current: APP_VERSION
+    });
+    
+    const keysToKeep = ['lastActivityTime'];
+    const keysToRemove: string[] = [];
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && !keysToKeep.includes(key)) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    keysToRemove.forEach(key => {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn(`캐시 정리 실패: ${key}`, e);
+      }
+    });
+    
+    sessionStorage.clear();
+    
+    localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION);
+    console.log('✅ 캐시 정리 완료');
+  }
+};
+
+clearOldCache();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(registration => {
+      registration.unregister().then(() => {
+        console.log('✅ 서비스 워커 등록 해제 완료');
+      });
+    });
+  });
+}
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

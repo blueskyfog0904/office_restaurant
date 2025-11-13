@@ -105,15 +105,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // 타임아웃 설정 (10초) - 무한 로딩 방지
+      // 타임아웃 설정 (30초) - 무한 로딩 방지 (재시도 로직 고려)
       initTimeoutRef.current = window.setTimeout(() => {
         console.warn('⚠️ 인증 초기화 타임아웃, 로딩 해제');
         setIsLoading(false);
-      }, 10000);
+      }, 30000);
 
       try {
-        // 세션 갱신 시도 (만료된 세션 자동 갱신)
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        let session = null;
+        let sessionError = null;
+        
+        // 세션 가져오기 재시도 로직 (최대 3회)
+        for (let retry = 0; retry < 3; retry++) {
+          try {
+            const result = await supabase.auth.getSession();
+            session = result.data.session;
+            sessionError = result.error;
+            if (!sessionError && session) break;
+            if (retry < 2) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
+            }
+          } catch (err) {
+            sessionError = err as any;
+            if (retry < 2) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
+            }
+          }
+        }
         
         // 세션 에러가 있거나 세션이 만료된 경우 갱신 시도
         if (sessionError || !session) {
