@@ -20,7 +20,8 @@ const AdminEditRestaurantPage: React.FC = () => {
     telephone: '',
     region: '',
     sub_region: '',
-    is_active: true
+    is_active: true,
+    primary_photo_url: ''
   });
 
   useEffect(() => {
@@ -50,7 +51,8 @@ const AdminEditRestaurantPage: React.FC = () => {
         telephone: data.phone || '',
         region: data.sub_add1 || '',
         sub_region: data.sub_add2 || '',
-        is_active: data.is_active ?? true
+        is_active: data.is_active ?? true,
+        primary_photo_url: data.primary_photo_url || ''
       });
     } catch (error) {
       console.error('음식점 정보 로드 실패:', error);
@@ -95,7 +97,8 @@ const AdminEditRestaurantPage: React.FC = () => {
         telephone: formData.telephone.trim() || undefined,
         region: formData.region.trim() || undefined,
         sub_region: formData.sub_region.trim() || undefined,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        primary_photo_url: formData.primary_photo_url.trim() || undefined
       };
       
       console.log('🎯 수정 시도 - ID:', id);
@@ -250,6 +253,37 @@ const AdminEditRestaurantPage: React.FC = () => {
                 placeholder="예: 강남구"
               />
             </div>
+          </div>
+
+          {/* 대표 이미지 URL */}
+          <div>
+            <label htmlFor="primary_photo_url" className="block text-sm font-medium text-gray-700 mb-2">
+              대표 이미지 URL
+            </label>
+            <input
+              type="url"
+              id="primary_photo_url"
+              name="primary_photo_url"
+              value={formData.primary_photo_url}
+              onChange={handleInputChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              placeholder="https://example.com/image.jpg"
+            />
+            {formData.primary_photo_url && (
+              <div className="mt-2">
+                <img
+                  src={formData.primary_photo_url}
+                  alt="대표 이미지 미리보기"
+                  className="max-w-xs h-32 object-cover rounded-md border border-gray-300"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              음식점 카드에 표시될 대표 이미지 URL을 입력하세요. Google Places API에서 자동으로 설정되지만, 원하는 이미지로 변경할 수 있습니다.
+            </p>
           </div>
 
           {/* 활성화 상태 */}

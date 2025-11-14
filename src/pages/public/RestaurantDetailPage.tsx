@@ -16,7 +16,9 @@ import {
   getRestaurantByLocation,
   getRestaurantReviews,
   getRestaurantReviewSummary,
-  createReview 
+  createReview,
+  getRestaurantPhotos,
+  RestaurantPhoto
 } from '../../services/authService';
 import { 
   RestaurantWithStats, 
@@ -27,6 +29,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import KakaoMap from '../../components/KakaoMap';
 import ShareModal from '../../components/ShareModal';
+import RestaurantPhotoGallery from '../../components/RestaurantPhotoGallery';
 import { ShareData } from '../../utils/socialShare';
 import { addToRecentHistory, isFavorite, addToFavorites, removeFromFavorites } from '../../utils/favorites';
 import { supabase } from '../../services/supabaseClient';
@@ -45,6 +48,8 @@ const RestaurantDetailPage: React.FC = () => {
   const [restaurant, setRestaurant] = useState<RestaurantWithStats | null>(null);
   const [reviews, setReviews] = useState<UserReview[]>([]);
   const [reviewSummary, setReviewSummary] = useState<RestaurantReviewSummary | null>(null);
+  const [photos, setPhotos] = useState<RestaurantPhoto[]>([]);
+  const [photosLoading, setPhotosLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -168,6 +173,7 @@ const RestaurantDetailPage: React.FC = () => {
             if (!cancelled) setReviewSummary(summary);
           }).catch(() => {}),
           loadReviews(String(restaurantData.id)),
+          loadPhotos(String(restaurantData.id)),
           isLoggedIn && user ? checkUserReviewFromDB(restaurantData.id).then((hasReviewed) => {
             if (!cancelled) setHasUserReviewed(hasReviewed);
           }).catch(() => {}) : Promise.resolve()
@@ -227,6 +233,20 @@ const RestaurantDetailPage: React.FC = () => {
       console.error('리뷰 로드 실패:', error);
     } finally {
       setReviewsLoading(false);
+    }
+  };
+
+  // 사진 목록 로드
+  const loadPhotos = async (restaurantId: string) => {
+    try {
+      setPhotosLoading(true);
+      const photosData = await getRestaurantPhotos(restaurantId);
+      setPhotos(photosData);
+    } catch (error) {
+      console.error('사진 로드 실패:', error);
+      setPhotos([]);
+    } finally {
+      setPhotosLoading(false);
     }
   };
 
@@ -597,6 +617,17 @@ const RestaurantDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 사진 갤러리 */}
+      {photos.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
+          <RestaurantPhotoGallery 
+            photos={photos} 
+            restaurantName={restaurant.title || restaurant.name}
+          />
+        </div>
+      )}
 
       {/* 카카오 지도 */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">

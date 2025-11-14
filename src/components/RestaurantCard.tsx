@@ -106,8 +106,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     }
   };
 
-  // 메인 이미지 URL (첫 번째 이미지 또는 기본 이미지)
-  const mainImage = restaurant.images?.find(img => img.image_type === 'main')?.image_url ||
+  // 메인 이미지 URL (primary_photo_url 우선 사용, 없으면 기존 로직)
+  const mainImage = restaurant.primary_photo_url ||
+                   restaurant.images?.find(img => img.image_type === 'main')?.image_url ||
                    restaurant.images?.[0]?.image_url;
 
   // 별점 렌더링 (음식점 상세페이지와 동일한 스타일)

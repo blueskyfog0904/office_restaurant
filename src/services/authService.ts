@@ -321,7 +321,7 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
     // 직접 restaurants 테이블에서 쿼리 (약 400배 빠름)
     let query = supabase
       .from('restaurants')
-      .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,rank_value', { count: 'exact' })
+      .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,rank_value,primary_photo_url', { count: 'exact' })
       .eq('is_active', true);
 
     if (sub_add1) {
@@ -414,6 +414,7 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
         region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
         recent_visits: [],
         recent_rankings: [],
+        primary_photo_url: row.primary_photo_url,
       } as any;
       return mapped;
     });
@@ -572,7 +573,7 @@ export const getRestaurantById = async (id: string): Promise<RestaurantWithStats
   // ID로 조회하는 경우도 직접 restaurants 테이블 사용 (더 빠름)
   const { data, error } = await supabase
     .from('restaurants')
-    .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count')
+    .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,primary_photo_url')
     .eq('id', id)
     .single();
   if (error) throw new Error(getErrorMessage(error));
@@ -610,6 +611,7 @@ export const getRestaurantById = async (id: string): Promise<RestaurantWithStats
     region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
     recent_visits: [],
     recent_rankings: [],
+    primary_photo_url: row.primary_photo_url,
   } as any;
   return mapped as any;
 };
@@ -698,7 +700,7 @@ export const getRestaurantByLocation = async (
   // 인덱스를 최대한 활용하기 위해 title로 먼저 시도 (unique_restaurant_location 인덱스 활용)
   let query = supabase
     .from('restaurants')
-    .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count')
+    .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,primary_photo_url')
     .eq('sub_add1', decodedSubAdd1)
     .eq('sub_add2', decodedSubAdd2)
     .eq('title', decodedTitle)
@@ -712,7 +714,7 @@ export const getRestaurantByLocation = async (
   if ((!data || data.length === 0) && !error) {
     query = supabase
       .from('restaurants')
-      .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count')
+      .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,primary_photo_url')
       .eq('sub_add1', decodedSubAdd1)
       .eq('sub_add2', decodedSubAdd2)
       .eq('name', decodedTitle)
@@ -767,6 +769,7 @@ export const getRestaurantByLocation = async (
     national_rank: null,
     favorite_count: 0,
     region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
+    primary_photo_url: row.primary_photo_url,
     recent_visits: [],
     recent_rankings: [],
   } as any;
@@ -970,6 +973,37 @@ export const getRestaurantReviews = async (
     data: (data ?? []) as any,
     pagination: { page, size, total: count ?? 0, pages: Math.max(1, Math.ceil((count ?? 0) / size)) },
   };
+};
+
+// ===================================
+// 음식점 사진 관련 API
+// ===================================
+
+export interface RestaurantPhoto {
+  id: string;
+  restaurant_id: string;
+  photo_reference: string | null;
+  photo_url: string;
+  description: string | null;
+  uploaded_at: string;
+  display_order: number;
+}
+
+export const getRestaurantPhotos = async (restaurantId: string): Promise<RestaurantPhoto[]> => {
+  const { data, error } = await supabase
+    .from('restaurant_photos')
+    .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order')
+    .eq('restaurant_id', restaurantId)
+    .order('display_order', { ascending: true })
+    .order('uploaded_at', { ascending: true })
+    .limit(30);
+
+  if (error) {
+    console.error('음식점 사진 조회 실패:', error);
+    throw new Error(getErrorMessage(error));
+  }
+
+  return (data || []) as RestaurantPhoto[];
 };
 
 export const getRestaurantReviewSummary = async (

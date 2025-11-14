@@ -23,7 +23,9 @@ import {
   getNearbyRestaurants,
   getRestaurantReviews,
   getRestaurantReviewSummary,
-  createReview
+  createReview,
+  getRestaurantPhotos,
+  RestaurantPhoto
 } from '../../services/authService';
 import { 
   Region, 
@@ -37,6 +39,7 @@ import { sortProvinces, sortDistricts } from '../../utils/regionOrder';
 import AdvancedKakaoMap, { MapMarker } from '../../components/AdvancedKakaoMap';
 import KakaoMap from '../../components/KakaoMap';
 import ShareModal from '../../components/ShareModal';
+import RestaurantPhotoGallery from '../../components/RestaurantPhotoGallery';
 import { ShareData } from '../../utils/socialShare';
 import { isFavorite, addToFavorites, removeFromFavorites } from '../../utils/favorites';
 import { supabase } from '../../services/supabaseClient';
@@ -117,6 +120,8 @@ const RegionsPage: React.FC = () => {
   const [modalReviews, setModalReviews] = useState<UserReview[]>([]);
   const [modalReviewSummary, setModalReviewSummary] = useState<RestaurantReviewSummary | null>(null);
   const [modalReviewsLoading, setModalReviewsLoading] = useState(false);
+  const [modalPhotos, setModalPhotos] = useState<RestaurantPhoto[]>([]);
+  const [modalPhotosLoading, setModalPhotosLoading] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewContent, setReviewContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -676,6 +681,19 @@ const RegionsPage: React.FC = () => {
     }
   };
 
+  const loadModalPhotos = async (restaurantId: string) => {
+    try {
+      setModalPhotosLoading(true);
+      const photosData = await getRestaurantPhotos(restaurantId);
+      setModalPhotos(photosData);
+    } catch (error) {
+      console.error('사진 로드 실패:', error);
+      setModalPhotos([]);
+    } finally {
+      setModalPhotosLoading(false);
+    }
+  };
+
   const checkUserReviewFromDB = useCallback(async (restaurantId: string | number) => {
     if (!isLoggedIn || !user) return false;
     try {
@@ -839,6 +857,7 @@ const RegionsPage: React.FC = () => {
           .then(setModalReviewSummary)
           .catch(() => {}),
         loadModalReviews(String(selectedRestaurantForModal.id)),
+        loadModalPhotos(String(selectedRestaurantForModal.id)),
         isLoggedIn && user
           ? checkUserReviewFromDB(selectedRestaurantForModal.id)
               .then(setHasUserReviewed)
@@ -850,6 +869,7 @@ const RegionsPage: React.FC = () => {
     } else {
       setModalReviews([]);
       setModalReviewSummary(null);
+      setModalPhotos([]);
       setHasUserReviewed(false);
       setShouldLoadModalMap(false);
     }
@@ -1591,6 +1611,17 @@ const RegionsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* 사진 갤러리 */}
+                {modalPhotos.length > 0 && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
+                    <RestaurantPhotoGallery 
+                      photos={modalPhotos} 
+                      restaurantName={selectedRestaurantForModal.title || selectedRestaurantForModal.name}
+                    />
+                  </div>
+                )}
 
                 {/* 카카오 지도 */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

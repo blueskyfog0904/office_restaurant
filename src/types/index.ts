@@ -90,6 +90,7 @@ export interface Restaurant {
   created_at: string;
   updated_at: string;
   region_info?: Region;  // 기존 region 필드를 region_info로 변경
+  primary_photo_url?: string;  // 대표 이미지 URL
 }
 
 export interface RestaurantListResponse extends BaseResponse {
