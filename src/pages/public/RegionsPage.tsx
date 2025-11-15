@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   MapPinIcon,
@@ -91,7 +91,11 @@ const RegionsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate();
+  const location = useLocation();
   const scrollPositionKey = 'regionsPageScrollPosition';
+  const displayedCountKey = 'regionsPageDisplayedCount';
+  const searchParamsKey = 'regionsPageSearchParams';
+  const previousLocationKeyRef = useRef<string | null>(null);
   
   // 상태 관리
   const [mapViewState, setMapViewState] = useState<{ latitude: number; longitude: number; level: number } | null>(null);
@@ -132,9 +136,52 @@ const RegionsPage: React.FC = () => {
   
   // 모바일 무한 스크롤 관련 상태
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [displayedCount, setDisplayedCount] = useState(5);
+  // 초기값을 sessionStorage에서 안전하게 가져오기
+  const getInitialDisplayedCount = () => {
+    // 1. 브라우저 환경 체크
+    if (typeof window === 'undefined' || window.innerWidth >= 768) {
+      return 5;
+    }
+    
+    // 2. sessionStorage 체크
+    try {
+      const savedCount = sessionStorage.getItem(displayedCountKey);
+      const savedSearchParams = sessionStorage.getItem(searchParamsKey);
+      
+      if (!savedCount || !savedSearchParams) {
+        return 5;
+      }
+      
+      // 3. URL 파라미터 체크 (window.location.search에서 직접 읽기)
+      const urlParams = new URLSearchParams(window.location.search);
+      const province = urlParams.get('province');
+      const district = urlParams.get('district');
+      
+      if (!province || !district) {
+        return 5;  // URL 파라미터가 없으면 초기값 5
+      }
+      
+      const currentSearchKey = `${province}|${district}|all`;
+      
+      // 4. 검색 키 일치 확인
+      if (savedSearchParams === currentSearchKey) {
+        const count = parseInt(savedCount, 10);
+        if (count > 0 && count <= 1000) {  // 합리적인 범위 체크
+          console.log('🎯 초기값에서 복원:', count);
+          return count;
+        }
+      }
+    } catch (error) {
+      console.warn('초기값 복원 실패:', error);
+    }
+    
+    return 5;  // 모든 경우에 실패하면 기본값
+  };
+  const [displayedCount, setDisplayedCount] = useState(getInitialDisplayedCount);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const lastCardRef = useRef<HTMLDivElement | null>(null);
+  const restoredDisplayedCountRef = useRef(false);
+  const isRestoringRef = useRef(false);
   
   // 화면 크기 변경 감지
   useEffect(() => {
@@ -246,6 +293,106 @@ const RegionsPage: React.FC = () => {
     return filteredRestaurants;
   }, [filteredRestaurants, displayedCount, isMobile]);
 
+  // displayedCount 변경 시 sessionStorage에 저장
+  useEffect(() => {
+    if (isMobile && searchPerformed && selectedProvince && selectedDistrict) {
+      const searchKey = `${selectedProvince}|${selectedDistrict}|${selectedCategory}`;
+      sessionStorage.setItem(displayedCountKey, displayedCount.toString());
+      sessionStorage.setItem(searchParamsKey, searchKey);
+      console.log('💾 displayedCount 저장:', displayedCount, '검색 키:', searchKey);
+    }
+  }, [displayedCount, isMobile, searchPerformed, selectedProvince, selectedDistrict, selectedCategory]);
+
+  // 뒤로가기 감지: location.key가 변경되면 뒤로가기일 수 있음
+  useEffect(() => {
+    const isBackNavigation = previousLocationKeyRef.current !== null && 
+                            previousLocationKeyRef.current !== location.key &&
+                            location.pathname.includes('/restaurants');
+    
+    if (isBackNavigation && isMobile) {
+      const savedCount = sessionStorage.getItem(displayedCountKey);
+      const savedSearchParams = sessionStorage.getItem(searchParamsKey);
+      const currentSearchKey = searchParams.get('province') && searchParams.get('district')
+        ? `${searchParams.get('province')}|${searchParams.get('district')}|all`
+        : null;
+      
+      if (savedCount && savedSearchParams === currentSearchKey) {
+        restoredDisplayedCountRef.current = false;
+        console.log('🔄 뒤로가기 감지 (location.key 변경), 복원 준비:', savedCount);
+      }
+    }
+    
+    previousLocationKeyRef.current = location.key;
+  }, [location.key, location.pathname, isMobile, searchParams]);
+
+  // 컴포넌트 마운트 시 또는 검색 결과 로드 후 displayedCount 복원
+  // 이 로직은 카테고리 변경 리셋 로직보다 먼저 실행되어야 함
+  // 우선순위를 높이기 위해 의존성 배열에 loading 상태를 추가하여 검색 완료 직후 실행되도록 함
+  useEffect(() => {
+    if (!isMobile || !searchPerformed || restaurants.length === 0 || filteredRestaurants.length === 0 || loading) {
+      return;
+    }
+    
+    // 이미 복원했으면 다시 복원하지 않음
+    if (restoredDisplayedCountRef.current) {
+      return;
+    }
+    
+    // 복원 중 플래그 설정
+    isRestoringRef.current = true;
+    
+    const savedCount = sessionStorage.getItem(displayedCountKey);
+    const savedSearchParams = sessionStorage.getItem(searchParamsKey);
+    const currentSearchKey = `${selectedProvince}|${selectedDistrict}|${selectedCategory}`;
+    
+    console.log('🔍 복원 시도:', {
+      savedCount,
+      savedSearchParams,
+      currentSearchKey,
+      restaurantsLength: restaurants.length,
+      filteredLength: filteredRestaurants.length,
+      displayedCount: displayedCount
+    });
+    
+    // 동일한 검색 조건일 때만 복원
+    if (savedCount && savedSearchParams === currentSearchKey) {
+      const count = parseInt(savedCount, 10);
+      if (count > 0 && count <= filteredRestaurants.length) {
+        // 현재 값이 이미 복원된 값과 다르면 업데이트 (초기값과의 충돌 방지)
+        // displayedCount는 ref로 현재 값을 확인하여 불필요한 업데이트 방지
+        const currentDisplayedCount = displayedCount;
+        if (count !== currentDisplayedCount) {
+          setDisplayedCount(count);
+          restoredDisplayedCountRef.current = true;
+          isRestoringRef.current = false;
+          console.log('✅ displayedCount 복원 성공:', count, '검색 키:', currentSearchKey, '(이전 값:', currentDisplayedCount, ')');
+        } else {
+          // 이미 올바른 값이면 플래그만 설정
+          restoredDisplayedCountRef.current = true;
+          isRestoringRef.current = false;
+          console.log('✅ displayedCount 이미 복원됨:', count);
+        }
+      } else {
+        // 저장된 값이 유효하지 않으면 최대값으로 조정
+        const validCount = Math.min(count, filteredRestaurants.length);
+        const currentDisplayedCount = displayedCount;
+        if (validCount > 0 && validCount !== currentDisplayedCount) {
+          setDisplayedCount(validCount);
+          restoredDisplayedCountRef.current = true;
+          isRestoringRef.current = false;
+          console.log('✅ displayedCount 조정 복원:', validCount);
+        } else {
+          isRestoringRef.current = false;
+        }
+      }
+    } else {
+      // 복원할 데이터가 없으면 초기값 유지
+      isRestoringRef.current = false;
+      console.log('ℹ️ displayedCount 복원할 데이터 없음, 검색 키:', currentSearchKey, '저장된 키:', savedSearchParams);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, searchPerformed, restaurants.length, filteredRestaurants.length, selectedProvince, selectedDistrict, selectedCategory, loading]);
+
   // 데스크톱으로 변경되면 모든 카드 표시
   useEffect(() => {
     if (!isMobile && filteredRestaurants.length > 0) {
@@ -253,12 +400,35 @@ const RegionsPage: React.FC = () => {
     }
   }, [isMobile, filteredRestaurants.length]);
 
-  // 카테고리 변경 시 displayedCount 리셋
+  // 카테고리 변경 시 displayedCount 리셋 (복원이 필요한 경우는 제외)
   useEffect(() => {
-    if (isMobile) {
-      setDisplayedCount(5);
+    if (!isMobile || !searchPerformed) {
+      return;
     }
-  }, [selectedCategory, isMobile]);
+    
+    // 복원 중이거나 이미 복원이 완료되었으면 리셋하지 않음
+    if (isRestoringRef.current || restoredDisplayedCountRef.current) {
+      console.log('⏸️ 카테고리 변경 리셋 스킵 (복원 중/완료)');
+      return;
+    }
+    
+    const savedCount = sessionStorage.getItem(displayedCountKey);
+    const savedSearchParams = sessionStorage.getItem(searchParamsKey);
+    const currentSearchKey = `${selectedProvince}|${selectedDistrict}|${selectedCategory}`;
+    
+    // 저장된 검색 파라미터와 현재 검색 키가 일치하면 복원이 필요한 경우이므로 리셋하지 않음
+    if (savedCount && savedSearchParams === currentSearchKey) {
+      console.log('⏸️ 카테고리 변경 리셋 스킵 (복원 필요)');
+      return;
+    }
+    
+    // 실제 카테고리 변경인 경우에만 리셋
+    setDisplayedCount(5);
+    restoredDisplayedCountRef.current = false;
+    // 카테고리 변경은 검색 파라미터도 업데이트
+    sessionStorage.setItem(searchParamsKey, currentSearchKey);
+    console.log('🔄 카테고리 변경으로 displayedCount 리셋');
+  }, [selectedCategory, isMobile, searchPerformed, selectedProvince, selectedDistrict]);
 
   // Intersection Observer로 마지막 카드 감지하여 다음 5개 로드
   useEffect(() => {
@@ -493,6 +663,19 @@ const RegionsPage: React.FC = () => {
       setSelectedProvince(province);
       setSelectedDistrict(district);
       
+      // 뒤로가기 감지: 저장된 검색 파라미터와 비교
+      const isMobileDevice = window.innerWidth < 768;
+      const savedCount = sessionStorage.getItem(displayedCountKey);
+      const savedSearchParams = sessionStorage.getItem(searchParamsKey);
+      const currentSearchKey = `${province}|${district}|all`;
+      const isBackNavigation = isMobileDevice && savedCount && savedSearchParams === currentSearchKey;
+      
+      if (isBackNavigation) {
+        // 뒤로가기인 경우 복원 플래그를 false로 설정하여 복원 로직이 실행되도록 함
+        restoredDisplayedCountRef.current = false;
+        console.log('🔄 URL 파라미터 뒤로가기 감지, 복원 준비:', savedCount);
+      }
+      
       // 지역 찾기
       const selectedRegion = regions.find(
         region => region.sub_add1 === province && region.sub_add2 === district
@@ -513,9 +696,16 @@ const RegionsPage: React.FC = () => {
             });
             
             setRestaurants(response.data);
-            // URL 파라미터로 검색 시 displayedCount 리셋 (모바일인 경우)
-            if (window.innerWidth < 768) {
+            
+            // 새 검색인 경우에만 초기화 (뒤로가기는 복원 로직에서 처리)
+            // 초기화를 먼저 실행하여 다른 로직의 간섭 방지
+            if (isMobileDevice && !isBackNavigation) {
               setDisplayedCount(5);
+              restoredDisplayedCountRef.current = false;
+              isRestoringRef.current = false;
+              sessionStorage.removeItem(displayedCountKey);
+              sessionStorage.removeItem(searchParamsKey);
+              console.log('🔄 URL 파라미터 새 검색으로 displayedCount 초기화 (명시적)');
             }
           } catch (error) {
             console.error('음식점 검색 실패:', error);
@@ -577,9 +767,15 @@ const RegionsPage: React.FC = () => {
       console.log(`⏱️ 검색 완료 시간: ${(endTime - startTime).toFixed(2)}ms`);
       
       setRestaurants(response.data);
-      // 검색 시 displayedCount 리셋 (모바일인 경우)
+      // 새 검색이므로 displayedCount 초기화 및 sessionStorage 삭제
+      // 초기화를 먼저 실행하여 다른 로직의 간섭 방지
       if (isMobile) {
         setDisplayedCount(5);
+        restoredDisplayedCountRef.current = false;
+        isRestoringRef.current = false;
+        sessionStorage.removeItem(displayedCountKey);
+        sessionStorage.removeItem(searchParamsKey);
+        console.log('🔄 새 검색으로 displayedCount 초기화 (명시적)');
       }
       
       // URL 파라미터 업데이트
@@ -610,9 +806,15 @@ const RegionsPage: React.FC = () => {
     setRestaurants([]);
     setSearchPerformed(false);
     setSearchParams(new URLSearchParams());
-    // 초기화 시 displayedCount 리셋
+    // 초기화 시 displayedCount 리셋 및 sessionStorage 삭제
+    // 초기화를 먼저 실행하여 다른 로직의 간섭 방지
     if (isMobile) {
       setDisplayedCount(5);
+      restoredDisplayedCountRef.current = false;
+      isRestoringRef.current = false;
+      sessionStorage.removeItem(displayedCountKey);
+      sessionStorage.removeItem(searchParamsKey);
+      console.log('🔄 검색 초기화로 displayedCount 리셋 (명시적)');
     }
   };
 
