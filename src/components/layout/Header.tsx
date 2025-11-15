@@ -41,7 +41,7 @@ const Header: React.FC = () => {
               className="h-8 w-auto sm:h-10 md:h-16"
             />
               <span className="text-xl font-bold text-gray-900">
-                공무원 맛집
+                공무원맛집 가이드
               </span>
             </Link>
           </div>

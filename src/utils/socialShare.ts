@@ -31,7 +31,7 @@ export const shareToKakao = (data: ShareData) => {
       content: {
         title: data.title,
         description: data.description,
-        imageUrl: data.image || 'https://via.placeholder.com/300x200',
+        imageUrl: data.image || 'https://www.kofficer-guide.co.kr/images/project_logo_original.png',
         link: {
           mobileWebUrl: data.url,
           webUrl: data.url,

@@ -1,11 +1,16 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "공무원맛집",
+  "name": "공무원맛집 - 공공기관 업무추진비 맛집 추천 서비스",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "images/project_logo_original.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
     },
     {
       "src": "logo192.png",
