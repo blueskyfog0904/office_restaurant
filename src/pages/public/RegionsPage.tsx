@@ -130,6 +130,23 @@ const RegionsPage: React.FC = () => {
   const [isFavoriteRestaurant, setIsFavoriteRestaurant] = useState(false);
   const [shouldLoadModalMap, setShouldLoadModalMap] = useState(false);
   
+  // 모바일 무한 스크롤 관련 상태
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [displayedCount, setDisplayedCount] = useState(5);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const lastCardRef = useRef<HTMLDivElement | null>(null);
+  
+  // 화면 크기 변경 감지
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   useEffect(() => {
     const stored = sessionStorage.getItem(MAP_VIEW_STATE_KEY);
     if (stored) {
@@ -220,6 +237,60 @@ const RegionsPage: React.FC = () => {
     console.log('✅ 필터링 결과:', filtered.length, '개');
     return filtered;
   }, [restaurants, selectedCategory]);
+
+  // 모바일에서 표시할 음식점 목록 (5개씩 제한)
+  const displayedRestaurants = useMemo(() => {
+    if (isMobile) {
+      return filteredRestaurants.slice(0, displayedCount);
+    }
+    return filteredRestaurants;
+  }, [filteredRestaurants, displayedCount, isMobile]);
+
+  // 데스크톱으로 변경되면 모든 카드 표시
+  useEffect(() => {
+    if (!isMobile && filteredRestaurants.length > 0) {
+      setDisplayedCount(filteredRestaurants.length);
+    }
+  }, [isMobile, filteredRestaurants.length]);
+
+  // 카테고리 변경 시 displayedCount 리셋
+  useEffect(() => {
+    if (isMobile) {
+      setDisplayedCount(5);
+    }
+  }, [selectedCategory, isMobile]);
+
+  // Intersection Observer로 마지막 카드 감지하여 다음 5개 로드
+  useEffect(() => {
+    if (!isMobile || isLoadingMore || displayedCount >= filteredRestaurants.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsLoadingMore(true);
+          // 다음 5개 로드
+          setTimeout(() => {
+            setDisplayedCount(prev => Math.min(prev + 5, filteredRestaurants.length));
+            setIsLoadingMore(false);
+          }, 300);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentLastCard = lastCardRef.current;
+    if (currentLastCard) {
+      observer.observe(currentLastCard);
+    }
+
+    return () => {
+      if (currentLastCard) {
+        observer.unobserve(currentLastCard);
+      }
+    };
+  }, [isMobile, isLoadingMore, displayedCount, filteredRestaurants.length]);
 
   const regionRestaurants = useMemo(() => {
     if (!selectedProvince || !selectedDistrict) {
@@ -442,6 +513,10 @@ const RegionsPage: React.FC = () => {
             });
             
             setRestaurants(response.data);
+            // URL 파라미터로 검색 시 displayedCount 리셋 (모바일인 경우)
+            if (window.innerWidth < 768) {
+              setDisplayedCount(5);
+            }
           } catch (error) {
             console.error('음식점 검색 실패:', error);
             alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
@@ -502,6 +577,10 @@ const RegionsPage: React.FC = () => {
       console.log(`⏱️ 검색 완료 시간: ${(endTime - startTime).toFixed(2)}ms`);
       
       setRestaurants(response.data);
+      // 검색 시 displayedCount 리셋 (모바일인 경우)
+      if (isMobile) {
+        setDisplayedCount(5);
+      }
       
       // URL 파라미터 업데이트
       const params = new URLSearchParams();
@@ -531,6 +610,10 @@ const RegionsPage: React.FC = () => {
     setRestaurants([]);
     setSearchPerformed(false);
     setSearchParams(new URLSearchParams());
+    // 초기화 시 displayedCount 리셋
+    if (isMobile) {
+      setDisplayedCount(5);
+    }
   };
 
   const loadNearbyPool = async (center: { latitude: number; longitude: number }, radius: number = NEARBY_RADIUS_KM) => {
@@ -1284,18 +1367,42 @@ const RegionsPage: React.FC = () => {
 
           {/* 검색 결과 카드 그리드 */}
           {!loading && restaurants.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredRestaurants.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant.id}
-                  restaurant={restaurant}
-                  isFavorite={favorites.has(restaurant.id.toString())}
-                  isLoggedIn={isLoggedIn}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  onShare={handleShare}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {displayedRestaurants.map((restaurant, index) => {
+                  const isLastCard = isMobile && index === displayedRestaurants.length - 1;
+                  return (
+                    <div
+                      key={restaurant.id}
+                      ref={isLastCard ? lastCardRef : null}
+                    >
+                      <RestaurantCard
+                        restaurant={restaurant}
+                        isFavorite={favorites.has(restaurant.id.toString())}
+                        isLoggedIn={isLoggedIn}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        onShare={handleShare}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {/* 모바일 무한 스크롤 로딩 인디케이터 */}
+              {isMobile && isLoadingMore && (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                  <span className="ml-2 text-gray-600">더 많은 맛집을 불러오는 중...</span>
+                </div>
+              )}
+              
+              {/* 모바일에서 모든 카드를 로드한 경우 안내 */}
+              {isMobile && displayedCount >= filteredRestaurants.length && filteredRestaurants.length > 0 && (
+                <div className="text-center py-6 text-sm text-gray-500">
+                  모든 맛집을 불러왔습니다 ({filteredRestaurants.length}개)
+                </div>
+              )}
+            </>
           )}
 
           {/* 검색 결과 없음 */}
