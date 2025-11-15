@@ -1,0 +1,912 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>공공기관 맛집 가이드 RSS</title>
+    <link>https://www.kofficer-guide.co.kr</link>
+    <description>전국 공공기관 인근 맛집 정보를 제공하는 RSS 피드</description>
+    <language>ko-KR</language>
+    <lastBuildDate>Sat, 15 Nov 2025 13:38:14 GMT</lastBuildDate>
+    <ttl>60</ttl>
+    <generator>generate_feeds.ts</generator>
+    <item>
+      <title>한우명가</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9A%B0%EB%AA%85%EA%B0%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9A%B0%EB%AA%85%EA%B0%80?id=72f80bbc-a2d8-4558-bc5e-7a6bd3efdb04</guid>
+      <description>주소: 전라남도 광양시 공영로 99 2층 | 카테고리: 한식>소고기구이</description>
+      <pubDate>Fri, 14 Nov 2025 09:04:03 GMT</pubDate>
+      <category>한식&gt;소고기구이</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6qSa9AIof0AXRnt9pKd8gRxG9hhxuIzF7K3OsVSmnIFK0mwku1yH34PMXuMs81JMOuDZOkDRWl91l_XCLSF1vJAFRLDPqhG5BEGgC3vqJLTLSHcggSh7bv7ot-W2VJK97rj1Zj3nK42_tF7EiW3-X-1kTWBXPiUO9BWD1hCAUQ8CW2RhglbWOQh_IJV0ghX7grx9OkrKu7mdf_RmQsSIL2Z5xLtfpQuW57SISYpDWRkhnGLNIrWz4P7O4gIR-nn2wCGt-8fJFdKBb9QK02hWRS2oG4x4UfsV9uEOw--2zdT-dDiTrrJDsjaFBeCBct6ULIGfo8Aszqsus4L-wAsU4Xz7v5Ad2C5Y9FHhFoeYeu3Re0-h0ll66yWbIEmg_pigNZy7koQPA0oNxbJTgyeIsVDyziqgV6T_9doUsgv4YJqw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>간식시간</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%84%EC%8B%9D%EC%8B%9C%EA%B0%84</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%84%EC%8B%9D%EC%8B%9C%EA%B0%84?id=a7ca2579-160d-427f-85b2-ab9dcffb8936</guid>
+      <description>주소: 전라남도 광양시 광양읍 대림오성로 76 | 카테고리: 양식>샌드위치</description>
+      <pubDate>Fri, 14 Nov 2025 09:04:02 GMT</pubDate>
+      <category>양식&gt;샌드위치</category>
+      
+    </item>
+    <item>
+      <title>구들장돌구이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B5%AC%EB%93%A4%EC%9E%A5%EB%8F%8C%EA%B5%AC%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B5%AC%EB%93%A4%EC%9E%A5%EB%8F%8C%EA%B5%AC%EC%9D%B4?id=7888a1b8-c8fa-49fc-b59f-f3a080dbae97</guid>
+      <description>주소: 전라남도 광양시 불로로 165 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:04:01 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4-hfVhDoq0Xl2xm5EWGlQjSechHq5b2k-_Sc7_y8S-1T6auiX0jgFIr6x24mTQp0S8YY1yenSJizeLCKbpDnbED3fNB50uzC5R0cmU2UPUyDqHU2D333e4OFf32eW56sHsernyzcuCZXvQWVlqJ1uj9jVFE5ZEzjYIE6Fv8LGI-k5Ehp5_j5tRccz09HzIagI8AkxzPU5BmI97NEa7Om-tlPSqysClPMwh05hkODA_zSgUqfHlxw4wkVFhMdnotDLqbo2P7evlcMtv1Aqzc0gdAo4tO0JY0nsWxIjcsH7fowWSYY5k0dGeEQ3j9JyMMUEVcI6SjCO_KJGmNODxvyQgbUv_5-wROcQhFhMBKQvvco6xuFMbonKZKRG8x2Qb7NSuIepGGj4-DZW05JV7nrywyFIZyw_1QGDVbFxYWp4&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>청송</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B2%AD%EC%86%A1</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B2%AD%EC%86%A1?id=c470a213-e0b4-400b-b88a-855b2ed690dd</guid>
+      <description>주소: 전라남도 광양시 중마중앙로 8 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:04:01 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      
+    </item>
+    <item>
+      <title>해송</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%AC%B4%EC%95%88%EA%B5%B0/%ED%95%B4%EC%86%A1</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%AC%B4%EC%95%88%EA%B5%B0/%ED%95%B4%EC%86%A1?id=1636752c-2319-4ebc-84ce-4e6b5ad34c4e</guid>
+      <description>주소: 전라남도 무안군 삼향읍 남악3로82번가길 34 202호 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:04:00 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7I9bSAZ_RTikdAZGRRl7CeL1bovr6G6GOrYUJwzmzbJWDoAJfNg6QQVpsn1aTvaOicpVu19nCTNu7lrGMq4sMWat7wqJ-D5GEliBmxRci-2Rh6t4WUhFybgBIUoVLgwQGBXlz2XC0S_Dy0Wc-BPzk5mfe7aehGiKhF6NDll6TVb9dxzfSBfkwyoxErzmw7Q_UKHJI3zj_FwJREjOf9iNliaFS6QjhBuRM993pb8TEBq3coGz32Ydh95Pq0ru_qH1KRipkHoh4Dc491Xyuqx3zg7pfxDSx345ToZStT6p3TUuENU8KbE9ZUQkvR82I7TACLBkuSCVFD9oV0nRykMJ79UTL-xLArCnJQvCYs6CHvAu1MjAKOtkN8HHnA95oOyktloCVr7nL4cOj73bBUmnY1k9rQIpQHOueKUZQ2WdQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>사랑채쌈밥</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%AC%B4%EC%95%88%EA%B5%B0/%EC%82%AC%EB%9E%91%EC%B1%84%EC%8C%88%EB%B0%A5</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%AC%B4%EC%95%88%EA%B5%B0/%EC%82%AC%EB%9E%91%EC%B1%84%EC%8C%88%EB%B0%A5?id=2390a901-c8aa-4110-9837-2205153f7e1c</guid>
+      <description>주소: 전라남도 무안군 일로읍 삼일로 507 | 카테고리: 한식>쌈밥</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:59 GMT</pubDate>
+      <category>한식&gt;쌈밥</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5mNc_2nbgyKO6mGfwqxhYOHBH7t64zdXem4hj6EgME2pllijQmi227r6PChTqrHRm156CIzL9Jh3-zS8K_sqlbH88SVa5zthX0TRdL-7abTWG9_pMLbQlDKZBdmagf789aJi80TAcOesSi15naRsE36FfJZNmzY796ug5fzm6wAiUN31e7dogF3FREV6-S-RIB0XtwjJmbrjAtJXnH7Jte5K8QMjY8-5oGbvz6m-ZuAfkP5YNJ2sxge6RTqHy18TTvxBziltgYcMkoVwpI4px4frMG74pH4BR2V-gVbtvup0ya8PCB7MvtCQxrSoVW0JL5x0bRNb_xBhiPROynchrftVAuQh7xzIeNSy11WfOD0oscReo6in3OFndtv9QuXUS2jxAYQkv10h2dUq4n4loEW7TmyULVDkzznCGh-IYOMg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>인루트</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%EC%9D%B8%EB%A3%A8%ED%8A%B8</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%EC%9D%B8%EB%A3%A8%ED%8A%B8?id=7bceae3b-7494-4705-9c96-1e3fffb68fc3</guid>
+      <description>주소: 전라남도 함평군 엄다면 영산로 3280 | 카테고리: 음식점>카페,디저트</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:58 GMT</pubDate>
+      <category>음식점&gt;카페,디저트</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6I2Gvyc54Mh4Pd-EqjfbzWojPwv6WcSFe5UsnTbBnR_MWR0YJQ8xBz1a7CLNvb2hXgsPunZsZi0VKRfmDl0p-2kJOHqawb_SsW5PBXCoRnQhOeIR_0I0I_xR8h6lZUE-mjHQNiezIz4TOULg1yPGLWV4QQEaqbD1hUea7eDHs21Ofl3P8QS0iRoumsBOxwrLS92SSaxBbmIh1Zvfyiv2N0jM2XYzCY1zLVMyWsItRQ8higUy5sAxflPX_OQmzvv-snk4_HcYNhzA8UHJgnFf0e0XRD2xhTD9972f5cJCeMAQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>함평천지한우 명품관</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%ED%95%A8%ED%8F%89%EC%B2%9C%EC%A7%80%ED%95%9C%EC%9A%B0-%EB%AA%85%ED%92%88%EA%B4%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%ED%95%A8%ED%8F%89%EC%B2%9C%EC%A7%80%ED%95%9C%EC%9A%B0-%EB%AA%85%ED%92%88%EA%B4%80?id=50398c2f-9927-4761-8096-bf9fdd32d7ce</guid>
+      <description>주소: 전남 함평군 함평읍 서부길 42 2층 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:58 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5QW0Pa-4Bt0uXtSLf9lEJ69EyzIeA6AYnzIdsruYALDPedYgDfa9nyr2aeOc4bIssR4vvLFuEtVEK19ZyP_Ibm-2ye4mBL9k_v6gcz2BNC3TAxGptXbIlMe4IBW46pzwseYcyE6LZsbpL03KFgp9ZYYBklGj9LWPCsBdEri8To3OP9T6q9M6cvfxmHXqVdfFFavF8ZwqlGt-TkGFJXxaQ41k7f_3rFip6TMElRvWA7Uzp0IdldKXLzseAbnQDo2vI9P3ascEcgOHmTS3a90gy97NxlmYGWaF-BMgZzwmlpC6zdcPlyVXJQ6446Wkn48cyN-CYVJ5BndyXZYcI3oEYDsjTLLHDO7wOZurjAO32KqYNnOL5S12q9dNEP64EIFM5MM6dzb6GmxFwLaFOPagSn5THCNe5YLOfdtOjHn4VlVjfH&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>다래가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%EB%8B%A4%EB%9E%98%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%A8%ED%8F%89%EA%B5%B0/%EB%8B%A4%EB%9E%98%EA%B0%80%EB%93%A0?id=28102a1c-d881-4db1-b899-91f7507bf27f</guid>
+      <description>주소: 전라남도 함평군 엄다면 곤재로 210 | 카테고리: 한식>오리요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:57 GMT</pubDate>
+      <category>한식&gt;오리요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4UHypzwDYuPcHlk3Q7SX4AWfXgaqoyl2Y_aI547lwHAHK40C0GO9KtTf4fAfTOWsNmUhV-76Ti29cqjAnykmuvHkAcOGUHU7n2a4-idyrvPRrys0loJbIjrQr3QQ9LSQAy_oyozUmcjzKx8glDve151d4mXKlFrc-uhhYKT4X-HOpD5XAGwwf3opCHSV7lXg-d-ihsUR6F3Tyz9iQT6MsCo0kGCj0D8-Agx_FGgB1ESRDL_hEE7G16a-epbJcdEC__2ZKfgTYgPViDQC8mKyisNZkNsu0_zWAa1zXrdlvUKy4nn6ecA4s_J3AA-AbEI-P3zMWaG3-29hq8tDjP9Nie13k-7rMBRiiyoVETLGc8OoJ_sCF9nMY-joAN53iC00fpK1QJ3FUfYkXPNbuyAbJ2LJ5zFtmv50nWtaecvCQHS3cb&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>왕성식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EC%99%95%EC%84%B1%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EC%99%95%EC%84%B1%EC%8B%9D%EB%8B%B9?id=eae182a0-d82c-4c5a-ac41-43d518d774c5</guid>
+      <description>주소: 전라남도 강진군 강진읍 보은로3길 45 왕성식당 | 카테고리: 한식>한정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:56 GMT</pubDate>
+      <category>한식&gt;한정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5IBW6dH0bR9jLy0XQTHH6TpCa32CxjRI7NjL9l4yhNElRGCzHYXU_RrkWeskPnm3c1atjF9lyrGnLj_BJUUspUA3bIHa6vFqGSjfUw8ttxelvmMghSp_ggWi222W1owV58tp9rGdCCvGNeZ6L7Er8FdI4Z09u8FIZeQVOOnty0nnxX1T27-elcg3RGgAJYJxp2XtdX-OI4orOYVpVFxMd3KAFuZwmLO8m_zFh1lLF2oUU8p_LH5fIMaMrHFqD07yuYoy74-91jBXWHkGgzyUu3NCpmgJdZXy3VNFwbSO-U40Ql9GPNintSgcyIqOjV8OwzU4PZyoOVdTNszPXo8zS-RTZBIPmCnEpe0isEXJsD4D_ve1IpBxyHW14d4ANe2NufT149kr1xCSSkIhCTUWbrxKp9idcpd5rY9raH-HxDLqfy&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>양아수산</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EC%96%91%EC%95%84%EC%88%98%EC%82%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EC%96%91%EC%95%84%EC%88%98%EC%82%B0?id=eb9fae75-b711-4126-a3b1-ce6e2be6eb9c</guid>
+      <description>주소: 전라남도 강진군 마량면 미항로 152 | 카테고리: 음식점>횟집</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:55 GMT</pubDate>
+      <category>음식점&gt;횟집</category>
+      
+    </item>
+    <item>
+      <title>마당갈비</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EB%A7%88%EB%8B%B9%EA%B0%88%EB%B9%84</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B0%95%EC%A7%84%EA%B5%B0/%EB%A7%88%EB%8B%B9%EA%B0%88%EB%B9%84?id=914108e6-1284-4f24-a16d-969d9441df90</guid>
+      <description>주소: 전라남도 강진군 강진읍 고성길 2 | 카테고리: 한식>돼지고기구이</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:54 GMT</pubDate>
+      <category>한식&gt;돼지고기구이</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU67oahYFPjzYsG44_o0gGq_hd7vMitZoX8RefhZAU5X3ZYb6uEFUsO0Ddt-8gxMOwhjE4RvwS2KAHtfCQhmO09e2kDUYAthbh8Qb1ebJHV_X5D9f849N5FJBIC_GfRQpD97HSDXBy2z7nLg8kRlnfAR2QKYmZ68DdtDNHtXwQGkQ4GS1pcuQhVkQDd4J46m1RqamW9RsHseSK8ACKEYPr8LW59ASpneFRH4lH6HYahVHsKCe62FxkbxGon3lCgTrHLUvbilq4x68tZLXHhThHG9ekQ1iAo56562EdfsJ_1qrJMGYWNgDKReKOuXE6UYED6mxhljAOHnIBL__JW1yi8kCHcuJz6FuOjnOwj1XWemBdFS66oIOSu-t-nGjnXJK8GTGCmmyRQXb4wFbESSs3MqeG0cbr-hx5zxZrRjn1uPEA&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>자연수산</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A0%ED%9D%A5%EA%B5%B0/%EC%9E%90%EC%97%B0%EC%88%98%EC%82%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A0%ED%9D%A5%EA%B5%B0/%EC%9E%90%EC%97%B0%EC%88%98%EC%82%B0?id=ff519c75-a44a-4e2b-9819-c8e5d68d0240</guid>
+      <description>주소: 전남 고흥군 고흥읍 시장천변길 29-13 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:54 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      
+    </item>
+    <item>
+      <title>백아산 가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%99%94%EC%88%9C%EA%B5%B0/%EB%B0%B1%EC%95%84%EC%82%B0-%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%99%94%EC%88%9C%EA%B5%B0/%EB%B0%B1%EC%95%84%EC%82%B0-%EA%B0%80%EB%93%A0?id=a0e4df23-dd1b-4596-b2b2-aac95b1ba32c</guid>
+      <description>주소: 전라남도 화순군 백아면 학천길 17 1층 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:53 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7NEe7wU5phaR3Mwo2hVlzgxSrcDfZ7qTJCBCtZva-hHWOvMePLVtEIRBqWtaOyQramd2PH_QOwo2qBonBR2hvvSQNA1HYtfO2bqTUN0tDt0MM9eZXwuApu0VhMTqWYeHEFb2veEXIENPdAIF5M6i13QRGbO4mNZT-W_-GZ_Wf4cxBeTxxSWD4QxRu61s912jUJPeGmk_qF_QAVMsmXZZsGkpy6MERiuH3DyQd2u7cs6dphRpPvUku05e9tBEtY3PJj4QYz3BI_MkwdKRc58-AD1dnJ_JM0o19fWKJfF8Ej6xMpMGrtVm2qnIWFnRywkl3R9076VXwjB6LBeCCb1mQ11CJjqAWnGlfq0u94jV9zt96nLXkm5uV_-kDRnOa8CoskcFLaYJyYzfuJYXCsv-rzJCe_TV6B1MBHTCaE-FUKpQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>탯자리나주곰탕</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%ED%83%AF%EC%9E%90%EB%A6%AC%EB%82%98%EC%A3%BC%EA%B3%B0%ED%83%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%ED%83%AF%EC%9E%90%EB%A6%AC%EB%82%98%EC%A3%BC%EA%B3%B0%ED%83%95?id=0ffd4ab8-beeb-4e32-ba9d-839daf3820e4</guid>
+      <description>주소: 전라남도 나주시 징고샅길 5-1 | 카테고리: 한식>곰탕,설렁탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:52 GMT</pubDate>
+      <category>한식&gt;곰탕,설렁탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4Rhzbange84nf7He1w6MZUW9Of4pyv0SIwIxzIMPTXOC7_8RZYZLrhidcbgz4t9ENiFoBOjBbAulRvub8pn5oyabtc_nxe3nbZTMOIcJuQsB6dSEtJbW7idvLvdlg-0420Ujym7MpdNJ4CR-BtLeYLz9k_73iENk8xBaZwwb3hFu3riLVXBtnN4lWEVtZq8HK91cc5hHM3gt7LIWA5t5WTyRfTuMxeIaePzXCrtEuD8N5uJFaEFMXq02v6zYk1KohkNxOxgyeCK_94tRgxlbET4r1kDo2rbnn_gJjYS_2gYiL82dEm3f8bYZjE5q8cS-LIKBBzvsj4swkYudjbGuXGTflZeG4LfVdAG7U_I5HTJ8g20Xnyw72Wy84voBZ01OHGaUEQ3qzFTb-Bt3fEoTB-23fE8T8ipNQdxwAXLqJC-7rs&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>나주참복집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EB%82%98%EC%A3%BC%EC%B0%B8%EB%B3%B5%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EB%82%98%EC%A3%BC%EC%B0%B8%EB%B3%B5%EC%A7%91?id=00e77607-c3a0-4489-b3a5-b5efac063750</guid>
+      <description>주소: 전라남도 나주시 빛가람동 황동1길 70 | 카테고리: 해물,생선요리>복어요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:51 GMT</pubDate>
+      <category>해물,생선요리&gt;복어요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7owPQw-kNHnAwMFvQ2Fe9epFLiDRKbOTdzoAtYtmRt6hg1lekao5UjbNxOwODYYVWMBgcPQF8FmjL_AZoiKH1D2MaQyQqHJIqIHkLgUmyYPw-TomBcn2KfflR4UJ4SxHFJ-1gRfuJdbinSReMU_QJZ3ShFJ9q9zgjWxXItsVAXYM7ZyEDfECK16S7lCTopNCtbmKmKGBzofVo3eHiP3scwgsNzEkxvhyCB8GS2MnJtl6Za3-l_m1Fp5Kr-PvMgBp8IzRLrlQha8YflP6StSe4bsiOPH6op_xupwNWQc7AHOAOJ0JEvMRWD6PRBMM46UKAmutbKvm4fdjwmdFd48iMRiVGQzvSMMbZcuLFy7FXBIC6y_A0bzHjxC0CC_otPTj72RYU_PaklZi2K_2nmD4RYZRedGhwNy0bzvKGtCU5K5w&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>밤실</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EB%B0%A4%EC%8B%A4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EB%B0%A4%EC%8B%A4?id=24032da4-8ad7-4b9c-a51e-14ff72125872</guid>
+      <description>주소: 전라남도 나주시 빛가람로 813 2층202호 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:51 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5KOFY-LvaR_N07XOPt4o09hWnEocHOBZ59yjkI_7MJzgWpMJKaF8VCYN-EMdLw_E7btvyJMGju-wNtL_sX-M6AaPmXEnG6Z1IglTwjcD3lQk0Fox3TFBJQ9B5DyAHb0aiIvxNNXchbMqUvnMbtLoy1nzjcFPuhDUqQMPmrX2j4__B1-VeN05U_LaGI754PlySeDWLKksbZslL5rnPbOJwz_GJCkw-W4Y8eZJzQYeYeZXy_7iF1buss00R5Az8DjORKoomMlCdP6CvjFIJ3cIaX5dc7wem_PH49xh27eeX3Bw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>찜과구이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EC%B0%9C%EA%B3%BC%EA%B5%AC%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EC%B0%9C%EA%B3%BC%EA%B5%AC%EC%9D%B4?id=bcb4dc85-6ad4-48ae-85e4-2677dcb7a539</guid>
+      <description>주소: 전라남도 나주시 금성길 51 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:50 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7qYut8OB-QqInvEhQ5ETR-TiO8EJXBBkC6ES86jYf5dGEspT7sMFYemc4-9tr69_B03A0Eb1yu7sZC_fpEpDudXTyyVRHogqxHFHwD5gtsc9VE2BrG30IMydIhzP4aF8H6e3_gm4UWPUhpGubf7HitLf7M1T0IoCYj3b4CZxgJ9kwy9X2kyD-ny8-wYlJoRBZtE1xqH8LmyCQjXsHEYInT57xIVD64Za35LwAY2Q_zfBZHRuJGeMTITxyQH3qlHExB2ZSPGvDiXI1mC7wdaF3GpKUHogK8iMXpL_uQJL-GHtAXUcigmDWEsAqbgHHNOpvk8Q29gK9VfUUksbP6uKtM0IkFzzB8J5xiDo-wcWACsLtWcR1IGJO48TGzSH4uJLKmz380EaiyY3eaBko0LfNmru2CCAOZ4URhn38r_aEog9Tl&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>이화원</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EC%9D%B4%ED%99%94%EC%9B%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%82%98%EC%A3%BC%EC%8B%9C/%EC%9D%B4%ED%99%94%EC%9B%90?id=08dc33d6-b69e-4e39-8667-9a756d262619</guid>
+      <description>주소: 전라남도 나주시 상야1길 20 | 카테고리: 중식>중식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:49 GMT</pubDate>
+      <category>중식&gt;중식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU44Voubd0DPmABTMef5tubUC57DvTdvrpGQvDfq8_L3ZOote7BA85iEwTOc1Eo7-gQLA4kCUUsMpJn1NfTCwVCyLxUPvYPZlDsF1fozuSWQrcxdwVzJ00bJO1xp9XTPRlxFZKiZb8d0Fqy5NdJoSch3HUZVpr2E6rldmPEDY8AFUssqbMtbEXVZvy4AfT-xDqFib1dNrDFfVn6mIcR9sqhGb4N3BkabdwJP0r-Pyyh-syef1w7vc1kdDOzUnmZT6XBZJ0iGhibLziMgET0Dq83QvoqY31kAbDXKZFzI5i2eKlW1TxHvStbPwtJhB0Vv2ObS3amyTLJOHoWg5tgtumSPfv_kDOVdXeUF7WawZiZdkKJl3wR8ZyonCCv9VRbrj-q8vJK4Ln3RgyLfs4R0TJIHXPyxac32tfYL9EqvxmkGUiwC&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>아뜨라또로스터리</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B5%AC%EB%A1%80%EA%B5%B0/%EC%95%84%EB%9C%A8%EB%9D%BC%EB%98%90%EB%A1%9C%EC%8A%A4%ED%84%B0%EB%A6%AC</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B5%AC%EB%A1%80%EA%B5%B0/%EC%95%84%EB%9C%A8%EB%9D%BC%EB%98%90%EB%A1%9C%EC%8A%A4%ED%84%B0%EB%A6%AC?id=82518ad5-498f-4544-8ae6-33b809e63664</guid>
+      <description>주소: 전라남도 구례군 구례읍 학교길 82 | 카테고리: 제조업>커피가공,제조</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:48 GMT</pubDate>
+      <category>제조업&gt;커피가공,제조</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5HsYodenowpDMNDkFPWWgUYldjBWRYXLDRXo0stZ9hvvNXihK3XXAsfmqNgm4XORWXoLyGyDvGpnYls5Ix-OETDVXmaxUDjB7p3CZj6RFJCXlItIl2OfzkP6qQwRu5kuleZHePFVpK1AaZJXwTs5jYt5Y_SAr9--MaaGIoTBN5apd5qElHySJjVCNWm3C_tlmT6q2LQT_y1AnxOGMk4FHRZt1Dt-7AGdy8RVLsf3lvaahdUoltrYSuhNp1y3D6dVYmjBgQi-JGKbvuLSoqe17utg3eEAZC-oC10zYiwJX_LAKoA1e5KKGwN6_AZAhWHEIObXhCCAPAay2Ium1HoKAr8CYUvVABzlsFTKOamueuDsC9tqUJ_haiju7mADGbQd-i9w5qa_WZMAuPkBtMIQYEbxki4lYSF4450X9UlW1qbf0r&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>정가네 왕족발보쌈</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EA%B4%91%EA%B5%B0/%EC%A0%95%EA%B0%80%EB%84%A4-%EC%99%95%EC%A1%B1%EB%B0%9C%EB%B3%B4%EC%8C%88</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EA%B4%91%EA%B5%B0/%EC%A0%95%EA%B0%80%EB%84%A4-%EC%99%95%EC%A1%B1%EB%B0%9C%EB%B3%B4%EC%8C%88?id=f07f9645-95a4-46ff-bc49-57df0c2e6e6f</guid>
+      <description>주소: 전라남도 영광군 영광읍 옥당로 176-1 | 카테고리: 한식>족발,보쌈</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:47 GMT</pubDate>
+      <category>한식&gt;족발,보쌈</category>
+      
+    </item>
+    <item>
+      <title>춘자네쪽갈비 본점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EA%B4%91%EA%B5%B0/%EC%B6%98%EC%9E%90%EB%84%A4%EC%AA%BD%EA%B0%88%EB%B9%84-%EB%B3%B8%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EA%B4%91%EA%B5%B0/%EC%B6%98%EC%9E%90%EB%84%A4%EC%AA%BD%EA%B0%88%EB%B9%84-%EB%B3%B8%EC%A0%90?id=ad151bb9-d934-4bf2-92cf-c6d00d18e010</guid>
+      <description>주소: 전라남도 영광군 영광읍 옥당로 108 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:46 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7TaXg-n61UK-2DuR9ll6nkEFdnhQArH6_tOUwcTr7LDQcHcsJvhnx_AZsf2VMDm5tlm3rnXrF0OkH-CQsqPwOkf8C5mx5CVgGuDPE13Rca0hdjr6Bwl2kVdPbQvti-l0zxs1JP9hnTq9CbYviorXJ_GVUXn5zCCjkT-4jxycc22ZInufCmYGPlLydZTBFL8Lpax_GfBQ47tw6Go8GBMQpNflRM4kqMxZaboDReY_DSyS7KAvFDXVb148s8_XtEgapgOTo5ONmG05JOjisgPYxQuezj9MNRR0GGVMWhxAP8x9ZnbwZwHKuoLb2fqQWAiIjgQ2Y7W969MT_Crw46x2OBUNAyfM-Vez6rBmR2Q4YdM--xv1snpjKVclaf4cI_5EBJ7TPBQUcqGyFVG0EAbV_E93vJB5RV_7Dc-TkjLFAujQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>돌산참옻닭</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%8F%8C%EC%82%B0%EC%B0%B8%EC%98%BB%EB%8B%AD</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%8F%8C%EC%82%B0%EC%B0%B8%EC%98%BB%EB%8B%AD?id=e59e7c32-0b2d-44f9-bf7d-66ac95dc0a83</guid>
+      <description>주소: 전라남도 여수시 웅남1길 6-28 | 카테고리: 한식>백숙,삼계탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:46 GMT</pubDate>
+      <category>한식&gt;백숙,삼계탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6lc9Osly5TYczqleTXhTJCz2tmxVu3IqG2jpy8zLDBBTgX5l3c6Q-h8tNsx5HhRvZ1_u3Z5XwaD9NAo8PeYRRFC5YooT5GZ8c675SzQQ6-eL9rG8eZ5u8FBhKAnByRGt8rzdygJskA7Z-8hrJDZkPEhDDoX13oY569E6XUZklvGZdMP6jnVEQ_Q80pfhx7oJnTcSEg2XxhJ8o18bSGb9RT1jVl9SRiUQVShyc7M8rEN3lUa3ixa7tNHhvHFTwyClSArydCjRF2OQMCHDSenj24oWn942PR1y3LaS41l8N3omPHJHJdm1kjPxgwN4LXgADBUrUBpeKK9pUfuXMVV0YTptwqRdDKiAVll8H0QXaakDAlvR2WmdDHrQa8w9XXA78d8ZEjtQqhzqpEp9EtBGfc_6ypy-WUPUNL1ZkvUX0&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>동백</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%8F%99%EB%B0%B1</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%8F%99%EB%B0%B1?id=86d07b7e-2b5d-4963-b120-449cdf2f591f</guid>
+      <description>주소: 전라남도 여수시 봉강2길 2-2 1층 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:45 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4nEOsPAnen7IMqwMjOtJ2I2EjFgPvE-UqGLcHrLz5FbOgokPeg5NHllnWIpigQnDeq9keHQkDwjsNOYtP8vO3mTSaiN7eWXnFFDaZRiN24zseMELyc2yX7tX1CPFuQAUZ2ANP6QSAC_nu0l56fHItf4TLDOjTJdK8U5olUhxZe_k3oUNBhzaXt_tx0HoBznVJ0KWT7Ifa3_ZqP5zzKv2IHBJA1pdLgb7wBGH4ZBikPUpHqQLVrH0V5eirtcUyIcTXb8vcEFo9fqsmI30CPoQImVx1vKOpJ-0fe6JgA7UqzFnubJignckqGxRCys7Wk9RpCLVz6w57CL10F3RAKCl-Mcp-_Hae_cvKSBhCa7hjLAMCrfP6pC1BnclmzNP6NGqmhGcAHqzh-oVmsrpiODGPMbcSUoTuTlyKidbtaAijlfR4z&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>미가</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%AF%B8%EA%B0%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EB%AF%B8%EA%B0%80?id=e51b874c-a86f-46f5-96a0-f3bacf4921e0</guid>
+      <description>주소: 전라남도 여수시 신월로 650 | 카테고리: 중식>중식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:44 GMT</pubDate>
+      <category>중식&gt;중식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6beIxqiHuE4-lB0l6tLsNY2E6cehxTxLciBYPuAIGggJSoXS9bt3n5AfmpK0YA9cxE16_1bPAxoVvr_umQ5sURWxzkGWyJjUmlc6n00Aua9GXwCxXdolunj4KnLDiVYpZU2gRBjkXrFNfCttS80wNnvI1o7arD9GXwhbBpyBuInFHMWqajGHsciQySKhlTDKUev9VG_zSnXigV3TeIH-yamDpydsHTg54x9RWiEHtsDUUkIYg2LSilq8zheaoKDxOLmQDaWTzbXp8Ndi5V9hbB9WLrh8Wlhgts2CKWUep8TmezNuhX0D73WXQ6EaV-x7jbuWG9gZgUDex-zo7lpqmirl4G4xiKAmzPzp8-1HADdtsivREb1SaUmDF_t2Mcs5_1f0P-3GOhh0_xTpSLs5gJOx4KaoRITeL_SK9WN9o0Uw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>해촌산장어숯불구이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%ED%95%B4%EC%B4%8C%EC%82%B0%EC%9E%A5%EC%96%B4%EC%88%AF%EB%B6%88%EA%B5%AC%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%ED%95%B4%EC%B4%8C%EC%82%B0%EC%9E%A5%EC%96%B4%EC%88%AF%EB%B6%88%EA%B5%AC%EC%9D%B4?id=2dfbd271-4636-4660-a6e5-969146f562b7</guid>
+      <description>주소: 전라남도 여수시 충무로 76 | 카테고리: 한식>장어,먹장어요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:43 GMT</pubDate>
+      <category>한식&gt;장어,먹장어요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7KoWV194umy4a1uiKBVslJ7GxVgJTN1x2NujWRLbWgcx12YNSXN-dO8nuXkp-3h0DkdjzuSqolDTm0Cn8mNIcLf2L4le_NRLmXqJtHdjISu3GgQpOrOC2XRgjgCzegZIfKGnD1R6Conoa4-2eXIrF-kX-swFhMA3eqefXWvWTxB5mQEMWNVlKu926EJmM7wMdVT3ikY0MzSGbuyUdXDgutvhhc02AlbVc7__mBeMlVx7jVTgoF19ay1n7N-3J3OPOV1PL26JJ5vyd1vpBU6vTbRVpcmVnWdYTVVtLtog89EqHujxOcb004eZqBtE4FWoYI7w4Hf3oSNLhJVEoKLcjzpIXcySrHMN4BSsdAq7QJRftCiGjCpshHagejIghhhXZWPlCVZlqvaMd-3j9Hu9mP_XyAkP88PIEn4VHQpRLWTyhw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>여수통장어 시청점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EC%97%AC%EC%88%98%ED%86%B5%EC%9E%A5%EC%96%B4-%EC%8B%9C%EC%B2%AD%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%97%AC%EC%88%98%EC%8B%9C/%EC%97%AC%EC%88%98%ED%86%B5%EC%9E%A5%EC%96%B4-%EC%8B%9C%EC%B2%AD%EC%A0%90?id=3dabcc18-11aa-41a3-9e28-badb906bda39</guid>
+      <description>주소: 전라남도 여수시 시청동1길 33 1층 여수통장어 시청점 | 카테고리: 한식>장어,먹장어요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:42 GMT</pubDate>
+      <category>한식&gt;장어,먹장어요리</category>
+      
+    </item>
+    <item>
+      <title>주월가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%B3%B4%EC%84%B1%EA%B5%B0/%EC%A3%BC%EC%9B%94%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%B3%B4%EC%84%B1%EA%B5%B0/%EC%A3%BC%EC%9B%94%EA%B0%80%EB%93%A0?id=eb33412f-047e-49f3-8a5f-bf19f48d31c3</guid>
+      <description>주소: 전라남도 보성군 조성면 축내길 20 주월가든 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:42 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4qwdgo2AG0TgpJYP0oTNdrxLgUKPzcIETdDpH5ccOufDQGl47EiEre9_ifXmivmSDe1mILuNnCnW16pAgCMR3e2GJTyD4APawUIe-Pvky_NAUTwuNbB3sI7L6XPwrYcqtrptyeky-ylSWryvDkipdpAf5BtEECQ9EkpaRL6GRPclp0ZGozyCwUPkciJ4DxqGcN8YosM2_Cfwe5Wct7wO4VsLNloKMLreeifyfwvZP6lx05bkN4XaPw51-jyQvxhdFPB2BjSpFAX3aFD6VkzL0CA_Ux6v3NRHOd8Kn7pqJ71MS6sZd-Uojph8xvw5OmR0AxaY9N2fKa0upIF6nkybM3G9T-ASyqhM16NGiuX0v_E7eQdJ7NRQo2we1PyDukw1_iuQV5uLSkMlIraF7E7kvDFOkkUf5uipbSLeoTBQw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>청정횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%B3%B4%EC%84%B1%EA%B5%B0/%EC%B2%AD%EC%A0%95%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%B3%B4%EC%84%B1%EA%B5%B0/%EC%B2%AD%EC%A0%95%ED%9A%9F%EC%A7%91?id=6d0984c6-31cb-4b6b-b902-51cfeade10ce</guid>
+      <description>주소: 전라남도 보성군 보성읍 신흥길 25 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:41 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5bJrBmqK2SJP-Ye-5-Hfqq6w0iDViZ7vzFZ2gjPyKv85zEqRpUJY-TpPIYfCXZiui8ifZ74ZtNKfxIUxig9Blaw_IhZRuuo9X_hrfYt6DHcifeuaSSWhVosyYK0BRj2_v7Np-6Zb8H7klJfMkMcTW90s51IOJAIxh-S_wHTlScaO6_T0HgLjaEizg4MyTdFEdFqYiWURrs-IEECoF89mhjtvfnS5hNDwJErfBJ_spQ-2afCoBR7F28dYdDKbiKA96hbhfWh5E0sYHNZ_RAn9npfV2mfMO8sM2kjCTsFHksyT6jSSZV3pKAOyqgguIe3tUupW-SFgHZ-lVJE3GN_2VwJHtAMHtDQP9BZB4b8f511N5PXpPkItWVXL1QUi21rDUrPteP8kwG1UosGtbUgzPpffrbYm4tDu3V5yEn16dhxGRD&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>명지가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EC%95%94%EA%B5%B0/%EB%AA%85%EC%A7%80%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EC%95%94%EA%B5%B0/%EB%AA%85%EC%A7%80%EA%B0%80%EB%93%A0?id=41801dea-a58e-4d66-a88c-b83755baac9e</guid>
+      <description>주소: 전라남도 영암군 서호면 서호로 135 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:40 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5AbnMNeue02GTG8lVDtxy2_rwm6DXM0CDVNIREqnt6Uoj6v_SXEwzXIAZbuTOLwNLbiPbrQILcfygk5n1vCnFHN6WVzz-ohQtf9_DLk8psWs18gKRac46CHAt_WB51hrR7nKk9C_kJ9C276hgLaZbpFTLxl0lrwne9w6W5z5yqic44EzvRn0PyAoVoBPQBnWZlfqJYXc_7KId247NeF7zvngC4y3jdxogrT4yG2Ndi80-uH3SvzDbKOnjtZdh165Q74sSLxyLiMVZFforDgstZzb8bIZM9ANN1f32QQHNFf5Qx5jWKgfC5AWgQSUdN2uZxnILGAMQkIGx0PWUrwTQmccFgnaZtuDSBCU4ICeUfxd-veSDi_iLShLLQ3RbGNB7ta38A_T2VES4_d8XYAInL5fldqB5FKmYVbxGBo7q31qU&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>미락가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EC%95%94%EA%B5%B0/%EB%AF%B8%EB%9D%BD%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%98%81%EC%95%94%EA%B5%B0/%EB%AF%B8%EB%9D%BD%EA%B0%80%EB%93%A0?id=a1d68b61-1022-4042-a678-d3e8092b6844</guid>
+      <description>주소: 전라남도 영암군 영암읍 교동로 22 | 카테고리: 한식>해물,생선요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:39 GMT</pubDate>
+      <category>한식&gt;해물,생선요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4OtDeqqb_cP9Qvcw1mtawy_OHLfdsY2nSVKbPV9WH-Cwh8koROqEAfOf_VfnTfIk2K0RCYkyVgk18dn2ut7Bd_ivYHJrpzoB02GLKuV_uMSX1eXxCzW1kCK3TSyqD3R_O070FcpRL7LRNsvaxr86IrOOHn5nkWdXaAnbhbyqEX0D9yo5sDhhOmH7CPiuBqGLSDSwhAbYkrrfVe0O_fGO066rNoOzFtWF4GFVme_xu_N2CXvd9pvjw2iRBLucbCijl2JgPiN7_qe9kmVSxIm05rtuwzowTIxcngch6p0BPBUqbmCxYtBjExbOsG8cXKGPvi68N71cwxOB_3Nduu9dg6LAmLJ1zgxv8v3BZ0P0mYhkKTqYe_aWwRQNqIvzM_sNT9KxsgHtF8X0dXEuhCpzpglXN5JBpwqALlOSLK_Sr0YOD2&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>솔내음</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%8B%B4%EC%96%91%EA%B5%B0/%EC%86%94%EB%82%B4%EC%9D%8C</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EB%8B%B4%EC%96%91%EA%B5%B0/%EC%86%94%EB%82%B4%EC%9D%8C?id=b703cd41-374c-49fa-bcdf-44e433452d70</guid>
+      <description>주소: 전라남도 담양군 용면 추월산로 584 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:38 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7ST_TCXiGOsbPlxuW2RjEbxyZqXRN9UCQcbtmWBLEAIp6sRRfALD4E-sumtOCC28R_IHCX8fcywTvMkMnTk-K0EY6c2qotw_BEDgUr1K6NXqmBiiANn6D9H_ZfFxtjvAN_bNQvcPRCkxvKO2AfF1lZQvqYKelEEtTWn9ly561uIyfdC1DZkqQzl7vfHEOgwWpbNQ6ESHHzTCwu86uP9HoqZiM5gBa5jz-YoQJj-w2RbdwJeDArKbzzPI1uGhO06eqjFp3I-IqGfy1NulgMunLveLkYRgTzoNboGy_7xqhaonRI6qHtDFI2g_HDKRNRsNm5bJf_ROGAhyjm234auoWVHP6wSYsz1BPfbrtbLqhLsjZUrF8D60ChUDoC9N7IKbi_4OIWcOWv-TDqpn6McrQfvN1lRZvJpf1bRc7Txs-JxQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>농부애빵 마시쿠만</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EB%86%8D%EB%B6%80%EC%95%A0%EB%B9%B5-%EB%A7%88%EC%8B%9C%EC%BF%A0%EB%A7%8C</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EB%86%8D%EB%B6%80%EC%95%A0%EB%B9%B5-%EB%A7%88%EC%8B%9C%EC%BF%A0%EB%A7%8C?id=c21a426d-8cfc-4518-983e-d447db751514</guid>
+      <description>주소: 전라남도 신안군 압해읍 압해로 401 . | 카테고리: 카페,디저트>베이커리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:37 GMT</pubDate>
+      <category>카페,디저트&gt;베이커리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7N2YO091H1fRJBxarYwnDGixYpr1YeGIt99bH_qWQJZ2sAJST2lechmo6nllYnplc56mkPNJT-hzgFFJLgNpR4SIXD-rh6lcpWUe1PZ-hsUq-IWo4Y2U_ildwRDJBzV2tES0cIAhzrVl7pVJYzSTWJjdhKTihohMJB9I-wtM-6Y7FJoBc7BIEqpLor5j8qYSmVwT0GmYyc-iFNCwJ6eoaryIy65f48kDsBPxHXutamlE6XCkeiKQKDs5nFF5QTzp0R9qQnP21mN3hKbMZthuvABG6LzVILnABOeDWgrwNVNdgMnYm2sqULVNlmhMl26PEwaIfrhHT2flh25dSPo2yqCjtLUIYqP-0hn_sHeZCOYOMP-TvRwcwufBNrujhXybSNUqEtaeeh0Tzdu7wzwuWNjj_lpUBY6g5GXu2CedvFKQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>뻘땅</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EB%BB%98%EB%95%85</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EB%BB%98%EB%95%85?id=4a2a143d-a5d9-410c-9dfc-30d86ce836b4</guid>
+      <description>주소: 전라남도 신안군 자은면 자은서부1길 163-93 뻘땅횟집 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:36 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5UdgWDfAu2zA0--TkEYJMd50CeiX-moSCohnWbfgDPNjWNPz3Gk3-H9yvPMebUkSagmXwZO-RrWqKzj3Mnb5Tip75gHIwhx30IehEuHLwto2re3P2Qns8IKh7ay-pwtplm315rDozUa8IcAdNo3K_1Fju7VP_ez3CwIE2m24ZJJfY1FudJFrmDW0SJeJJh4Ijf5g8zGVypkIFj86EBOEFOKocIMjSJ-4FdyMvN8_k097MjqE9s-ciaMcZhawiu3JPGqyajx0RL3vjTPGxEQIpJHCEYDuSvcPTP2wyHN6ORQGAQGZnH49sn0ZYUfCskGzc2za2xIB2wQaM0U-v6zDl0CqB04ilyDorRM2J-AfblZz5Taev3Y_CmHwp0T6_sZvlxfQg_gSjgNauiflSdAVUuXMZFw5mtZZCvokzB9jmxTsur&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>천사식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EC%B2%9C%EC%82%AC%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%8B%A0%EC%95%88%EA%B5%B0/%EC%B2%9C%EC%82%AC%EC%8B%9D%EB%8B%B9?id=12070521-008a-4d19-b693-ef77543bf516</guid>
+      <description>주소: 전라남도 신안군 암태면 장단고길 7-35 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:36 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      
+    </item>
+    <item>
+      <title>청해횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EC%B2%AD%ED%95%B4%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EC%B2%AD%ED%95%B4%ED%9A%9F%EC%A7%91?id=7b3322bc-ef0e-4996-b3c0-37f80939484b</guid>
+      <description>주소: 전라남도 장성군 장성읍 역전로 176 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:35 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6YBkkNNPfpjZ2aGB22TS8zFSH-FJBGIm779rVtEjPtUZ2XQGfPygUwzuCk8rP2lLms1Sk2dSIGiCMgYp0ldz3f15Unlt3ZidsvFCdwQxi-CR29PFPlQ3wwbK7Vg5jqe9C_7O29VqbLd8knZkZF47WZdgkoZJIrFpG9zxCx2GKfM57ZQ4BQOT3eOcXO0U-rGyxwB0pF7-jIS1m0FZvB3pZn7VtjxdkoUxpVWqRL-STnJUpIqtrPlcD17YXN46zGQAm0XaZhBrPrI20fOtzitipnIx4cXTHhqPveHUz6_MkUd93QLA-jFUZobqPq_HIX8YGhvL25O4lxjfAYnV481-wXheygNK7fQpHIQsD4WT8S6GHKQIwWEHMenYWf6-FXy4CTURUmZwwT9HPXDX3OzOLsd-KZDgygy_lP1kmOuXPfmAk&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>그 집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EA%B7%B8-%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EA%B7%B8-%EC%A7%91?id=32de8b58-5728-4bca-8d13-8f6a0957ed3e</guid>
+      <description>주소: 전라남도 장성군 북이면 백양로 178 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:34 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      
+    </item>
+    <item>
+      <title>용강식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EC%9A%A9%EA%B0%95%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EC%9A%A9%EA%B0%95%EC%8B%9D%EB%8B%B9?id=72ae7222-19bb-41a3-b737-cdda6535ddfe</guid>
+      <description>주소: 전라남도 장성군 장성읍 단풍로 510 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:34 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      
+    </item>
+    <item>
+      <title>만금과수원집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EB%A7%8C%EA%B8%88%EA%B3%BC%EC%88%98%EC%9B%90%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%EC%84%B1%EA%B5%B0/%EB%A7%8C%EA%B8%88%EA%B3%BC%EC%88%98%EC%9B%90%EC%A7%91?id=8a4ea5a4-48fe-44a7-8546-81027122987d</guid>
+      <description>주소: 전라남도 장성군 황룡면 삼동로 852-6 | 카테고리: 한식>오리요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:33 GMT</pubDate>
+      <category>한식&gt;오리요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU51AyXusKiFYn7-N9s9PFgO_QKuMN-mcROxfPukX9qy9jQsUn2Z1lXQxaSWKId0Qs24mv3nnWSG_ZJX1hNg0awK1bFVfnMX_CICr0O6S1qaOx2auAyziCrFvJ113vcQki36-FpSuiYc4qwtty4qErG3sLnZ9zlcpjm7sOpxqsdiYajYJmrVm81sPTTf_323IONBfNqp5G0fIN6lmN58mMlymSc7uxPr6R7CKmMVd9FMiDHGgvRuhzC_YBYndk6bB1VF_Y0mBwerCfMMm-gSbrHmvZ5FRDnnr-MSBj6lvgkWaN5vfIqHS1EoVZKPRPLzNH0l_T1lUGc5MFD5D5GLUhYHKyj5uyo86yuGCMkUZn8UOGWrP61LTl2enfL9kAbnMqQwVFmzrQ3WHnMsUBqI860jelREOJx6ajABRS5XY4s&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>119식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%99%84%EB%8F%84%EA%B5%B0/119%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%99%84%EB%8F%84%EA%B5%B0/119%EC%8B%9D%EB%8B%B9?id=d0ece15c-7e37-430a-9db8-63dc24cfd5e9</guid>
+      <description>주소: 전남 완도군 완도읍 해변공원로91번길 12-12 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:32 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU58Vpqw0hw4d8SP1VzLHmeMW5phq_utHTXaBNenELER1P2APVob-a5KMnRxHhbDohUYZZ6igHFj4Z5yoOD0zRg6zx3nfuFwGVuKLkXMF-M707c2D2qRA8ggP0u6vNL6PuNO0sRb7bNC1nGJN0Dg-x878wdh2ycvz_D8n896WDNnQPQ9OfgreLaK_xiQjdORJqrlQ7B6LhFjG4h2vY2o9kndIXwUtlD3G9pKiJ_dkog8FhfXPbKD7jNIOd3vMpjFFf42UQRDJvzj9Nub0G25k6ygvw5HfwhLBMtknseOTA9_IJlu0qQWrNgZn8Js81F8eiq6a5G-5KDEVqTMMr7UKdXmL_Hb929QyAwxRAXpKjvIK5nDryIOWRvr0I8tQMauAYGrCHLpq7jRoZcD4VbpumAZFFHYiFT1ut5e7lEo6RqAjd2a&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>빙그레식당 본점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%99%84%EB%8F%84%EA%B5%B0/%EB%B9%99%EA%B7%B8%EB%A0%88%EC%8B%9D%EB%8B%B9-%EB%B3%B8%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%99%84%EB%8F%84%EA%B5%B0/%EB%B9%99%EA%B7%B8%EB%A0%88%EC%8B%9D%EB%8B%B9-%EB%B3%B8%EC%A0%90?id=75767657-dda8-41f9-88ab-dd6690003488</guid>
+      <description>주소: 전라남도 완도군 완도읍 청해진로 1565-4 | 카테고리: 한식>해물,생선요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:31 GMT</pubDate>
+      <category>한식&gt;해물,생선요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4A7VhowjO3O-LJpJxMm4CXMOXoLjr-ZpLEtSFvJKCsGGZVApKveG5op7oNLBa5tWwNjnTBbCBBYut4vETZk96YPSJHEdloOnRjr59wKLf_vQDxZ-VxFgDJWy0QaNRIoWL2qvktCn2DWq8RGfx0bhX31UOWWNOqpDq85IztnQOXQaAGsuhckNk-imospzvQQXuchnNK0EL2CKmdUtMwejSvGKZEyFywNAkN7RLe8a6kadMnJBXa_P01DOaBuP-25LU0rCLRHny9JB6yZRu15gxZ0_Pr3puOj9vT0RfDCvjVFJ3SZCemetCOZ4eGz6fbyct_G7fOiFUL0Jg4yK-xCFMAxGOESxJkUJc7f5VH6tGY2MXSP8wN2nzqtXKbp6mQU4YmNOTpAH4zVWAnnJr1PlZ5trkT4KjOzutrjLhYa_xbJ_Si&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>카페월</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%B9%B4%ED%8E%98%EC%9B%94</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%B9%B4%ED%8E%98%EC%9B%94?id=5330ada7-08b0-4d48-b779-b25471c3c0c0</guid>
+      <description>주소: 전라남도 순천시 상사호길 84 | 카테고리: 음식점>카페,디저트</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:31 GMT</pubDate>
+      <category>음식점&gt;카페,디저트</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6qslu9HYHpadcRsnPq9DbasHbBWvFkKFfV1CClbqYn2v4ETZ_Yqf2SMHaXczz93Y0W4jzPLPGUR69nBU_XJlapSNCaXXDfJY91tmetETfHIR3Ecw74Ivlz_411NvecYcNBRGFu6d6C6QV-R_ZZInGuoXM5Mz3XgtPgIzVuA0D0D3M_QarfbL6xEyvfxdsf8CswU8gc6-eMzENSFkhSoitjPsWgX0YYAagFmMm1B4eSHgsGacH7agmHaeywUnPH2tMfddexpsEX2tgSvLEgPALmhr5uTskqeO5Lan2DuffdUKEF-o3Cmlt-ICgfUrPH9zBWC4jAiZGk4v5vWuRyZkbBDurGQe-B5PPgedJbmwHB659EWZMWcBxKdwX_RmjPrjstNZdYqm4CQFA-7j4rG_DdTA19ZP07xKVGM05dEJZzj9mT&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>삼거리서대횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%82%BC%EA%B1%B0%EB%A6%AC%EC%84%9C%EB%8C%80%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%82%BC%EA%B1%B0%EB%A6%AC%EC%84%9C%EB%8C%80%ED%9A%9F%EC%A7%91?id=bef2f460-cb9b-44ad-bfd2-2e612e5ab9d2</guid>
+      <description>주소: 전남 순천시 서면 선평신흥길 10 삼거리서대횟집 | 카테고리: 음식점>서대회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:30 GMT</pubDate>
+      <category>음식점&gt;서대회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU54Kp5wUXOnWE5Xmr4pRpF7SPoMwdNjU3TM-srjqeD8u8wPXE_pIHQmg41FA_6cB7O85ht2654abv-yHy31RwZnOq4bOA8Hd-dDlBixXuow_yz0Q8gEt_LHFBRXcdZn6Wa_gvG7MEFx5Nliny-fyzI2Ed3Elld-bK-M8L8PeUhEEbkJJWVGzDgh_rJ4sxpD0O4BVio1QDM7-2JSApjhOVG_pOyPHH2BkhqiRKs2vgjhzBH1gAQMLJcKX-ktHdq2Zyc_Ywjeu_4OAsdohHQdWJirPXECX7UttX1UzgFzRoy126V9XqdX5ldnMMPJef-eY8oITORVHoSCgpx-UXBnGomj-emi1YLLzNlASd3pt6PsPOvnYAMX67ChhHs7vlaK_yDu4iF0l1Ze73T39XFJM7YZ9oRImCP1Qwp_K43aTD16cQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>남흥회관 순천시청본점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EB%82%A8%ED%9D%A5%ED%9A%8C%EA%B4%80-%EC%88%9C%EC%B2%9C%EC%8B%9C%EC%B2%AD%EB%B3%B8%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EB%82%A8%ED%9D%A5%ED%9A%8C%EA%B4%80-%EC%88%9C%EC%B2%9C%EC%8B%9C%EC%B2%AD%EB%B3%B8%EC%A0%90?id=fd9f7268-8a35-4023-b428-d8fb7bdc674a</guid>
+      <description>주소: 전라남도 순천시 장명2길 4 남흥회관 | 카테고리: 한식>소고기구이</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:29 GMT</pubDate>
+      <category>한식&gt;소고기구이</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4kTXtIkaVHEEczRILoaS1Y-JUwCXBsAWWBUWc26TBjX2PAVgcQ5ZAt2hVmT1x-Z5GemJeWRNmvnRdJxQ5ytW1Uwr7rYXoMa1-tudVC0Gr0rij7TWFBNSDxrp6Nfd2T18BL57XiJOrQZL1RhiKN_YS23FMsvleSDEHi3suu-MzxM-V_-JQMiaSrNnyc-Rp_7J1wDAFFz1qshqIzR8zAAzCGbc4eHavwkVIesc0EghnjTsVy3z_mV3R0LNIrTkbPsGnqeeQ5WdzmP90kf5bslAhELsnJjzrs4DqnZE7oB5vuXlQQXBEVBgDq5hFHjMQIkKADy7nRlaQMRJf6gzgJUADxTLsAFNO0ksGVJ0SrdKk8EYl7wQH9DdIIazz4k1Uv13k0McBtUnFuN7DtAKOEtm6Oe0GnPCcdTMWdi2a2Dj1aBg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>왕개미</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%99%95%EA%B0%9C%EB%AF%B8</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EC%99%95%EA%B0%9C%EB%AF%B8?id=c37dab6a-f19e-440a-9ac8-5e3a5b4b3ce5</guid>
+      <description>주소: 전라남도 순천시 장평로 36 1층 왕개미식당 | 카테고리: 한식>아귀찜,해물찜</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:28 GMT</pubDate>
+      <category>한식&gt;아귀찜,해물찜</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4r1A4wwUm-kGbLUTPWvolEJKeDdwd9HW_LRXfR_1JyMn2lp0rJrXG-yht_Bhy8vclgACQi0UOLkchi9UIEeTwzkVBxDg6EEVrH1YfufROtUtg6zUKiocpNB97JjvKH6ttNslRE347yJ5fdoehRmFJcQdIXwOhAdmfsDkMg7fgPJKwRZut3WRPheV4jnMsWuZQTp3NXvV_TdQpLF8aJRvt2RN0ZawY2mH93hf3Tuw54zPbAAZ_gBJbHIiJ6Aj7bwteQejdVDnTsHPZ-3pHXkk2Q2y_zPdcudTHp70HbWMqkKM9vorLcLkks_YlOEDdp3JU4yU3X6cvXlHdwyf5cM_cMeXxK4oHZ0tgxhel9uy5qUFfnVRVx9FtajdM2hcRsd_en3YogwuZKT3HCtlR5gAWFIss8BqFuLC3CPc1OULeNq9tQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>남녘들밥상</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EB%82%A8%EB%85%98%EB%93%A4%EB%B0%A5%EC%83%81</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%88%9C%EC%B2%9C%EC%8B%9C/%EB%82%A8%EB%85%98%EB%93%A4%EB%B0%A5%EC%83%81?id=6d171710-764d-488a-af73-92e74b53615d</guid>
+      <description>주소: 전라남도 순천시 하풍동길 21 오션팰리스 | 카테고리: 한식>한정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:27 GMT</pubDate>
+      <category>한식&gt;한정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5Zhv6ATbbsh7p1EqcjO4d9Se0ULqx9y9XkBdNy6dAyAa-fnvonIu6IoNtdBEGlVeIYnDbPr1T22n918plwlb3HC8eh9gaEfAsndtWVQPIPVAe8-6AsEfrhLHZW5PmYx5i9FM-1wubsPM8eUHIKutPn-dtBolss3-RWcuMhyiq6cmRu-fcadt2Aku0zcrwLwO7HzC8EDX50FkZfoZym4pwOjdvWdKMYzeDm5WmSSKT3S9cCnh1iKzyMsJ52w-SGYIJ6lnba94Uz9-SuJ5wR9jQISecjLc0QfrewgUFnOpYKr-niiWD4qW45HnVx5d8VpXFZ-jwLrdf51e17ebS3Ov-52XXLd72VMFe6IyRFDqjtdZsXBGZ7MBZ70yPgdc-oI2F5HElPp5IoLEqs71almgPbapDW3ubBlQYXvNcXnnq_OAv3&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>양지가든</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%B4%EB%82%A8%EA%B5%B0/%EC%96%91%EC%A7%80%EA%B0%80%EB%93%A0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%95%B4%EB%82%A8%EA%B5%B0/%EC%96%91%EC%A7%80%EA%B0%80%EB%93%A0?id=89b840e7-bf68-407c-8e3f-67fced6eef24</guid>
+      <description>주소: 전라남도 해남군 해남읍 녹우당길 101 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:27 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7q2HYsal62WJcr8pu7VtPsIt7jE7Ggsb4dekrlG9ohvSFBefGCV7P0oTOcW4J8d1lYoBIx5BpMhLDsQuU2Y5Pjr-An6Qcp6izUc-5w7eGxbIxf-cVvQmEJjZSey-uQVBHRc-D_eNtZ9yymL2GlrKbEK2u-vIVf-at-u62Kq2-pWoFUE1n_PYYUYQEHLzKkvkdb_9Z-WOhS-rI8SqK1laH4jMxf2ZxgStD1EP9sATAcr5LwU5jC9mBpv4O7JgsmDMUpg0xKQqdMeOIgX3nzCwqh4Wwf3LK61Z_VGKi6Il8Y230y5Yta-McdDicum6TcQMj9ufiF7guWfsCU5kw4CRFEMN2_YL-frp6yE-phB0x6idtnG0vKIPxlUMJWq_XIg3fTGKGDLmrFN5sNu1MmCJl3Ivkwt22SdDJLxRPNYIsj7Q&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>언폴드커피</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A1%EC%84%B1%EA%B5%B0/%EC%96%B8%ED%8F%B4%EB%93%9C%EC%BB%A4%ED%94%BC</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A1%EC%84%B1%EA%B5%B0/%EC%96%B8%ED%8F%B4%EB%93%9C%EC%BB%A4%ED%94%BC?id=1bec3a5f-d4c9-4d73-bd4f-7bd615b32ea0</guid>
+      <description>주소: 전라남도 곡성군 곡성읍 군청로 37 언폴드커피 | 카테고리: 음식점>카페,디저트</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:26 GMT</pubDate>
+      <category>음식점&gt;카페,디저트</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7xcqQeT__ctKlGoHr0csdAHwg2aNjDq5qx6cy356nIPnmr3aZVwGnG7rtGdwD4UJdX2WOHG03rfIHGpxyLtw64ghOWnWiXTzBjFCfgIb1ClYfw_86scBxv0BJ6u32vRlZms3fNcjtoWeBJagfFkbVl6D_is7wke3sdIflFq-sWH8Z9gF2haO8MMagQxPsBUuKDUqMtqTQZKLc5yhuH4cnvocL-SVQFicveGmAHN1iwjhIJ3S5nW3mY_x1EnVNwomTkkmh0VEe-SBOPoYLv22b_JnPNG_L3Fo22h60wM1R3bYA-BsyDRvfpKt27rYAodGzrByKUo4PX6F14tK_TDujS8Cc-1oh74Rol7PqWozDLudzvk5KmeY1JmNo1_o4Dmk1W7xkOfjDl55iOEyMIuga24TrkVKnWExd81imYCGKMig&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>아임빈커피 진도점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%A7%84%EB%8F%84%EA%B5%B0/%EC%95%84%EC%9E%84%EB%B9%88%EC%BB%A4%ED%94%BC-%EC%A7%84%EB%8F%84%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%A7%84%EB%8F%84%EA%B5%B0/%EC%95%84%EC%9E%84%EB%B9%88%EC%BB%A4%ED%94%BC-%EC%A7%84%EB%8F%84%EC%A0%90?id=db21d073-a947-433f-b089-1072c1dfe96c</guid>
+      <description>주소: 전라남도 진도군 진도읍 남동1길 22 1층 아임빈커피 진도점 | 카테고리: 카페,디저트>카페</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:25 GMT</pubDate>
+      <category>카페,디저트&gt;카페</category>
+      
+    </item>
+    <item>
+      <title>감나무재</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%ED%9D%A5%EA%B5%B0/%EA%B0%90%EB%82%98%EB%AC%B4%EC%9E%AC</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%ED%9D%A5%EA%B5%B0/%EA%B0%90%EB%82%98%EB%AC%B4%EC%9E%AC?id=cfc15227-6a19-4e0a-ae0a-316660157639</guid>
+      <description>주소: 전라남도 장흥군 장동면 북교리 | 카테고리: 고개,골짜기</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:25 GMT</pubDate>
+      <category>고개,골짜기</category>
+      
+    </item>
+    <item>
+      <title>싱싱회마을</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%ED%9D%A5%EA%B5%B0/%EC%8B%B1%EC%8B%B1%ED%9A%8C%EB%A7%88%EC%9D%84</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EC%9E%A5%ED%9D%A5%EA%B5%B0/%EC%8B%B1%EC%8B%B1%ED%9A%8C%EB%A7%88%EC%9D%84?id=9c5d8d5d-0242-4e86-857e-7002c3c99001</guid>
+      <description>주소: 전라남도 장흥군 장흥읍 건산로 48 1층 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:24 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7IJu2eApA1-b0FVYTT1cNx0YavgBIHd5AJzt3m_6Sr2HM5uY6LfeSC2b926XMS9NDv5jXDu81ve6Hhy5tXG9GNLDzQOIw0a7AP_UKXJqSkYEydgTf0xa_kk0xW1xhOt6Ja-fP656JfpH7AWGfUt8ZrTS98k2mDYkgvAKSwoiLJBSFgUF71oJkqU4JWYlufalj0q6rWkeV0guLbn6EqIPPXauBKjLu93FWvqHczKM76SsTh7LxsqFSwo38xrfJft791JHXcT5MxeeqtqFN9rWBYKeXJtq-BXrHeG7chqov2dhwlsRzDh1JS6Ou_sV9-qQyBYw8svRcMAZl9jZbUhJeorb9DeHPIqknKM-Q4jDxsUj2g_7cfdi5IFPVoMsUCdKw68vQZLYe64Aen8jAXWzPmkUGHRaiqSiB8keQP-RMfNhQY&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>진미식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A1%EC%84%B1%EA%B5%B0/%EC%A7%84%EB%AF%B8%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B3%A1%EC%84%B1%EA%B5%B0/%EC%A7%84%EB%AF%B8%EC%8B%9D%EB%8B%B9?id=70821b2b-076f-4e87-b6e3-bf782512d336</guid>
+      <description>주소: 전라남도 곡성군 석곡면 석곡리 97-1 | 카테고리: 중식>중식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:23 GMT</pubDate>
+      <category>중식&gt;중식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5i_xMei4oMI54w-h1GiBJFTDKzlXMeIEXA3broSE0WonPQRHt1JIJh9w3d_korG7AuvHsFc8YjqgOms5-2mfNN7rgOO0nPX2-AoFAtqgw8yZHDt-pkoYhAM4OmpXlfx9R8zyJ--8cUwzbNOKpIabXS8Qd_mF-Bil4wNZefF1k3KSHH_umNN2lgDc6Bmr7xGdCi2qCJiP3JNfM3luknibfQyBnEx9ZA0mJbRMRdeJ7jMIjKhweTCh0X5ip7lQh5U05eVLPMRibK_TsKpZENn5KQEQYYlg_W91-ZnPSL4_1d1aaF__HCUxhvXn4w7WivLTis8QmfWGUpo6iTNzEzfiMmf9nDxJQHkUnuwNep6FUmBhT-Nq-JGWZhBL5vElLLaq3ISSO5qeuD6h-Cq7FKWk4vr8Sp9d77DLuePxhnrLhpeg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>한식당 엄마의뜰</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%99%94%EC%88%9C%EA%B5%B0/%ED%95%9C%EC%8B%9D%EB%8B%B9-%EC%97%84%EB%A7%88%EC%9D%98%EB%9C%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%ED%99%94%EC%88%9C%EA%B5%B0/%ED%95%9C%EC%8B%9D%EB%8B%B9-%EC%97%84%EB%A7%88%EC%9D%98%EB%9C%B0?id=102c8aca-f105-4dd3-aaa6-16fc2141cd0b</guid>
+      <description>주소: 전라남도 화순군 화순읍 세량길 14 1층 엄마의뜰 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:22 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4m_L_-Y5JAWFLCkJjYPP6fpeG2UTR1JtUeWUZjubyBHhz6aRb2AFj1rsBL95IQeP7ZfeNOKZbXltdr02lJhql9xqKSG5PsHwIdirPbDlrabrI8Mwe0BfFYejx0D5yt11b_5hIaFJWI10NpODdR0aU_zuW9Q2Ujvtu32fLmQlYI89kERPnfliIS5dBD_3LgBf604uzYQaHBSP-g59y-HvtYDHitM0u_onwXDBIuxr03cW-Qw-3rzZ5yYtVJMx9uG26XD2A9zxQYRzzpsHEoWDRleFmrBO9eIK021KCt4MxMhYlsvVLqhV_ydC9mG3HznUeUKJgx3qXtUk3G9RshvsGgJ5xLXDIiRabLvkmeoBMs-qzJM-dFwl7OVmkcp4RzAORDR_YFM49ST3lXFWUzQ7QOnpBxR6E6WaVcd8pLNVz4zhY&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>토방</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%86%A0%EB%B0%A9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%86%A0%EB%B0%A9?id=b12023ca-9931-479a-b46c-95cecc1ceb80</guid>
+      <description>주소: 전라남도 광양시 중마로 518 1층 토방 | 카테고리: 음식점>카페,디저트</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:21 GMT</pubDate>
+      <category>음식점&gt;카페,디저트</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU71Le6uCV1sFabRRMplBsQfdtniFnbSlsQa0yFXKZuUhgIolAL7umf_Ko-wsKXXJC90b2J93PZypDbYpiInOeYT9uA_jYGpfQCVwYEDxqMMpIM4AFz8JVDzAdbH8KAm4inYWqykT2dLmJhT1zECIshSy3JY7dqAa61n30MsqxUcH-yhMl6eZN4mJVzkwb03u7X9plx-6LbokJquuIyG1eaPEHQt7sr7RoYEu0_EZRSRDgsuKr55Qy6tiByNgyap31b6XZuxvpVqJZQ_QYYRBOY8C5OcmG45hXskhuzOExQjMDGMUj8AGqsRFASL5HYA4UGS_4CuEbvpN1ZsFdDxetYB5re-wxkMlQcHG8XDTeoQBEX3d8_huWBvwsjqisO6rogSAiFoqB8zo2S2V5cZZnDCtyAOdqW4KI5_9_tG2BCkeA&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>용강정육식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%A9%EA%B0%95%EC%A0%95%EC%9C%A1%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%A9%EA%B0%95%EC%A0%95%EC%9C%A1%EC%8B%9D%EB%8B%B9?id=b95f36eb-083e-45c6-91a6-3001d02224c6</guid>
+      <description>주소: 전라남도 광양시 광양읍 기두4길 22 용강정육식당 | 카테고리: 육류,고기요리>정육식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:21 GMT</pubDate>
+      <category>육류,고기요리&gt;정육식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4cK0eBn-hmmGt2rfi9ZSP9UHyTe2ka45WvZQPcTlIMB-5t6X2Qd-_rQZ3bKT_rWr4cfZSfpAg5E-cYxciBbXY9jQkpIR1sHzSqSLb_3UCGtVkv5sAXNQwrfWfQA9uTJ0NQStEtzkJVu3h6m1dci8PQOrgclyRTYw9t2rhFwfqiKv-YmY0ob7GcwkUmY0iEa479CApk-LfssCq5wRCDMcHT9UNC0foJJbasqCrB-ybTUaX-y5DMQcSDbRUJ1twJwv2cb6p9MM4OW-s2_IHtbH4EIJfxtKh2fYyJ0SgUTMT950E2LSPpq7Cju1tG_eJxFI8KlAo0giWiK6ytO_-R3axuxGGMsuuwjd-bVc8es34yNmYnXTAjPB3L6c86FKr6ilKYSX6l3iK5ODZMZVRx_wW8tc6WgcpNGBeOmsSatRvUjg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>미향모밀</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%AF%B8%ED%96%A5%EB%AA%A8%EB%B0%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%AF%B8%ED%96%A5%EB%AA%A8%EB%B0%80?id=aea17a6b-72c2-48ad-9f10-c3477a8b7530</guid>
+      <description>주소: 전라남도 광양시 광양읍 신재로 239 미향모밀 | 카테고리: 음식점>일식>일식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:20 GMT</pubDate>
+      <category>음식점&gt;일식&gt;일식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5gz7F5vJ31ByQYMEchKim0I8EiYYLnD7aMm5UmN0PiiXtDvLeWg7TcOlS8pxpvbRRvGlszqrhZ6hZ_glZd8IBJ8xSmaPVPpuaDrORU3ee57lfxosAwh7Hiq_F_wzPrFi2u_GYKz0K79GuU6QABcobAyqDqGjG8qHjmRLV32zzn4Ua-3wvb7hx9JKLY8QB_XjZj2p0SBV_BDdaLnxRrWQeQTy6YYZ6IX3vZ5QWQzidmNgAmeozMczZv6q4uh1ghuTuveXnGrWGns4hyfjPB6kmir5qmN7yLhwnp7hruQDoaBw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>한우대가 NO.9</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9A%B0%EB%8C%80%EA%B0%80-NO.9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9A%B0%EB%8C%80%EA%B0%80-NO.9?id=703d1641-b2a3-49e7-b5db-a70310c39cf5</guid>
+      <description>주소: 전라남도 광양시 광양읍 덕산4길 10 1층 | 카테고리: 육류,고기요리>정육식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:19 GMT</pubDate>
+      <category>육류,고기요리&gt;정육식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6CGYS-Unl6FEzUyZEOOEocExJoY8VO85CHyWaugRx_nQUj6gC1D5P3TTpIo4rRJpGYjv-gYpc6PVmwLebOe7RNJ6-B4Pwnb6ZpRWrLrk_xvsIQzEXHf4jKupYrsrxmh4BOQ4QSJJ7bgSNN6DvutfUeKMNkeUZUhyPBY5HMr0F422Zyj-xCyt24AF9idpT4S7OMt-_BXfEO4tncfF2R11nwwKaaOn_CaRq42wonB0B6M8pWxsvE-C6rkD06vXrwJQNEMFKbl-AR-FH0iSbyxaBFX9f-26OYjGbJ-3VarDmMwX29cZU3Cxfl4QJf8Yif4eociF7V3Ef2ubaWCp2H8JTfpCoT1d8Ly48RmND0J94CtCCDq9M7qJL1EOoFMfFqVROkTUTxdpgvfLXapU7bTIYfE0nxszdz5lCq75zB7UDWK0A&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>감나무집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%90%EB%82%98%EB%AC%B4%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%90%EB%82%98%EB%AC%B4%EC%A7%91?id=0371b73d-386a-4457-8205-148f6599d3ad</guid>
+      <description>주소: 전라남도 광양시 광양읍 매천로 744 | 카테고리: 한식>해물,생선요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:18 GMT</pubDate>
+      <category>한식&gt;해물,생선요리</category>
+      
+    </item>
+    <item>
+      <title>황제능이버섯해신탕</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%99%A9%EC%A0%9C%EB%8A%A5%EC%9D%B4%EB%B2%84%EC%84%AF%ED%95%B4%EC%8B%A0%ED%83%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%99%A9%EC%A0%9C%EB%8A%A5%EC%9D%B4%EB%B2%84%EC%84%AF%ED%95%B4%EC%8B%A0%ED%83%95?id=1a9e060b-7741-46e1-93e2-0b98a90f60d5</guid>
+      <description>주소: 전라남도 광양시 발섬6길 14 | 카테고리: 한식>백숙,삼계탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:18 GMT</pubDate>
+      <category>한식&gt;백숙,삼계탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7ZbdkC32l5HQJ1vqrrYNlDvRpTx1jRHT45xSSs34suo39CrdxPeFIgQWCWO6cMmRgw33DN29QkO0u5TtDAVgYau_teVBpzENMfk2gT6CM7kdsHpWcVLbpz9-57CUZKP7wJyiXI1MnP1BOsQ29v6vFI0OocKlWiWr3s_no0pTgaNqJrlSy0way7JbDxuWuOmXc-CkEvFsb75IlSBJQZv9jrp2ih5I1dksOPUo-Vm1ZLLYIPCA6x7DHorKfRAoebPo_1-EQPoq1U6NPHl7dm48Ls2CnFUWMv-zsj6JME2nishXIkvyHWHZO8xJP8-bpwRiaGzGTm73Yehx-UeEvRuUbgyalFpH4FoE82Cxcn_wlJGD2zDuQ6TBTpa_1RVmoD8vw5jp9nDfXSRmbQSOT4s0sccgr0FYIsWIZM4C0C0aR6Ow&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>금정광양불고기</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B8%88%EC%A0%95%EA%B4%91%EC%96%91%EB%B6%88%EA%B3%A0%EA%B8%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B8%88%EC%A0%95%EA%B4%91%EC%96%91%EB%B6%88%EA%B3%A0%EA%B8%B0?id=87073d39-65b2-44f2-be1b-dee2919fcb0a</guid>
+      <description>주소: 전라남도 광양시 시청로 27 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:17 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5dO0thUp8_Lgp0ya_pm0h0UjnHr24IccZJ6HYk7p-43hxFL5k8_OwMRAR4xKH0znkGLrcHQKQMQnWpGhF1k1dOskO3DWBrQDGtcYE13LIhNgBAa0yurWoYnBI6RhyHGtECUrZeGYb5jyz8AjCJuenOvuM9kFBwOCyYUri3FIxzVhy0dVlwGs5Nd3oxxMRtQwRZ6Un_Ew4s-zHsedzTOgPiM0RLi-zRR2IylJNUL8HEPm8npk93yqo3hIZb4tpMRxBmnxtBm6rc5w9OoIGNMR1i95p9dWuUlPkOSIIykky_DR7XmJGerpUti9EeJJITLh4zQgcs5vpNUS2MmxWZycuQH1piN5BH-wXDKPhsLMRvyzLCT5_B7rn5ojM1nbBMfD18asa1-W7nLtBXunHq2bjEZhxIKzA-TmzyopzFSRQYTYC1&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>금복식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B8%88%EB%B3%B5%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B8%88%EB%B3%B5%EC%8B%9D%EB%8B%B9?id=26bd2e44-10d1-4bee-b172-aaab9d7cd057</guid>
+      <description>주소: 전라남도 광양시 광양읍 읍내중앙길 57 | 카테고리: 한식>한정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:16 GMT</pubDate>
+      <category>한식&gt;한정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5KL--yvkwXekG4fDP7BZ3kFiEHkc3ge5LFz3v67QZFeAC73KAwN_50Ul0OAO6nbkvHFJTNSwZFOq1cuKosAhN8i3SntCFW0IPbUlxF7V3qF9mjVMVizAJ-K5Mf5E1EghHbcu-MIDFy9xATHl5zdCblg_OMW_O2m0dgLQqL6OFoEBPAmKMbDiNB_5fZbxIpIDq9-oCJs7CjB4jN84NuIY_hl0l2lBIk_6BdDAnTWsv_rDaQd6ul0JqlEWgMTkwJdRtY1NcohUcQL-TLSQTuscV0ZBanmfenZUp4-V1xvT_TKbH-Vb9e3107u6RlIGei-Vp4wpM9mAGunV4OYtMynMJYyF1EzqD0DAuW0XSR4R_e8-XVY7qoOrBitpSMKrckp2QTHCJ4eUQ1DQCYPIh4sIcT57EAUaoWD0ZjUy-L-Ft87A&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>백운횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%B0%B1%EC%9A%B4%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%B0%B1%EC%9A%B4%ED%9A%9F%EC%A7%91?id=fc0109eb-2d1e-452f-b941-8763f15a6ba2</guid>
+      <description>주소: 전라남도 광양시 진월면 망덕길 231 백운횟집 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:15 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4Z4P03JJYPCzL5vHPLSW8IsgHM2N_lhZzEuHo_3VuKBEWI4MTY0vWUnI0nnQ5eJM6aAx2iwKCARGGol_y-8vOLVOLUta_463lLAy1JZjGHxU_V7J4xMDvIJNoFHCYgMnQIP7nQ9qGXEw_TilYVocQjW81tBd8Vdt4zzOei3vd2I0kdYPaBX3rpRjAhoI6yv4FiHy_KigMp7KiaK81VsBuZ1plBCPGmp8YI6BbZtJ6TvCfXwWNVCgFm6Es96Yi0ABRgP5xoRUd2tFT30qda1l8hhNqwRhHK-yNm-PUj3caaglm_YG0rMdD9U37kVyh7fDJo139O7lUujG87X1-PAM3WN5vYnT3Z0WYcg0di65D4ITqFtgofDImr8nuOxukOgtCDOPOrGtHX4MIhwG646Vvf_RWg2BWTmubNLgF905A&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>큰집설렁탕</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%81%B0%EC%A7%91%EC%84%A4%EB%A0%81%ED%83%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%81%B0%EC%A7%91%EC%84%A4%EB%A0%81%ED%83%95?id=d82f2195-bfae-439d-acd1-8913a353a9ac</guid>
+      <description>주소: 전라남도 광양시 발섬5길 15 큰집설렁탕 | 카테고리: 한식>곰탕,설렁탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:14 GMT</pubDate>
+      <category>한식&gt;곰탕,설렁탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU735YcwkhT2uNbpWJC35y_RoZP6DYMiwUUX4fD3HB8javIT8DHpAg9myGEonAcbqTZXfneLq5zYn_oaMWVmXSa6Hxt2P2ELVHRotuRSpUWayni_eB67cIxZQGgE1Rsr2Iz77ZRECpp0d4-RGQT6x3izZIlHMt2KHkXy-d9eIhOhLII_ZoNAZsVW-40OMrezVyZDqq2t3IEVaB3oraxKROTKj2vpUTDYwdrhYC65r3X6kYXfh4DdmaOGvUiw_naI2SFFXs9emrIJQ5lPA6P_fdYXZa2COHRdKuQp4-y2OLJKZvziNm4SeNjU2wbui97GaSxeQhfiTLC_MdIlVviM5fDWIYvmY3BFuLh8BenyubX1DbSBd5XdcwL4lkbi-9pzWWTRRF25pCDeRJUb4scfwmcDqDS6c7mSgr8pHKeylNM8QQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>남일관</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%82%A8%EC%9D%BC%EA%B4%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%82%A8%EC%9D%BC%EA%B4%80?id=33176493-8546-48e8-9909-75cac43b0048</guid>
+      <description>주소: 전라남도 광양시 행정3길 30 | 카테고리: 한식>낙지요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:13 GMT</pubDate>
+      <category>한식&gt;낙지요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4pogS0pauIFDdH9YL10mG2pMeApbCuj0quKzlsCppL6StYy5qwkj7kuLHaEzKjsmQ9gbB0VZjstabpJoO3oikJc7_bu9m6xFp0FE05-XL37iqznWCYhxaAfQa6eoitI598CtPY3xWrlUVzW92Nqzo4bCcq2drPg-cgB-gvjRuxQM6mikHRdTD3djbvmZWSPIxIBW4esgaN14xnJ0nj-sNZo0cV9zhqXusrx77PWJAHwlqjTh0NMORTr7yP7C4r18hKW78wOcYVxn-lBab9-_4Rar-5OurUQPDrSI0vcfRj8tJgrnb-0NCYvzcph6jikqG53JNZSv3wC6veFLufnOFZC45bXVL75o9zcBspCzYwMEeTkt5kdYdXsSi92cgZFN7FhxrXLPbz9u6_OolepAD4nFqodH4guJhRYpS7h5A-DQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>용천횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%A9%EC%B2%9C%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%A9%EC%B2%9C%ED%9A%9F%EC%A7%91?id=ea34c259-f2ea-4c63-ba49-35e70cb67a5e</guid>
+      <description>주소: 전남 광양시 발섬4길 17-5 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:13 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6xKdIbuywZ7PBzf9Y7yNkyK5XkM9l8-fVp0hoAg96M2eEpgH_NqhqAwP4NntVp2_t6uKCy9IT3gvHxQi7vneuLqrJ5DegbZTaObtkc9huu0-B61kinXKe81zP7-N7e411X5ATXWSlr5uAPaQx-70fn1bJ4gkB-Qwj4VqnUDNPDtgfYw0trSusZFox1FZmg7yHCrWXjTAy5RWxuOiQC1Z5rfOGiR5x0sGy2K6CSUij2hnumgZCu5nngZLhlDK34mNsm1uziFt49QIyAp2evjVSZffD2JMbhkD7ceTs3nNgNkBv_ny1Lkp7tMsW85Mc0R3t26iCgTq2ai7zh9rhH4sKsY57T2wooUBoAb28VIInUfpufr3LciZaO5seJK50OtktwQBxI27GRPlk_lydoo43DKQU-qKo0rU4YhlZ45rd99w&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>전통나주곰탕</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%ED%86%B5%EB%82%98%EC%A3%BC%EA%B3%B0%ED%83%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%ED%86%B5%EB%82%98%EC%A3%BC%EA%B3%B0%ED%83%95?id=42f65334-37a9-400c-9c2d-bf107f7473a9</guid>
+      <description>주소: 전라남도 광양시 중마청룡길 6 나주곰탕 | 카테고리: 한식>곰탕,설렁탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:12 GMT</pubDate>
+      <category>한식&gt;곰탕,설렁탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4JsmYX27YsY7VnfXANlEepcsrBIVlBOrnvyf4ZjU5JY4Z1Paab95KMlmVJxUVhFMewFoILLAH0Pd0T48dMBxShE-zyVvy8l6N-HwHZhqe1eE_W0xZ5MyNvP3nRaxiu7ozjP-dR7zJzVqtTm-SGdkH_DHiLPIZSiTFLeYm5_ur5VSpH8eLP9D0euYJFu2z0_mFWrN4wt_pPOuaVGuREp_KL_gkFmRQgrfgSY_Z7VW23hMBulFjgICKkirvBSKSnYdGeghdXeHiNfbYW3Smdm7o2h6-T9Ytl2xjnTMpnjZzs3C-Myuhq97IBWBHCyrp52KxdpGgbLNeZmy9FjrsItaJpJ7KMFRsMLEf9Ed3Lg5Gj-qhT3kuINW0gfh1cith3WUIdHFnCkroKipYqrVY-_xHQ7RYTZGkhCkMHd9QCmUKUoQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>소미</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%86%8C%EB%AF%B8</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%86%8C%EB%AF%B8?id=c6e54ccd-1072-4608-96ed-db1f3b96f484</guid>
+      <description>주소: 전라남도 광양시 길호5길 9-1 (중동,3층중1층전부) | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:11 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4wHy1VJT86d-sf-4GB0lm59vr8cUH-fywAHlhCYZUtXAnFjxcUtZmOtcvv5XrSr-js3yvzCuCp4VApTfsWP2G-mgYs_RO1t02j_U_e5_Vjs6u44vFdW9URfCTS4vZYJIYJC5OYxuC48nph42rPnjbOPDdHMa12lcpvlQjEREfFPPaxEirYv1vtVr9LL1lcXhRBKoSu6eUR_laoB_w10fkj2m-bTorB3ko-t4e5d5pjoOCNclmajopfOEtlGOFVbdZPptSSVmnz3_dgjK9YbHBXelHMValjFczXJuWIGKAY8h6Xgs3uW4GdAcrWug9gd6xvrvhq7dDn00Qp0Lqu5VtLM9na_Si0PthAgiFfHIcO6DKC2DHCtg5KmAbT74izFAPIc4ySsEy7S-rdzGa27aRu8PfQNF02lbPpbjYTKCry6eV-&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>섬진강고향집재첩국</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%84%AC%EC%A7%84%EA%B0%95%EA%B3%A0%ED%96%A5%EC%A7%91%EC%9E%AC%EC%B2%A9%EA%B5%AD</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%84%AC%EC%A7%84%EA%B0%95%EA%B3%A0%ED%96%A5%EC%A7%91%EC%9E%AC%EC%B2%A9%EA%B5%AD?id=14770e56-b299-47e8-9bee-a0502a29405c</guid>
+      <description>주소: 전라남도 광양시 다압면 원동길 70-21 | 카테고리: 한식>조개요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:10 GMT</pubDate>
+      <category>한식&gt;조개요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7grlapPr1czIfsg9jO8lfQVVBcCrvx-PE5zFjTU2XYJJDTM6-AU_1clifMvYrhEd0N9CH4Qa2NiAJsHZI4o0mLGGCIRtCD3RVjKSij2W4NWsnPJRbYKUAS2k6N6DM6uVAe-ek1kxideKNsjXa940oCB6vMoKWa67Hi6rKMf5le5UL7b51y4Jii0t_ErmWmS57OJWrJIpI4tGapYbp3sj-wuBViBSAONojBOwbfWGh-UzMCooLbJr5Hi1ByodqHBQm1rs9qtoC2zgctgATbFKL7-RJquOz3Vmv9FIDVkHtBTtZQTqQYExBvm9aNEAXdtrflN7UrJ0Xs1N9hFyCYnkh4dooyMdvmY7ITn34RD_65zot6ZG2MDjL32gKKXMmOu4y3fWRi_UdS52ZIk93VCltdpTEA-vlYeWi1a92B4oB1JrRM&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>나루터횟집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%82%98%EB%A3%A8%ED%84%B0%ED%9A%9F%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%82%98%EB%A3%A8%ED%84%B0%ED%9A%9F%EC%A7%91?id=12f11e89-3d8c-4216-9250-aa28ab99c1b3</guid>
+      <description>주소: 전남 광양시 명당6길 23 나루터횟집 | 카테고리: 음식점>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:09 GMT</pubDate>
+      <category>음식점&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU643TaTQ5W93eNDfEBv4XYQ058K2lMUXSrjb8gmTW_yZGh2uUwc-jwQNYHWnUrZP_b80fWjU8YMTJv9H3bwpqJ-dP-WQij1ctf2ldEWsWZwtcAaU_st9-jq2q6t6HcCR4VLurLSG5V-T1PXbsRB9r4uQDEjmeQOsWmQK-oxZZlNMVNxU16j7h7eiZF0Z-nS7FwM6BH1WaGrEKAo-kku3baQh58wjKrO3gYXmVIqsk6rw9iU3AdF5QGu1VFz6ho-TLyvf8Yyi2OnCgvc6LxtzuDjbykES1dnqezMROhugrvfy6vRV7v7tWsf29sGw_gPWWBZYSulB__JTEslay40uzEng1xn7kj2zOT-qQCXbFmSzthHdTQ7t-5WIe6gKRQ6GHNS_7_iKS93aTkJuLr0mQuNFqh2zvauQNtw4yx1F484cU3_&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>서산쉼터</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%84%9C%EC%82%B0%EC%89%BC%ED%84%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%84%9C%EC%82%B0%EC%89%BC%ED%84%B0?id=37d5be67-fdf2-488b-b69d-9bdd1fe99c72</guid>
+      <description>주소: 전라남도 광양시 광양읍 마산길 28 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:08 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6slbFTtIPOTRjECgV9u1TmBSvhDCUiRB7I7fGC4FhorjNBkr_vaRnHAfawx72A8mzoONh9u5zLv14zDsYq86dSWMLl_liq68JpJ5qWYjsP_Bb233K3uodcXbihetqXbTB9K_y6iWbsjXxIETmg4aUuXYztT1lv7fGU9CyK9B1KDMZIaL-Od8Sr3GJdd0V22sEYv8ChaGzGAFjR36SRYycbWnDlpfQgAPtwRyLW5iMIuc5sFm6t8ofYaoGHAJvRB6mKv-yChzudpcEmul-6VFOgoKF0NX5GSeogi0soU7mGIVDpHnInnTlIB01GE0ho9vpcygBNyt-X5prdhLVPHXdOPYCE-77AT2QDZKJxUJvVkMAX0gEyyQhy9nObBgDG_y0EhMIBijsN5X4N_YBIIeKq82Gb9GcgLWifCboJVVcQdFw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>삼거리식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%82%BC%EA%B1%B0%EB%A6%AC%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%82%BC%EA%B1%B0%EB%A6%AC%EC%8B%9D%EB%8B%B9?id=29d98da4-b753-46a2-90f3-f62d214219a4</guid>
+      <description>주소: 전라남도 광양시 수죽길 2 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:08 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU66MEPAqKEY4RxZU6_QK4cFecfCRWe9CMF7MvQvRZiclpUy6gSFgc1eb7MEqIu16sUN0s466wbXVY_HEzTPvh3Ix_C6WmhnHbYV5vj-mF-aXqqAEZ6xcmyzzj3gs1a0sjuqq5ATgK0qojsXqtahwTlYJLFg1tBfgXaTu8t8IapMVKKwdpl6mvvGr67LqoJKbmUlu2r_OitsWyVRcJrTvA4YO0I-3xMUahhZ6JZRXZ6CfY4m8_GyFq4nSxDCy_mfDrBe7WvAvimHdsoNpYljthoHTPFmbcgrk3Kz7IqtUcuHyG_ENIzfIXknpxWqGquYabmKeC-PsA--QyQL8eRb2tKDgxKSjDe15nqKpBa3VZNQt2BXvm_xNAAOJrWE6fU-OpL59JD-Oz_Dzae5nQQKiK6wY3Q_pnfYyjjl1qGH7AE0mg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>송인정</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%86%A1%EC%9D%B8%EC%A0%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%86%A1%EC%9D%B8%EC%A0%95?id=ec20f7e6-9edb-4f81-a318-a653629dd99b</guid>
+      <description>주소: 전라남도 광양시 사동로 211 1층 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:07 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4tQJq-thEbSR6LxB2Gc7nGzZw700TwVIezvstazxfVDYIcyz4o2928aM3Jc2GbSdJvc7pABler6CEprEtDEGya6w89J-5rn8u9q4u_AO9rK38-3Cyqe-5Pm-XJ9ZFJfrWWXdcoibZ_U9izulnlQ_RnXgy0F-Itb71k0BOQ7ZryTM0gvHGbkoH6i6v-I9YnZ9xIWK2GPXMLam_oIx1aA-vxzBR5e3D5978VQGSlEp7HjL2mCHpuPRN8nNDzQdrQVYYgQ48SLqEroFrEKaYWUMzh7OCjV8qhdLoB0hkuNHwajws07AVI0lBK6Kvgv2HH3HT6ih1DbA_yhVwdrG8XxwKWgPbMPzQ9akSwSR9MeTC3kUDEz1RMl8Q29WoS9HY7XwbBToLc_oTmLcR8rSgxo3pind4wG7i8C0DACGDYcmB1LQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>청담피자 광양점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B2%AD%EB%8B%B4%ED%94%BC%EC%9E%90-%EA%B4%91%EC%96%91%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B2%AD%EB%8B%B4%ED%94%BC%EC%9E%90-%EA%B4%91%EC%96%91%EC%A0%90?id=01e10d95-de99-4ce1-afdd-ceb40a5bd3be</guid>
+      <description>주소: 전라남도 광양시 중마용소6길 9 1층 청담피자 | 카테고리: 음식점>양식>피자</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:06 GMT</pubDate>
+      <category>음식점&gt;양식&gt;피자</category>
+      
+    </item>
+    <item>
+      <title>창덕화로구이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B0%BD%EB%8D%95%ED%99%94%EB%A1%9C%EA%B5%AC%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B0%BD%EB%8D%95%ED%99%94%EB%A1%9C%EA%B5%AC%EC%9D%B4?id=468cb7aa-3862-449c-8670-ee7fbb04084a</guid>
+      <description>주소: 전라남도 광양시 광양읍 와룡4길 7 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:05 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      
+    </item>
+    <item>
+      <title>전주두레박콩나물국밥</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%EC%A3%BC%EB%91%90%EB%A0%88%EB%B0%95%EC%BD%A9%EB%82%98%EB%AC%BC%EA%B5%AD%EB%B0%A5</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%EC%A3%BC%EB%91%90%EB%A0%88%EB%B0%95%EC%BD%A9%EB%82%98%EB%AC%BC%EA%B5%AD%EB%B0%A5?id=5a5e2413-9f8e-48c9-a29c-259ff2a9e9a0</guid>
+      <description>주소: 전라남도 광양시 오류1길 4 | 카테고리: 한식>국밥</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:05 GMT</pubDate>
+      <category>한식&gt;국밥</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5zHna-XmeJEqenBuCUZ2TERDT-J5Or4Oa22RFOLXuK73OA3Uh2NahEUiIy5C6F0xbsvq10jMYr3bNp2W9KHsQDEhmp7dzViwR14lMNPwVRhzuSl1Fk_6-dZPtW51vJ-fOTn8RToTJn1S4JxDcpsHLYjX9pb5TYn51MyTe_77OpLlNI2aWfaeJpi3f-FsDamOdVQ5iJOCU57K12PhEyshpCAcwWa07w3EsE2wJAhKeoSBz7OfdUVFBtq24J718VytpmH0KLfvQkMDlmVWos6hjdwfQpMJTv7UPJHZxoMfzKEHkn5RkydFEONZiXYJUOieVE4noP3mo9vSrLkwM3ZLBxz9HB3ApX6MTdlIq_N9Nvzm0TlaioLb_NH3DAP4Vrc7L2VfCZRq_aN-eS_nZ9rDVpwB00jn8Ly6Fac86R5CTMlw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>한오백년</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%98%A4%EB%B0%B1%EB%85%84</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%98%A4%EB%B0%B1%EB%85%84?id=97bb4ca3-54a5-416d-a8a1-1b8a4f198118</guid>
+      <description>주소: 전라남도 광양시 광양읍 인서6길 36 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:04 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4ed8bNisU82UV8cTDbu5yzpGdzc0XUokJhaYi7GiyVWhPCYLSg1zIL2H-BMtW3yRjDtYHc0j37JuHJdipTJFtrxWiLHVY6HJKRcs4S_J3WnRkjPDLXpHJzx1h0csQ2oPyYTsvESJK8_t9DaoQSvGdo2b_2aPjtMPDfViciFmpfoumIxIkVwy-dYLzQS3pafHBZUI883HKatm5Q3atj3wMpPZh2qwIhjulpEGMn5iZwBBxdNmTfRGkbyXG_J1hn5oJKcmZS7bhLGcQy3zaclPeDmdHgPJXLi0JIrDOtT36DROrD4XarVIoERLYdcuZUMbFEKLZg9dIgwz2goVr_nql27y-oACHjiAv9k2e5Gp7rV9O8q3DH7pQuczRrAF5hvZGmMC2UhZfSUhbnCaK31K8xjtUBFNlPG-Fcib0HEFoJgv4&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>최씨네농원</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B5%9C%EC%94%A8%EB%84%A4%EB%86%8D%EC%9B%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B5%9C%EC%94%A8%EB%84%A4%EB%86%8D%EC%9B%90?id=c39f06b2-c844-441a-9e71-4a301b7eb458</guid>
+      <description>주소: 전라남도 광양시 옥곡면 대치로 107-21 대죽리 48-1 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:03 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      
+    </item>
+    <item>
+      <title>그러소 광양불고기 광양읍본점</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B7%B8%EB%9F%AC%EC%86%8C-%EA%B4%91%EC%96%91%EB%B6%88%EA%B3%A0%EA%B8%B0-%EA%B4%91%EC%96%91%EC%9D%8D%EB%B3%B8%EC%A0%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B7%B8%EB%9F%AC%EC%86%8C-%EA%B4%91%EC%96%91%EB%B6%88%EA%B3%A0%EA%B8%B0-%EA%B4%91%EC%96%91%EC%9D%8D%EB%B3%B8%EC%A0%90?id=da2d017d-d3dd-4290-a48d-d88c6722f1df</guid>
+      <description>주소: 전라남도 광양시 광양읍 매천로 714 그러소 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:02 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7oRamR-kEog_7MZlUqsE48Wbg0k8MI9YepBWfuhfbOcW-iqRDpVchtlAgH8iaZetaDlXt_S49dUrwqH7KYUCcGmnpyfi57zTIMDjQtmkQUb61qoaLui2WdB-uwBCIWzK3EE9gHjXAdgJfOM5cdHWli6Rld2g5W3fuJbU-v3VdoOKSJeHsDd2upDoB0UxZXGMLvQEfNfUfV-gEuKtHrgGpw-b6PjGFUUrOFwRwLfiTIcvA13EfKuArkCFHYAPkj3kC240Yfp3wzHBcQvwX1dJUsw3SP-OZqoou5VnyJ2tlF7dd5akrgZMQjdGCuwppc7NZC1BcOYqmjoyNX8VykaoTbo5ZuRF0LWxS_G724BKtShBkwChgfWFvKuKunrPmtYnT2vP2W4bTk5JGr-h34x4Bv-Hybx_YYJUIThmUUqQWGOQ2H9xLo8re4H4b7Mw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>한이식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9D%B4%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%95%9C%EC%9D%B4%EC%8B%9D%EB%8B%B9?id=79f7370e-6d52-44cb-b97e-150e18a29b73</guid>
+      <description>주소: 전라남도 광양시 정수2길 27 | 카테고리: 한식>아귀찜,해물찜</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:01 GMT</pubDate>
+      <category>한식&gt;아귀찜,해물찜</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU526JeRMWGyCO97d_Xq9j5mSViTP4ZXqDqWFXA6ccV6Uoxl12CFcCRx_cWoZRw6OtcuS3vF0oE1WjcZnwbNg3lmMQUwq8b0rFJdNTXttnqkiNM4NSNIfabLgwH4DOhGGlMNAMDexh17IdF3-VT6Zk-phxePKIVdAHZ9lFnCWIhFTQlvnYSzDBfZhHhpgqaJsUh-NMjXcWXyiakiTNuOND9LeXDOXCXEYcy39e9ugF1E-VL3t58VqNj3Fu6rhO35ydgTfzRLPwt9ABk_S97Sa9mc0JQtoXdt_DULFkcQKRmxfDRVLNtgHjHTixhNet0D0leYPFLKGVME2Z8jTbBoKxQAwhpeDC9aNVuhcU3HGv2DGfphijLpzQDd7PFyuVI_UpsyHa4_Pz8NLpo91Hwmn8ZTyY4Orp_9-zuX73MvhaEj7Q&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>카페제이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B9%B4%ED%8E%98%EC%A0%9C%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%B9%B4%ED%8E%98%EC%A0%9C%EC%9D%B4?id=c8fd61a3-ff9f-44b5-81be-2aed1a8eb7ba</guid>
+      <description>주소: 전라남도 광양시 행정1길 8 | 카테고리: 카페,디저트>카페</description>
+      <pubDate>Fri, 14 Nov 2025 09:03:00 GMT</pubDate>
+      <category>카페,디저트&gt;카페</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7CVhps8DocZxBL8EiGOHESjwpVp1YuRwcYlx4JEgU8FkzzClEhzYjUkfACI6Gpy_ZlhI0THnpTt_FMKZq3MhLpdSJepi7wUVC1jRvoFhX_bHtl6iUW0G6edShVbhhvNMBjPj7FSVPQ3qkJU6bbbdbSYMvvhAcgD0PZOypiiTBJ5qai9zhWg23YvbWwtOz1VZvz9g_BvzANHf1B8YNSnFU5ThaUICxpHVvxNvHh5FkEPjIpTYRVHgWk6CtrFGc5Qe-zaXeeZR5lFRhGw_Beci8UDHQV6da2cavX4m_EgqTALf9Oy5j6WO4hta1qcso8YgofDqbILzH5fO2WaCcrdOl6zMh-TLC9wf39o0az199ktGcHzn7s9PUA2ZLd6jo24nDwHUfvwosHiJSbSIiRc2g_y5mRXCGyXinhVWFUwAUSrAc&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>이가백반</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9D%B4%EA%B0%80%EB%B0%B1%EB%B0%98</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9D%B4%EA%B0%80%EB%B0%B1%EB%B0%98?id=6f39600b-078d-48a3-bc51-8667ffd2befc</guid>
+      <description>주소: 전라남도 광양시 사동로 5-1 이가백반 | 카테고리: 한식>백반,가정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:59 GMT</pubDate>
+      <category>한식&gt;백반,가정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6bru3158JhIuQV5b3Ag8ywiHPp_Qaziho6AIv6gn18hEIOe64GXuktwjG5rbLxkRXS9yM-Y4H3QpACq0yXgO12jGxoQoIE5-nS1kuch0is-Ck6lUFH6ri73BWl6zaeSFeYYBWj1gze_uhYUSiM5bsVoKOaUl1G6dCsuqIE8s_l_KEw-Fxs4tVaAbfN7wPEePcEhvULoObcup8H2uE3wTeshKF_enwvcht1o98cZ87207J3jwsQMh8FyDGlDqYWLiYPbNS-FnCQmHaflQP6l9r75pf1BXnB7Psyrk0fT5WFBfPNbX4B_GJUJYOPYnQNjc-BJBQpawhMZMuX_YorZ_bpHklt9XWpOlexfuCY93gt6Nm24956znzcfDLDuRFGMmlKJAdRz90xdBOBxO9KcuOh2Eq_ILiJyMIuAdWCMdM5Aw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>행복한한우</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%96%89%EB%B3%B5%ED%95%9C%ED%95%9C%EC%9A%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%96%89%EB%B3%B5%ED%95%9C%ED%95%9C%EC%9A%B0?id=bf9fe0af-70ca-41da-9387-79e4c096b058</guid>
+      <description>주소: 전라남도 광양시 광양읍 서북3길 20 | 카테고리: 한식>소고기구이</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:58 GMT</pubDate>
+      <category>한식&gt;소고기구이</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4oSM1WBjZpCf7v-GMFIGfsLEab3kyg9_8Yc7QrA_elJKbQoMUekPbU-O19UeQfFQ3AuiMC-CFRVliHAV0GtD32gFtr4ytQhxz6YIw3nbEyyK0YO1HTp_V7xi8ibsGhSgaGikp-r8NFKTxSQ5lqQDAkl67IC11Eokw9T5GUEivkwrKxhfjJSTGq1e1PhjUOAbeWDJOCmW2Yc9n0MKgON5838snqZhj5U4XTg4uZ7h5GQ5eR0i_0DiZUWbLgiwg-hTeFAj0PeGWDnA4NFZyZwkQBz38ifUoYYgv21kizYd5dnDhAJFjYWO-JSgCOHuqAwKJwd0mnxoK2LgnSGYZm-i7v7vHUSXilbrPwxeCoYTz0ziwc5zUqP-TwJRJatVHGNPvHwD6YVEJXaQeoMQOEgPDoTN4P9x71U5hY3lpkmBt7ug&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>영일관</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%98%81%EC%9D%BC%EA%B4%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%98%81%EC%9D%BC%EA%B4%80?id=0ceebbb8-5f5b-45f5-b466-577d008f7d67</guid>
+      <description>주소: 전라남도 광양시 옥곡면 신금산단5길 76 | 카테고리: 한식>한정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:57 GMT</pubDate>
+      <category>한식&gt;한정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU44eQUoG-ZztCjJ2QmCtRer9CgHDwOBq7Lvg_oLRiYrN-CgWHKEWVh4YJl_scdTjGxS1ANjIqC11jQ2Ocv56jX1adGdeQd4z41SX16NyN7ih0JEWWG2EN4lGfRMLq26zSmcCCqLIoStHAkngi4e0YDrbZXj357AiTgQp2o2WxcNJxeFGk09ajgAzmxyfuQL2C-RdRFmuplfiN9SPXY8js1Wo48q3EV2yyb2hJe52zPeCdv8yPlA8rIW7KUzcnDt3AYU4q7BZP-owYjULR7Bud7sinB2_6b5fm3l47dRiTHSdrtx8EOGgCxxsxnSc8KncElD8Otd2ujj6NER1msUC7LEIQN-rW9NmVipWCbk6uGbtWkCIg-TkcHmEvx3Iwm4epQpaP_F-7gur_Zv99315jmn0qADVlTw0oQTS0xM6Xksi2Wi&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>진또배기</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%84%EB%98%90%EB%B0%B0%EA%B8%B0</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%84%EB%98%90%EB%B0%B0%EA%B8%B0?id=2837547b-c91f-4732-a1ee-1b6a0731a59b</guid>
+      <description>주소: 전라남도 광양시 삼봉산로 94 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:56 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4M4TkC8i7DnNRha0_c_Q6g8-8Z4R2tTtdf8zTAyl_G5AY5gO_UnJ8nYvfCSLmEGcm8bilgYIQykOxNjCjhz7qpHI7qrbycFOkqhi5hXBxxFg2tjnofdM6dsdEHG1mP878-gOvesQYgnc03n4c0PPPdUcG5crCQZkRJ8oTsj_e-lErqL4mENFoPLgV8PkeaJsAFFu1Uz1zkKuMWfBMmmD8qbG70g2l5fccmQYUrQouZW3-mq3xaz1y-RGSA0uKYqDp7P8js9VmSSVBlszV20pS_iQuou54uZTgpQ7W-X-FRa4I-G2i__WMDHD9iWa3JFLzWdylTyRMfuNSgkz-P5eDMU8nawOo62d6zCYBW1F1jw6_eXCxdLI3EXdT1ihq1v2XHKkc2hvyy-DiPVb6ccEfOkpXhW1y8mGRJxgCjSBIezWk&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>평화정 복집</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%8F%89%ED%99%94%EC%A0%95-%EB%B3%B5%EC%A7%91</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%8F%89%ED%99%94%EC%A0%95-%EB%B3%B5%EC%A7%91?id=9527ac97-5ebf-401f-a2e6-ee4d0c5c9e2d</guid>
+      <description>주소: 전라남도 광양시 길호4길 15 | 카테고리: 해물,생선요리>복어요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:56 GMT</pubDate>
+      <category>해물,생선요리&gt;복어요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7E_6WFDq4TINOuzLm-BxDcrjtgh74FLuP4GOILjn0cs-x6CQSeKOz6m6pY4IstjBVIS_k1Lx8jGGPm6KktG96VovIsIpPrkG-TY5JuaxPnJFNUuPH2CDSi4920L8AsAGV87Lp9VGX55JlUvG9v5rfmpOK1Kzg4S1pttKLHJHxs2zimj0JM-_uCft47V3UAdeDky2sC_MIXpxS4J2D2jPEp0E0DmxCDTk3gs3zVs8SNfSYre5Qnzpd6oXvM3JKJaIcQ8OhI58tJQrOLDrAMMuQEeVuW1N1GsfsFXlEZ45Na9G3CWwJ4_w5dwbovell526H81HDF_dqrBATc08NT2yA4c1zBJ10xy3LcRsFgRyVE1WwzHzm7GchaKGUQFmee4jMGAKkYASyRTtcxoTWv-fhPcNONBvRhnA-vEKYFgQmVlimh17aGCI7CYBongg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>전통숯불구이촌</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%ED%86%B5%EC%88%AF%EB%B6%88%EA%B5%AC%EC%9D%B4%EC%B4%8C</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A0%84%ED%86%B5%EC%88%AF%EB%B6%88%EA%B5%AC%EC%9D%B4%EC%B4%8C?id=8cf06d59-caaa-4315-afd7-51391a6975af</guid>
+      <description>주소: 전라남도 광양시 광양읍 매천로 764 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:55 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4cSRbkJH8af16NlVKUw6S9s9RjlHIB49ym38k4H29H4LMTXWZXq5DzCaEW5CFSY1IkIMYpoIhKYHuiINWghtx_Msto15UeSOyfLRN9lExQ0dx_sAmCxPeywXAvwIGioXeepCUixMpuFuO5s3SUwyL8Ixqej09EMKutoPdd12mqb0HxliH6OoXXCa-6nA7J8bCcHeZyvbCPWziD04rGMsE-lOF1_wNKEQUqQtfPkjp3Wka18LdkcXID5qv0mJJ30uaeyOgiqZFyPjKkyf2QGXj5SvHleMyeI2b_XyvNd_dVBZzGbGuAV7svLqjD2a7L1sQAaElDEh0Z5xDC8tD7AI-EcQL7bx-FTbIxp2LrhzZ8g8z9_EhcVvDCHntlqR5LHw81-r8W9LuiiDfUxfe_Tg0AvoKtFaxL4z-zJM5FR9Zctw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>우정</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%B0%EC%A0%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9A%B0%EC%A0%95?id=b6461cf9-1391-4e59-84c5-0a600f62e442</guid>
+      <description>주소: 전라남도 광양시 항만9로 109 2층 | 카테고리: 한식>소고기구이</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:54 GMT</pubDate>
+      <category>한식&gt;소고기구이</category>
+      
+    </item>
+    <item>
+      <title>매화정</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%A7%A4%ED%99%94%EC%A0%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%A7%A4%ED%99%94%EC%A0%95?id=9ce751e6-c990-496c-b84b-7c6c774d4cd1</guid>
+      <description>주소: 전라남도 광양시 광양읍 서평10길 24 | 카테고리: 한식>게요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:53 GMT</pubDate>
+      <category>한식&gt;게요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4NBPrW0m59hBrzT9Jt1hOuu4Mk6_Y-YIW_tIgLQtQWfWoInKVcguol4M91VrYa6FiEqiIKU559tZXG-1ZHNkoAsADsLKRFTCL1Pz4HiHB8iqF49lJYymOMunxCM_0wfpCd0imAzIhnW6elQYjlqi05rPhbMhMmbuTDTgjrpYkTQvjfkuvBlKQTfrd5dhdFEe-w4GdfqJ08hwbjUcqdyVucZ6uUh5_2E4qSDUtoZlV7DHSIFUXGaFP3lFd2qRgAWT_0y_mLMliBAD95MH-QsyEW-oUmBqfnzF5Et33rwskjKlyKcEwrxn1zYaJkaA26_mjmrMCo8nZDlcaLkM3DaSJwcbZCucV0rhGDteJgzJKKnF5xYqUKqIIeXncE6tpuIadxv94NXvDgR-VfLRPQMB-XMLf6VYIQ9w3tE5ddxV3ntw&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>다미원</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8B%A4%EB%AF%B8%EC%9B%90</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8B%A4%EB%AF%B8%EC%9B%90?id=599b2a65-7f42-4cee-89d0-c3653f33c0fa</guid>
+      <description>주소: 전라남도 광양시 마장1길 5-3 | 카테고리: 한식>한정식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:52 GMT</pubDate>
+      <category>한식&gt;한정식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU4hH-y1Q0nrF0ENIvi479qDVW0b8BLOKcd3iy6-Fsyyrew9gaGfLguxxVkmAxzbqPtqYokirRJ55AUI8qdkOPKunAaWnXlKUER_giCtfoPYinAbitYGGpqnNoToJye2LJ1LKqmJl-CS0UsznUZMEuQJmvwXLd1P_aq1m8oOzLGBWNBf7jTgYhcXQp3ABxLTmpEhL-mJT7AROcVno2XCtIQ1jtST1-l6FBmATwWfxVKwMp23VKlWQOTkCLlidtWi4UESFVEIMfFPVOENSxIl75n10NwR9XbQioGEi8uxGD4l0l8UYRhdDUk7yf055LrvebDNFgdlqBMHkVXtQZy8-E2Fq1MgjCZQES_G694LqjVOd2J3xkllIgOiFL4nABn7heFGd8-BTute_piOqgP4kewl6VXwoV5A5J_UotHxq6GtrA&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>대복삼계탕</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8C%80%EB%B3%B5%EC%82%BC%EA%B3%84%ED%83%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8C%80%EB%B3%B5%EC%82%BC%EA%B3%84%ED%83%95?id=45c5e91e-a5cf-402e-9049-5efd5e080934</guid>
+      <description>주소: 전라남도 광양시 시청로 82 | 카테고리: 한식>백숙,삼계탕</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:52 GMT</pubDate>
+      <category>한식&gt;백숙,삼계탕</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6TpsIN-rR7jNLKXWf0y9mGTf60HIokqCRo7pKAQXzUsvNLZRHzSMkIKnhNNcIrDJIgqCPQGbt599zSHogaTR_RajjFLfJAke_nClCUGzqmhCWCIlMOCtX4xKex3TNWaV9qK9nSSVnws4XclokAjnvSCEl7Ewski_UBH-RTbuIInH8k3xtTPBu2qXFqU3WmSmWt9XhrKfpCSnksux8ZswGJKrmTP_CY-ovN-xz9urDnpBVNdXQmNl_7tlWglFrYSgvD-zForQpGxtZOlGjEEvclHgpcc_UbndVdmm_bd5nsmuh_V0U3d1ycHLhkyfNt9ah84abgdPojAggRtqEoIOXU75rz5g76bTqJ185xvRjMVkSk4kLXwgynOj763UWf2_VwT-OShX0bYu1GfEKn7Lp7GOToomOc2QcDqx3aDEYtOvve&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>진미정</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%84%EB%AF%B8%EC%A0%95</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%84%EB%AF%B8%EC%A0%95?id=9e673c02-9cb5-4370-82cb-cc9e8c09633a</guid>
+      <description>주소: 전남 광양시 정수1길 12 | 카테고리: 음식점>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:51 GMT</pubDate>
+      <category>음식점&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5v3n7XYd7t2Qhc8Mr-bejTD3cvAJYRdEv9eSXoztzGO3-59uwJPWsAEf0dCpYprlAH6cWewxpL4H-4j8nKQYaownX9hnUDy9_U89rwbR7ccc5wAEluJ6xfk-7Y_0bGcOVvLkc9NU9av0xF7gaZqZTV5zDuFU46QL7xgjQC7XY_PjFFc2mg8ZOqaI_h86ynwLv7V1gBZV-3j7UiuAbDfgCIPc7AUaq-ljtm7eqptN9punSbeWUH6HhtLln-3JBBzi3X4oSCoOH1DWX6UJj_IJuzPdvdKCHTz3O6BeWlDfNYvwB9Yf7ocqZCRY-Sxwu52KI8d44GLj9HTtU6BWWJI5n4Gxja5I3SIR7MNdhuOd6m9NgTXRp_sC2fx30i_nwND86QwEndf5Y5zHhplMhI759EE5Do7S7SYHoaZvbA1w3IE7c&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>예촌식당</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%98%88%EC%B4%8C%EC%8B%9D%EB%8B%B9</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%98%88%EC%B4%8C%EC%8B%9D%EB%8B%B9?id=3cf214d3-4095-499f-85e5-4e3657086717</guid>
+      <description>주소: 전라남도 광양시 남산1길 27 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:50 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6rJOCJdJTybX7jNScysdPQEtl1_gs_6bfRwRnyxlof87RxtGJGA6ZAWWX2SJAJSI7kRuxS5FuDFWVH0G1eJNPDY5HzSKJs4RLh4x7Ofx4ceBu9ErVR1MAUUyc-D6iGazMsQBb9Bz0Crj6RnSuFiKyR6CANywWUMWyvQWTIywyDVEqGcdnpbVdcEJFH8DVTD8ctaIQI_sztDWh_tuZDGZDa-aBWKSPXBuXEklepvKGMwjpR2WvN8aaQMdziFqverLTeLPzlWp6NGhbaa_-0W4KsQhBJdeKHfVlfiUlUImG7qrecDca3j8Tquwhgjl7veb3bB2j4HTVyUu7IWaMgMokZhqYOqP0ddl3HbQDM7e_B-Fc9l52megSQGqEEBRMgH425vmfGOqIhooSA3v9vOXraOCYiUfgIfZNSWkOnfAMVMSk&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>산해미활어회센타</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%82%B0%ED%95%B4%EB%AF%B8%ED%99%9C%EC%96%B4%ED%9A%8C%EC%84%BC%ED%83%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%82%B0%ED%95%B4%EB%AF%B8%ED%99%9C%EC%96%B4%ED%9A%8C%EC%84%BC%ED%83%80?id=1daa4c6c-7c20-408e-a062-90c3dad87678</guid>
+      <description>주소: 전라남도 광양시 발섬6길 32 | 카테고리: 한식>생선회</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:49 GMT</pubDate>
+      <category>한식&gt;생선회</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7p7iLx7O3Me7Px-M9iENJjsVN056dzjc1x1rDT5Pv2nIUriOcPpVHorq7KX4TZncbXAf4ZNWicNTpK4Ick2M4Y_KJWYNwkNa0aOi4KSdBp7Z5ksdbEf5enwe2AbS5tclWPJizkpUpLsnU1WlcjMMJ81xNgZaF-8j3IimbKjAOZXTfBYVCIgHqA_w4G81h7dH4rN8p1ykBgZAIQJdwS97Kq5U_591bN82_sphtLmq2Z0uF4wVWrZBDzSn86u1jWUoXNBJXvMG10KFidgOPQqI26IxsPT62bAOwZ9YNZ2eWGAPxkFG7Vk87lkOQ3GecbkOgl9FATgxPSR8Wd41uTS7CMe8nNY5sd1c_MndVSihv-apciJ4RIFI1eczHR7HaShwYJ19xq3wlSJJJ0MQP8mCWqjNxQgLqnKOIGHO68vbM&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>더맛담</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8D%94%EB%A7%9B%EB%8B%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8D%94%EB%A7%9B%EB%8B%B4?id=267cb3a2-f5b1-4106-a14a-dc5ae88edf1f</guid>
+      <description>주소: 전라남도 광양시 광양읍 서북로 10-1 더맛담 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:48 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      
+    </item>
+    <item>
+      <title>장원회관</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9E%A5%EC%9B%90%ED%9A%8C%EA%B4%80</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%9E%A5%EC%9B%90%ED%9A%8C%EA%B4%80?id=75778aa1-04d3-44ab-9d10-1aca768a5baf</guid>
+      <description>주소: 전라남도 광양시 광양읍 매천로 821-5 | 카테고리: 한식>육류,고기요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:47 GMT</pubDate>
+      <category>한식&gt;육류,고기요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6CkdzDuveCH1E8g_Eww9v4RD2rE8mZQuAI6rY-hAPCb8RmA2DtgwAxFcirUKeG_Mk2gPL44t3iSpofDWcYQaRZhh47EE1J0lVzsKxsKUK28bujVbd0RAAyStZlF9RgewrVLJ_7db-oRf_DWDVcYf7nY5czvDGMqsgqVK5GNmT8sjJ-r1Z3GNe2685tYd_u0VKlLebrArRnsILrfuXAQcnD0wOrjEfbBYOHjLOkNbwLKVOQRoRmUa1humXcB-JvL8mxNwr3S5Mm-SPAtWIekRgj8fOpVmXSHNA4-pkB--3_5qNMl4uP7cl3m7B1QOS7VKxQv1ICQskPQbRNXmv9kU19_SULsFqtjoe8sc0vU71D1btPDt7MqwCTCbOhpqDamWGnXxuTskBU0LkZd_ZTt9xGlnyxgYC7k2n3VhJEyIWwnQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>갯바위장어구이</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%AF%EB%B0%94%EC%9C%84%EC%9E%A5%EC%96%B4%EA%B5%AC%EC%9D%B4</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EA%B0%AF%EB%B0%94%EC%9C%84%EC%9E%A5%EC%96%B4%EA%B5%AC%EC%9D%B4?id=bafdbf3c-f948-42b5-b1b3-5ff8485805d7</guid>
+      <description>주소: 전라남도 광양시 중마청룡길 49 | 카테고리: 한식>해물,생선요리</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:47 GMT</pubDate>
+      <category>한식&gt;해물,생선요리</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU6Ll5hnX7ZlQruNBlHHEkfVxYts-4zuWFV6GHV9bYwDh10Qv9kutIARRq1gKzuxlf8_j-XCAFRD5vbelzMoKqAsFzYbDWqA89zJYeX4kxdKvewcByNY0ZMyclGMwUBwZjUDhvmINK3khC_dmURYKcZufyR6_bDWHC6qWnLU7yaSxr5cwbThfat3SfV60-gUHY15QubfuTWDxQPCtmieyhQpcYfjO4MdUzPdMG1qH3f3Ce1cgXret62saeYOeUOp17KZ3wLsgZsWsO0JzlZGqBcxE24OcftqxIniW7wPP4MvISKwAg8yUtcGYXMiCj2MZG95Xg5zKdpw68qtQH7R2TDmRDExwcbj-LloeaLQ7TgmVCXCBhtrhKNv2xmRvPN7ScQ3gqAHz_hZWfgAszl98a55f5rXEVHI_3DNxioaByn1itKk&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>화스시</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%99%94%EC%8A%A4%EC%8B%9C</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%ED%99%94%EC%8A%A4%EC%8B%9C?id=5ddf466b-bf44-4fa7-bb4d-4bb6787de7ef</guid>
+      <description>주소: 전라남도 광양시 항만13로 23-1 | 카테고리: 음식점>일식>일식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:46 GMT</pubDate>
+      <category>음식점&gt;일식&gt;일식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU7-PwGRHbwgaoweuFqVIWvKTZ7jFRX1JHCX5s_s8Jwgf4pD0kfYSnIoVjBfAdDjsiz1o7FlcyIfELYqY6lNrSdDp7BIjZRgUZ2kekL4HY5NCSejZgJCNi8-X80pGCPBBuvBUMuU6MlaE008JcKeeZ7Ep5n2djJ_iNtxYGAVc84QHcDvbvw6581p2cgiqus7vqjsdnnhQVW-0H0X0SgXExerRf-I6V6wnLG3daBMumZDNVGNa1rqZ5whk44Cn1dnidFJ5CXGrLO4oER9G5OcEh3n0Nr7QvCTJC6blcDt63U1pc-sSG_bOUdZk5dIPb-0uR1-ppnyym-RsVbjbrhWkYOZoKbSc0AH51y8aNcSa-SZiK7cs8FEKdZsVqNR3_zdeFeGc8Fxs-B1wNiU-woAmlNkYq2grM_tomTWCg-ceqo1VZPb&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>더쏭</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8D%94%EC%8F%AD</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EB%8D%94%EC%8F%AD?id=5dd9581c-2d6c-4497-a8fe-7708fadf7d93</guid>
+      <description>주소: 전라남도 광양시 행정3길 12-1 | 카테고리: 카페,디저트>카페</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:45 GMT</pubDate>
+      <category>카페,디저트&gt;카페</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5cGVvf39I4YSK0yuw5LRxxVn4LIJEPw9VwecFEoLM9Hx36GiVscAznYl1cQcXhBb27MIBa0garl-FCDQHiDEb26hYCxmSJDkBFrtNhvSJvBCuG1P_UY3xn4tzyf1ITzlO9sawe_qWDE7HnEIgajJisVgl8QGdPXne34B1HERn78d1E1Hn_T753kzWbFlZd4SOZsHOX0ttPneRes6-fwRSdgkObjx5PcB_ct0riUMOxQLbFVlAOvAjKxN9yt5G45GPqTGD_rjEWQVPeQ1vye2PJf2EaxPy1YY5ne4rR5dYWAbuIXLXgBLXP-AO4MyNaxIRWs09cBTaWfWUr-yX8-iOcL93SOGZDVxVqxrKZ-yRbg2jDUphqYAt0grsEwDWLLaYSPc3xgXkCu_ouCu7VF_tz9Fw21kWBl0_QLufzhoEuiQ&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>T크루즈</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/T%ED%81%AC%EB%A3%A8%EC%A6%88</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/T%ED%81%AC%EB%A3%A8%EC%A6%88?id=b8484f5c-c278-4b5e-99da-f287f603642b</guid>
+      <description>주소: 전라남도 광양시 항만13로 23-6 | 카테고리: 음식점>일식>일식당</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:44 GMT</pubDate>
+      <category>음식점&gt;일식&gt;일식당</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU77YQscB0Gnl8b9y44jkyG2XY-NYWmW03NGdJRq4lq01IBnkMzsrb_JXfpbibFBVikd6HRag_GDgFXlAtJJbFC8KUqaxErYDfNPpWd95P96N-nhUIpFGh-fEbZzvWn9aJMaIm13_99z6V3YKazOfwxqqxwu7LgdZ1gTCX_4Df03WKipLFQsV74Hu4ifqIRrQVA8YHqI3IpA7HrwOLqIaISC_itnnTyzeib0S3dWC7G2ijUn4Q292ao7AyajKggGCITHtRxotNLPAO831zK--t9SmResUuWU4MFATIV9iPAZHfLmQiSoC14hsDtwzojdQ1_6hzr5DWI1pdrq3wrJ9zFz4FEJHBU5WBvtJI8W-oZsYpplAKhahQDaJZvGTMKGc63YGg9N2IY3k2lT_fJIpaqzj0YRC5ilQOBosoX91rFP6w&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+    <item>
+      <title>지곡산장</title>
+      <link>https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%80%EA%B3%A1%EC%82%B0%EC%9E%A5</link>
+      <guid isPermaLink="false">https://www.kofficer-guide.co.kr/restaurants/%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84/%EA%B4%91%EC%96%91%EC%8B%9C/%EC%A7%80%EA%B3%A1%EC%82%B0%EC%9E%A5?id=57c6a717-9764-48b8-a11e-6d94cfca93c7</guid>
+      <description>주소: 전라남도 광양시 광양읍 서북로 59 지곡산장 | 카테고리: 음식점>한식</description>
+      <pubDate>Fri, 14 Nov 2025 09:02:43 GMT</pubDate>
+      <category>음식점&gt;한식</category>
+      <enclosure url="https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&amp;photo_reference=AWn5SU5DBX-TckHxh6a_afkGT6HgrNBWmJ-IJIOkcWfuNyqG-Dy6u1XEunjwBsXy-o8R4t3kqL2ObQwApxDNo_Opt5GsNH9Hto50M3YwlOUwCXfso2aLcG3_eSKALFtZFoSyRmbIIc0bh2lJh1SBnlw_1VkaTzqOSRr_glsGtH-ouSzkV_XveqFuxmVrb85OU5CblV54CUfErhA4muDr4X3BFX_B9IOXu1x38O7Eag4EnwfVaLOgti8q0SL-9Ye7QVgGzD5LPvVvgo4EZYphugUQLm-RliEsN1LpmcXX0iGwCHGvPO1ML_EIT4-YJvqz9ei1H_jKThHUA3JglguvpA1z20M_D_XKs7yhGCmc5sBpuraZ9rPD7IrU2_3-hyHFfmv8qaZHqFX7cQnyzWYBX-eCGeLZeZgcRdI7PBAWe9rSMGdgAg&amp;key=AIzaSyCldKYe3ALHn3O9ZIsOVm353_9-Yi34DzE" type="image/jpeg" />
+    </item>
+  </channel>
+</rss>
