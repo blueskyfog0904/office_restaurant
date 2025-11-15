@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>공공기관 맛집 가이드 RSS</title>
+    <title>공무원맛집 가이드 RSS</title>
     <link>https://www.kofficer-guide.co.kr</link>
-    <description>전국 공공기관 인근 맛집 정보를 제공하는 RSS 피드</description>
+    <description>전국 업무추진비 분석을 통한 공무원맛집 정보를 제공하는 RSS 피드</description>
     <language>ko-KR</language>
     <lastBuildDate>Sat, 15 Nov 2025 13:38:14 GMT</lastBuildDate>
     <ttl>60</ttl>
