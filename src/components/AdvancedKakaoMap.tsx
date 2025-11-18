@@ -641,7 +641,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
     }
 
     validPositions.forEach(({ marker: item, position }) => {
-      const isFocused = focusMarkerId && item.id === focusMarkerId;
+      const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
 
       const markerWrapper = document.createElement('div');
       markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
