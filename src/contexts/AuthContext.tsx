@@ -3,7 +3,6 @@ import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
-import { useActivityTracker } from '../hooks/useActivityTracker';
 
 // ===================================
 // 인증 Context 타입 정의
@@ -73,31 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const logoutCalledRef = useRef(false);
   const initTimeoutRef = useRef<number | null>(null);
-  
-  const handleInactivity = useCallback(async () => {
-    if (user && !logoutCalledRef.current) {
-      console.log('⏰ 10분 이상 비활성 상태 감지, 자동 로그아웃');
-      logoutCalledRef.current = true;
-      try {
-        await logoutAPI();
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
-        localStorage.removeItem('lastActivityTime');
-        alert('10분 이상 활동이 없어 자동으로 로그아웃되었습니다.');
-      } catch (error) {
-        console.error('자동 로그아웃 실패:', error);
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
-        localStorage.removeItem('lastActivityTime');
-      } finally {
-        logoutCalledRef.current = false;
-      }
-    }
-  }, [user]);
-  
-  useActivityTracker(handleInactivity);
 
   // ===================================
   // 초기 로그인 상태 확인
@@ -150,7 +124,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const refreshedSession = refreshData.session;
             if (refreshedSession?.user) {
               try {
-                localStorage.setItem('lastActivityTime', Date.now().toString());
                 const currentUser = await getCurrentUser();
                 if (currentUser) {
                   setUser(currentUser);
@@ -176,8 +149,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
         
         if (session?.user) {
-          localStorage.setItem('lastActivityTime', Date.now().toString());
-          
           // 세션이 있으면 사용자 정보 로드
           const storedUser = getStoredUser();
           
@@ -327,8 +298,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // SIGNED_IN, INITIAL_SESSION만 처리
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
           try {
-            localStorage.setItem('lastActivityTime', Date.now().toString());
-            
             const currentUser = await getCurrentUser();
             
             if (currentUser) {

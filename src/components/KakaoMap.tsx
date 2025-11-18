@@ -585,7 +585,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     }
 
     validPositions.forEach(({ marker: item, position }) => {
-      const isFocused = focusMarkerId && item.id === focusMarkerId;
+      const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
 
       const markerWrapper = document.createElement('div');
       markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
@@ -608,7 +608,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       const markerOverlay = new kakao.maps.CustomOverlay({
         position,
         yAnchor: 1.0,
-        xAnchor: 3.5,
+        xAnchor: 0.5,
         content: markerWrapper,
         zIndex: isFocused ? 1300 : 1200,
       });
