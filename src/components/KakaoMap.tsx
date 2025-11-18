@@ -497,6 +497,38 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     return null;
   };
 
+  const createRestaurantCard = (marker: MapMarker, isSelected: boolean = false): HTMLElement => {
+    const card = document.createElement('div');
+    card.className = `restaurant-card ${isSelected ? 'restaurant-card--selected' : ''}`;
+
+    const header = document.createElement('div');
+    header.className = 'restaurant-card__header';
+
+    const titleWrap = document.createElement('div');
+    titleWrap.className = 'restaurant-card__title-wrap';
+
+    const categoryDot = document.createElement('div');
+    categoryDot.className = 'restaurant-card__category-dot';
+
+    const title = document.createElement('h3');
+    title.className = 'restaurant-card__title';
+    title.textContent = marker.name || '음식점';
+
+    titleWrap.appendChild(categoryDot);
+    titleWrap.appendChild(title);
+
+    const badge = document.createElement('div');
+    badge.className = 'restaurant-card__badge';
+    badge.textContent = '';
+
+    header.appendChild(titleWrap);
+    header.appendChild(badge);
+
+    card.appendChild(header);
+
+    return card;
+  };
+
   const renderMarkers = async () => {
     const map = mapInstance.current;
     if (!map) return;
@@ -555,34 +587,47 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     validPositions.forEach(({ marker: item, position }) => {
       const isFocused = focusMarkerId && item.id === focusMarkerId;
 
-      const wrapper = document.createElement('div');
-      wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;transform:translateY(-6px);';
-
-      if (item.name) {
-        const label = document.createElement('div');
-        label.textContent = item.name;
-        label.style.cssText = 'padding:6px 10px;background:#facc15;color:#1f2937;border-radius:6px;border:1px solid #facc15;box-shadow:0 4px 10px rgba(0,0,0,0.12);font-size:12px;font-weight:600;max-width:200px;text-align:center;white-space:nowrap;';
-        wrapper.appendChild(label);
-      }
+      const markerWrapper = document.createElement('div');
+      markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
 
       const pin = document.createElement('div');
-      pin.style.cssText = `width:${isFocused ? 18 : 14}px;height:${isFocused ? 18 : 14}px;border-radius:9999px;background:#2563eb;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(37,99,235,0.6);`;
-      wrapper.appendChild(pin);
+      pin.className = 'restaurant-marker__pin';
+
+      const icon = document.createElement('span');
+      icon.className = 'restaurant-marker__icon';
+      icon.textContent = '🍽️';
+      pin.appendChild(icon);
+
+      markerWrapper.appendChild(pin);
 
       if (onMarkerClick) {
-        wrapper.style.cursor = 'pointer';
-        wrapper.addEventListener('click', () => onMarkerClick(item));
+        markerWrapper.style.cursor = 'pointer';
+        markerWrapper.addEventListener('click', () => onMarkerClick(item));
       }
 
-      const overlay = new kakao.maps.CustomOverlay({
+      const markerOverlay = new kakao.maps.CustomOverlay({
         position,
-        yAnchor: 1.1,
-        content: wrapper,
+        yAnchor: 1.0,
+        xAnchor: 3.5,
+        content: markerWrapper,
         zIndex: isFocused ? 1300 : 1200,
       });
 
-      overlay.setMap(map);
-      overlaysRef.current.push(overlay);
+      markerOverlay.setMap(map);
+      overlaysRef.current.push(markerOverlay);
+
+      if (item.name) {
+        const card = createRestaurantCard(item, isFocused);
+        const cardOverlay = new kakao.maps.CustomOverlay({
+          position,
+          yAnchor: 1.0,
+          xAnchor: 0.5,
+          content: card,
+          zIndex: isFocused ? 1400 : 1300,
+        });
+        cardOverlay.setMap(map);
+        overlaysRef.current.push(cardOverlay);
+      }
     });
 
     if (validPositions.length === 0 && userLocation) {
@@ -658,20 +703,50 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         map.setCenter(center);
       }
 
-      const marker = new kakao.maps.Marker({ position: center });
-      marker.setMap(map);
-      mapMarkersRef.current.push(marker);
+      const markerWrapper = document.createElement('div');
+      markerWrapper.className = 'restaurant-marker restaurant-marker--selected';
+
+      const pin = document.createElement('div');
+      pin.className = 'restaurant-marker__pin';
+
+      const icon = document.createElement('span');
+      icon.className = 'restaurant-marker__icon';
+      icon.textContent = '🍽️';
+      pin.appendChild(icon);
+
+      markerWrapper.appendChild(pin);
+
+      const markerOverlay = new kakao.maps.CustomOverlay({
+        position: center,
+        yAnchor: 1.0,
+        xAnchor: 0.5,
+        content: markerWrapper,
+        zIndex: 1200,
+      });
+
+      markerOverlay.setMap(map);
+      overlaysRef.current.push(markerOverlay);
 
       if (restaurantName) {
-        const overlay = new kakao.maps.CustomOverlay({
+        const marker: MapMarker = {
+          id: 'single',
+          name: restaurantName,
+          address: address,
+          subAdd1: subAdd1,
+          subAdd2: subAdd2,
+        };
+        const card = createRestaurantCard(marker, true);
+        const cardOverlay = new kakao.maps.CustomOverlay({
           position: center,
-          yAnchor: 1.4,
-          content: `<div style="padding:6px 10px;background:#facc15;color:#1f2937;border-radius:6px;border:1px solid #facc15;box-shadow:0 4px 10px rgba(0,0,0,0.12);font-size:13px;font-weight:600;max-width:200px;text-align:center;">${restaurantName}</div>`
+          yAnchor: 1.0,
+          xAnchor: 0.5,
+          content: card,
+          zIndex: 1400,
         });
-        overlay.setMap(map);
-        overlay.setZIndex(1200);
-        overlaysRef.current.push(overlay);
+        cardOverlay.setMap(map);
+        overlaysRef.current.push(cardOverlay);
       }
+
       console.log('✅ Marker placed successfully');
     };
 

@@ -518,9 +518,13 @@ const RegionsPage: React.FC = () => {
 
   const nearbyMarkers = useMemo<MapMarker[]>(() => {
     if (!userLocation) return [];
-    return nearbyRestaurantData.map(({ restaurant }, index) => 
-      createMapMarker(restaurant, index + 1)
-    );
+    return nearbyRestaurantData.map(({ restaurant, distance }, index) => {
+      const marker = createMapMarker(restaurant, index + 1);
+      return {
+        ...marker,
+        distance,
+      };
+    });
   }, [nearbyRestaurantData, userLocation]);
 
   const memoizedUserLocation = useMemo(() => {
@@ -1301,6 +1305,9 @@ const RegionsPage: React.FC = () => {
                   preserveView={memoizedPreserveView}
                   onMapViewChange={handleMapViewChange}
                   onMarkerClick={handleMarkerNavigate}
+                  onCardClick={(marker) => {
+                    setHoveredRestaurantId(marker.id);
+                  }}
                   viewStateKey="nearby-map-view"
                   focusMarkerId={hoveredRestaurantId || undefined}
                 />
@@ -1697,6 +1704,9 @@ const RegionsPage: React.FC = () => {
                   initialLevel={6}
                   focusMarkerId={focusedRegionMarkerId ?? undefined}
                   onMarkerClick={handleRegionMarkerClick}
+                  onCardClick={(marker) => {
+                    setFocusedRegionMarkerId(marker.id);
+                  }}
                   viewStateKey={undefined}
                   showControls={true}
                   userLocation={memoizedUserLocation}

@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #FACC15;
+  --color-primary-dark: #EAB308;
+  --color-text-main: #111827;
+  --color-text-sub: #6B7280;
+  --color-card-bg: #FFFFFF;
+  --color-border: #E5E7EB;
+  --shadow-soft: 0 6px 16px rgba(15, 23, 42, 0.16);
+}
+
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -14,4 +24,184 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.restaurant-marker {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  transform: translate(0%, -10px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.restaurant-marker__pin {
+  width: 24px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restaurant-marker__icon {
+  transform: rotate(45deg);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.restaurant-marker--hover .restaurant-marker__pin,
+.restaurant-marker--selected .restaurant-marker__pin {
+  background: var(--color-primary-dark);
+  transform: rotate(-45deg) scale(1.06);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
+}
+
+.restaurant-marker--dimmed .restaurant-marker__pin {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+.restaurant-card {
+  min-width: 200px;
+  max-width: 260px;
+  background: var(--color-card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+  padding: 8px 10px;
+  color: var(--color-text-main);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
+  position: relative;
+  margin-bottom: -10px;
+  transform: translateY(-100%);
+}
+
+.restaurant-card::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0 8px;
+  border-style: solid;
+  border-color: var(--color-card-bg) transparent transparent transparent;
+}
+
+.restaurant-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.restaurant-card__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.restaurant-card__category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.restaurant-card__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.restaurant-card__badge {
+  font-size: 11px;
+  color: var(--color-text-sub);
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.16);
+  white-space: nowrap;
+}
+
+.restaurant-card__meta {
+  margin: 2px 0 8px;
+  font-size: 12px;
+  color: var(--color-text-sub);
+}
+
+.restaurant-card__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.restaurant-card__action-btn {
+  flex: 1;
+  height: 30px;
+  border-radius: 999px;
+  border: none;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--color-primary);
+  color: #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.restaurant-card__action-btn--ghost {
+  background: #F9FAFB;
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border);
+}
+
+.restaurant-card__action-btn:hover {
+  background: var(--color-primary-dark);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.25);
+}
+
+.restaurant-card__action-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+}
+
+.restaurant-card__action-btn--ghost:hover {
+  background: #E5E7EB;
+}
+
+.restaurant-card--selected {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.restaurant-card--selected::after {
+  border-color: #2563eb transparent transparent transparent;
+}
+
+.restaurant-card--selected .restaurant-card__title {
+  color: #FFFFFF;
+}
+
+.restaurant-card--selected .restaurant-card__badge {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.restaurant-card--selected .restaurant-card__category-dot {
+  background: #FFFFFF;
 }
