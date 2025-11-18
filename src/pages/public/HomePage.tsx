@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getHomePageStats, HomePageStats } from '../../services/authService';
-import { supabase } from '../../services/supabaseClient';
 
 const HomePage: React.FC = () => {
   const [stats, setStats] = useState<HomePageStats>({
@@ -12,47 +11,8 @@ const HomePage: React.FC = () => {
   const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    checkAndResetInactiveSession();
     loadStats();
   }, []);
-
-  const checkAndResetInactiveSession = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        localStorage.removeItem('lastActivityTime');
-        return;
-      }
-      
-      const lastActivity = localStorage.getItem('lastActivityTime');
-      const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10분
-      
-      if (lastActivity) {
-        const timeSinceActivity = Date.now() - parseInt(lastActivity, 10);
-        
-        if (timeSinceActivity >= INACTIVITY_TIMEOUT) {
-          console.log('⏰ 메인 페이지 접속 시 비활성 세션 감지, 세션 초기화');
-          try {
-            await supabase.auth.signOut();
-            localStorage.removeItem('user');
-            localStorage.removeItem('admin_user');
-            localStorage.removeItem('lastActivityTime');
-            console.log('✅ 비활성 세션 초기화 완료');
-            window.location.reload();
-          } catch (error) {
-            console.error('세션 초기화 실패:', error);
-          }
-        } else {
-          localStorage.setItem('lastActivityTime', Date.now().toString());
-        }
-      } else {
-        localStorage.setItem('lastActivityTime', Date.now().toString());
-      }
-    } catch (error) {
-      console.error('세션 체크 실패:', error);
-    }
-  };
 
   const loadStats = async () => {
     try {

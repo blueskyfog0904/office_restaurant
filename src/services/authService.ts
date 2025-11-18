@@ -11,6 +11,7 @@ import {
   Restaurant,
   Region,
 } from '../types';
+import { ensureSession } from './sessionManager';
 
 // ===================================
 // 인증 관련 API
@@ -194,7 +195,7 @@ export const changePassword = async (currentPassword: string, newPassword: strin
   
   // 4. 중요: signInWithPassword로 인해 세션이 변경되었을 수 있으므로,
   // 최신 사용자 정보를 다시 가져와서 세션을 안정화시키는 것이 좋습니다.
-  await supabase.auth.refreshSession();
+  await ensureSession();
 };
 
 export const deleteAccount = async (): Promise<void> => {

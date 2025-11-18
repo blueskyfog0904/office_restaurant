@@ -3,6 +3,13 @@ import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
+import { useActivityTracker } from '../hooks/useActivityTracker';
+import {
+  clearSessionRefreshState,
+  ensureSession,
+  isOfflineError,
+  isSessionTimeoutError,
+} from '../services/sessionManager';
 
 // ===================================
 // 인증 Context 타입 정의
@@ -72,6 +79,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const logoutCalledRef = useRef(false);
   const initTimeoutRef = useRef<number | null>(null);
+  const resumePromiseRef = useRef<Promise<void> | null>(null);
+
+  const handleInactivity = useCallback(() => {
+    console.log('🛑 비활성 상태 감지, 토큰 자동 갱신 일시 중지');
+    supabase.auth.stopAutoRefresh();
+  }, []);
+
+  useActivityTracker(handleInactivity);
+
+  const buildFallbackUser = (sessionUser: any): User => ({
+    id: sessionUser.id,
+    email: sessionUser.email || '',
+    username:
+      sessionUser.user_metadata?.nickname ||
+      sessionUser.email?.split('@')[0] ||
+      'user',
+    is_active: true,
+    is_admin: false,
+    created_at: sessionUser.created_at || new Date().toISOString(),
+    role: 'user',
+  });
 
   // ===================================
   // 초기 로그인 상태 확인
@@ -79,173 +107,95 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // 타임아웃 설정 (30초) - 무한 로딩 방지 (재시도 로직 고려)
       initTimeoutRef.current = window.setTimeout(() => {
         console.warn('⚠️ 인증 초기화 타임아웃, 로딩 해제');
         setIsLoading(false);
       }, 30000);
 
       try {
-        let session = null;
-        let sessionError = null;
-        
-        // 세션 가져오기 재시도 로직 (최대 3회)
-        for (let retry = 0; retry < 3; retry++) {
-          try {
-            const result = await supabase.auth.getSession();
-            session = result.data.session;
-            sessionError = result.error;
-            if (!sessionError && session) break;
-            if (retry < 2) {
-              await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
-            }
-          } catch (err) {
-            sessionError = err as any;
-            if (retry < 2) {
-              await new Promise(resolve => setTimeout(resolve, 1000 * (retry + 1)));
-            }
-          }
+        const session = await ensureSession();
+
+        if (!session?.user) {
+          setUser(null);
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('admin_user');
+          return;
         }
-        
-        // 세션 에러가 있거나 세션이 만료된 경우 갱신 시도
-        if (sessionError || !session) {
-          try {
-            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError || !refreshData.session) {
-              // 갱신 실패 시 로그아웃 상태로 처리
-              console.warn('세션 갱신 실패, 로그아웃 처리:', refreshError?.message);
-              setUser(null);
-              localStorage.removeItem(STORAGE_KEY);
-              localStorage.removeItem('admin_user');
-              setIsLoading(false);
-              return;
-            }
-            // 갱신 성공 시 새 세션 사용
-            const refreshedSession = refreshData.session;
-            if (refreshedSession?.user) {
-              try {
-                const currentUser = await getCurrentUser();
-                if (currentUser) {
-                  setUser(currentUser);
-                  localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-                  console.log('💾 세션 갱신 후 사용자 정보 저장:', currentUser.email);
-                }
-              } catch (userError) {
-                console.warn('세션 갱신 후 사용자 정보 로드 실패:', userError);
-                setUser(null);
-                localStorage.removeItem(STORAGE_KEY);
-              }
-            }
-            setIsLoading(false);
-            return;
-          } catch (refreshErr) {
-            console.warn('세션 갱신 시도 실패:', refreshErr);
-            setUser(null);
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem('admin_user');
-            setIsLoading(false);
-            return;
-          }
+
+        const storedUser = getStoredUser();
+        if (storedUser) {
+          setUser(storedUser);
+          console.log('💾 저장된 사용자 정보 사용 (즉시):', storedUser.email, 'is_admin:', storedUser.is_admin);
         }
-        
-        if (session?.user) {
-          // 세션이 있으면 사용자 정보 로드
-          const storedUser = getStoredUser();
-          
-          // 먼저 저장된 사용자 정보를 설정 (즉시 UI 업데이트)
-          if (storedUser) {
-            setUser(storedUser);
-            console.log('💾 저장된 사용자 정보 사용 (즉시):', storedUser.email, 'is_admin:', storedUser.is_admin);
+
+        try {
+          const timeoutPromise = new Promise<null>((resolve) => {
+            window.setTimeout(() => resolve(null), 5000);
+          });
+
+          const currentUser = await Promise.race([
+            getCurrentUser(),
+            timeoutPromise,
+          ]);
+
+          if (currentUser) {
+            setUser(currentUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+            console.log('💾 초기화 - 사용자 정보 저장:', currentUser.email, 'is_admin:', currentUser.is_admin);
+          } else if (!storedUser) {
+            console.warn('⚠️ 사용자 정보 없음, 세션 정보로 fallback');
+            const fallbackUser = buildFallbackUser(session.user);
+            setUser(fallbackUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
           }
-          
-          // 서버에서 최신 사용자 정보 가져오기 (타임아웃 적용, 백그라운드)
-          try {
-            // Promise.race로 타임아웃 적용 (5초)
-            const timeoutPromise = new Promise<null>((resolve) => {
-              window.setTimeout(() => resolve(null), 5000);
-            });
-            
-            const currentUser = await Promise.race([
-              getCurrentUser(),
-              timeoutPromise
-            ]);
-            
-            if (currentUser) {
-              // 최신 사용자 정보로 업데이트
-              setUser(currentUser);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-              console.log('💾 초기화 - 사용자 정보 저장:', currentUser.email, 'is_admin:', currentUser.is_admin);
-            } else {
-              // 타임아웃 또는 null 반환 시 저장된 사용자 정보 유지
-              if (storedUser) {
-                console.warn('⚠️ getCurrentUser 타임아웃 또는 null, 저장된 사용자 정보 유지');
-                // 이미 storedUser로 설정되어 있으므로 추가 작업 불필요
-              } else {
-                // 저장된 사용자 정보도 없으면 세션 정보로 fallback
-                console.warn('⚠️ 사용자 정보 없음, 세션 정보로 fallback');
-                const fallbackUser: User = {
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
-                  is_active: true,
-                  is_admin: false,
-                  created_at: session.user.created_at || new Date().toISOString(),
-                  role: 'user',
-                };
-                setUser(fallbackUser);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
-              }
-            }
-          } catch (error) {
-            console.warn('최신 사용자 정보 로드 실패:', error);
-            // 에러가 인증 관련이면 세션 정리
-            if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid'))) {
-              console.warn('인증 토큰 오류 감지, 세션 정리');
-              setUser(null);
-              localStorage.removeItem(STORAGE_KEY);
-              localStorage.removeItem('admin_user');
-              try {
-                await supabase.auth.signOut();
-              } catch (signOutError) {
-                console.error('로그아웃 처리 실패:', signOutError);
-              }
-            } else if (storedUser) {
-              // 다른 에러는 저장된 사용자 정보 유지 (이미 설정되어 있음)
-              console.log('💾 에러 발생, 저장된 사용자 정보 유지');
-            } else {
-              // 저장된 사용자 정보도 없으면 세션 정보로 fallback
-              const fallbackUser: User = {
-                id: session.user.id,
-                email: session.user.email || '',
-                username: session.user.user_metadata?.nickname || session.user.email?.split('@')[0] || 'user',
-                is_active: true,
-                is_admin: false,
-                created_at: session.user.created_at || new Date().toISOString(),
-                role: 'user',
-              };
+        } catch (error) {
+          if (isOfflineError(error) || isSessionTimeoutError(error)) {
+            console.warn('⚠️ 사용자 정보 로드 지연 (오프라인/타임아웃)');
+            if (!storedUser) {
+              const fallbackUser = buildFallbackUser(session.user);
               setUser(fallbackUser);
               localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
             }
+          } else if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid'))) {
+            console.warn('인증 토큰 오류 감지, 세션 정리');
+            setUser(null);
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem('admin_user');
+            clearSessionRefreshState();
+            try {
+              await supabase.auth.signOut();
+            } catch (signOutError) {
+              console.error('로그아웃 처리 실패:', signOutError);
+            }
+          } else if (storedUser) {
+            console.log('💾 에러 발생, 저장된 사용자 정보 유지');
+          } else {
+            const fallbackUser = buildFallbackUser(session.user);
+            setUser(fallbackUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
           }
-        } else {
-          // 세션이 없으면 로그아웃 상태
-          setUser(null);
-          localStorage.removeItem(STORAGE_KEY);
-          // 레거시 키도 정리
-          localStorage.removeItem('admin_user');
         }
       } catch (error) {
-        console.error('인증 초기화 실패:', error);
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
+        if (isOfflineError(error)) {
+          const storedUser = getStoredUser();
+          if (storedUser) {
+            setUser(storedUser);
+          } else {
+            setUser(null);
+          }
+        } else if (isSessionTimeoutError(error)) {
+          console.warn('⚠️ 세션 갱신 타임아웃 - 초기화 지연');
+        } else {
+          console.error('인증 초기화 실패:', error);
+          setUser(null);
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('admin_user');
+        }
       } finally {
-        // 타임아웃 클리어
         if (initTimeoutRef.current !== null) {
           window.clearTimeout(initTimeoutRef.current);
           initTimeoutRef.current = null;
         }
-        // 항상 로딩 해제 보장
         setIsLoading(false);
       }
     };
@@ -407,9 +357,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       logoutCalledRef.current = true; // 로그아웃 함수 호출 플래그 설정
       await logoutAPI();
+      clearSessionRefreshState();
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('admin_user'); // 레거시 키도 정리
+      sessionStorage.clear();
       
       // 로그아웃 성공 알림
       alert('로그아웃이 되었습니다.');
@@ -426,62 +378,112 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 사용자 정보 새로고침
   // ===================================
 
-  const refreshUser = async (): Promise<void> => {
+  const refreshUser = useCallback(async (): Promise<void> => {
     try {
-      // 먼저 세션 갱신 시도
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !sessionData.session) {
-        // 세션이 없거나 에러가 있으면 갱신 시도
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshError || !refreshData.session) {
-          console.warn('세션 갱신 실패:', refreshError?.message);
-          setUser(null);
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('admin_user');
-          return;
-        }
-      }
-      
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        const currentUser = await getCurrentUser();
-        
-        if (currentUser) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-          console.log('💾 새로고침 - 사용자 정보 저장:', currentUser.email, 'is_admin:', currentUser.is_admin);
-          setUser(currentUser);
-        } else {
-          setUser(null);
-        }
-      } else {
+      const session = await ensureSession();
+
+      if (!session?.user) {
         setUser(null);
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('admin_user');
+        return;
+      }
+
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        setUser(null);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('admin_user');
+        return;
+      }
+
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+        console.log('💾 새로고침 - 사용자 정보 저장:', currentUser.email, 'is_admin:', currentUser.is_admin);
+        setUser(currentUser);
+      } else {
+        setUser(null);
       }
     } catch (error) {
+      if (isOfflineError(error)) {
+        console.warn('사용자 정보 새로고침 중 오프라인 감지');
+        const storedUser = getStoredUser();
+        if (storedUser) {
+          setUser(storedUser);
+        }
+        return;
+      }
+
+      if (isSessionTimeoutError(error)) {
+        console.warn('세션 갱신 타임아웃, 다음 이벤트에서 재시도');
+        return;
+      }
+
       console.error('사용자 정보 새로고침 실패:', error);
-      // 인증 관련 에러인 경우에만 로그아웃 처리
+
       if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401'))) {
         console.warn('인증 토큰 오류로 인한 로그아웃 처리');
         setUser(null);
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('admin_user');
-        // logout() 호출 시 무한 루프 방지를 위해 signOut만 호출
+        clearSessionRefreshState();
         try {
           await supabase.auth.signOut();
         } catch (signOutError) {
           console.error('로그아웃 처리 실패:', signOutError);
         }
       } else {
-        // 다른 에러는 로그아웃하지 않고 기존 사용자 정보 유지
         const storedUser = getStoredUser();
         if (storedUser) {
           setUser(storedUser);
         }
       }
     }
-  };
+  }, []);
+
+  const triggerSessionResume = useCallback(() => {
+    if (resumePromiseRef.current) return;
+    resumePromiseRef.current = refreshUser().finally(() => {
+      resumePromiseRef.current = null;
+    });
+  }, [refreshUser]);
+
+  useEffect(() => {
+    supabase.auth.startAutoRefresh();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        supabase.auth.startAutoRefresh();
+        triggerSessionResume();
+      } else {
+        supabase.auth.stopAutoRefresh();
+      }
+    };
+
+    const handleFocus = () => {
+      supabase.auth.startAutoRefresh();
+      triggerSessionResume();
+    };
+
+    const handleOnline = () => {
+      if (navigator.onLine) {
+        supabase.auth.startAutoRefresh();
+        triggerSessionResume();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      supabase.auth.stopAutoRefresh();
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, [triggerSessionResume]);
 
   // ===================================
   // Context 값

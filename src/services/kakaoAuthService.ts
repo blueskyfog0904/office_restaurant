@@ -1,6 +1,12 @@
 import { supabase } from './supabaseClient';
 import { getErrorMessage } from './api';
 import { User } from '../types';
+import {
+  clearSessionRefreshState,
+  ensureSession,
+  isOfflineError,
+  isSessionTimeoutError,
+} from './sessionManager';
 
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
@@ -39,22 +45,17 @@ export const signupWithKakao = async (): Promise<void> => {
 
 // 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
 export const getCurrentUser = async (): Promise<User | null> => {
-  // 먼저 세션 확인 및 갱신 시도
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  
-  // 세션이 없거나 에러가 있으면 갱신 시도
-  if (sessionError || !sessionData.session) {
-    try {
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError || !refreshData.session) {
-        // 갱신 실패 시 null 반환 (로그아웃 상태)
-        console.warn('getCurrentUser: 세션 갱신 실패:', refreshError?.message);
-        return null;
-      }
-    } catch (refreshErr) {
-      console.warn('getCurrentUser: 세션 갱신 시도 실패:', refreshErr);
+  try {
+    const session = await ensureSession();
+    if (!session) {
       return null;
     }
+  } catch (error) {
+    if (isOfflineError(error) || isSessionTimeoutError(error)) {
+      console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
+      return null;
+    }
+    throw error;
   }
   
   const { data: { user }, error } = await supabase.auth.getUser();
@@ -149,6 +150,7 @@ export const logout = async (): Promise<void> => {
   try {
     await supabase.auth.signOut();
   } finally {
+    clearSessionRefreshState();
     // 로컬 캐시 정리
     try { 
       localStorage.removeItem('user'); 
