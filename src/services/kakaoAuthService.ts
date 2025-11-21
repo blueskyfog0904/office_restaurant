@@ -7,39 +7,52 @@ import {
   isOfflineError,
   isSessionTimeoutError,
 } from './sessionManager';
+import { kakaoLoginPopup } from '../utils/kakao';
 
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
 // ===================================
 
-export interface KakaoUserProfile {
-  id: string;
-  email?: string;
-  nickname: string;
-  profile_image_url?: string;
+interface KakaoSessionResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in?: number;
+  user: User;
 }
 
-// 카카오 OAuth 로그인 시작
+// 카카오 OAuth 로그인 시작 (Supabase 세션으로 전환)
 export const loginWithKakao = async (): Promise<void> => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: 'kakao',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
-      }
-    }
+  const { accessToken } = await kakaoLoginPopup();
+  const session = await exchangeKakaoToken(accessToken);
+
+  if (!session.refresh_token) {
+    throw new Error('Supabase 세션 토큰을 받지 못했습니다.');
+  }
+
+  const { error } = await supabase.auth.setSession({
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
   });
-  
+
   if (error) {
-    throw new Error(`카카오 로그인 실패: ${getErrorMessage(error)}`);
+    throw new Error(`Supabase 세션 설정 실패: ${getErrorMessage(error)}`);
+  }
+
+  const termsConsentData = sessionStorage.getItem('termsConsent');
+  if (termsConsentData) {
+    try {
+      const consents = JSON.parse(termsConsentData);
+      await saveTermsConsent(consents);
+      sessionStorage.removeItem('termsConsent');
+    } catch (consentError) {
+      console.error('약관 동의 저장 실패:', consentError);
+    }
   }
 };
 
 // 카카오 OAuth 회원가입 (로그인과 동일한 플로우)
 export const signupWithKakao = async (): Promise<void> => {
-  // 카카오 OAuth에서는 로그인과 회원가입이 동일한 프로세스
   return loginWithKakao();
 };
 
@@ -341,4 +354,16 @@ export const removeFavorite = async (favoriteId: string): Promise<void> => {
     .eq('id', favoriteId);
   
   if (error) throw new Error(getErrorMessage(error));
+};
+
+const exchangeKakaoToken = async (kakaoAccessToken: string): Promise<KakaoSessionResponse> => {
+  const { data, error } = await supabase.functions.invoke('kakao-login', {
+    body: { access_token: kakaoAccessToken },
+  });
+
+  if (error || !data) {
+    throw new Error(error?.message || '카카오 로그인 연동 실패');
+  }
+
+  return data as KakaoSessionResponse;
 };

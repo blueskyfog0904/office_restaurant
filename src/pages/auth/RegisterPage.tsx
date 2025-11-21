@@ -16,15 +16,11 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // 리다이렉트 경로를 세션 스토리지에 저장
-      sessionStorage.setItem('authRedirectTo', from);
-      
-      // 카카오 OAuth 회원가입 시작 (로그인과 동일한 프로세스)
       await signupWithKakao();
-      
-      // OAuth 리다이렉트가 시작되므로 이 코드는 실행되지 않음
+      navigate(from, { replace: true });
     } catch (error) {
       setError(error instanceof Error ? error.message : '카카오 회원가입에 실패했습니다.');
+    } finally {
       setLoading(false);
     }
   };

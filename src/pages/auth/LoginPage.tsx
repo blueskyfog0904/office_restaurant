@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { loginWithKakao } from '../../services/kakaoAuthService';
 
 const LoginPage: React.FC = () => {
@@ -7,6 +7,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   
   const location = useLocation();
+  const navigate = useNavigate();
   
   const from = (location.state as any)?.from?.pathname || '/';
 
@@ -15,15 +16,11 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // 리다이렉트 경로를 세션 스토리지에 저장
-      sessionStorage.setItem('authRedirectTo', from);
-      
-      // 카카오 OAuth 로그인 시작
       await loginWithKakao();
-      
-      // OAuth 리다이렉트가 시작되므로 이 코드는 실행되지 않음
+      navigate(from, { replace: true });
     } catch (error) {
       setError(error instanceof Error ? error.message : '카카오 로그인에 실패했습니다.');
+    } finally {
       setLoading(false);
     }
   };
