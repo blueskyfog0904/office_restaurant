@@ -456,24 +456,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const resumeSession = useCallback(async (reason: string) => {
-    try {
-      const { error } = await supabase.auth.refreshSession();
-      if (error) {
-        console.warn(`세션 강제 갱신 실패 (${reason}):`, error.message ?? error);
-      }
-    } catch (refreshError) {
-      console.error(`세션 갱신 호출 실패 (${reason}):`, refreshError);
+  const triggerSessionResume = useCallback(async (reason = 'manual'): Promise<void> => {
+    if (resumePromiseRef.current) {
+      return resumePromiseRef.current;
     }
-    await refreshUser();
-  }, [refreshUser]);
 
-  const triggerSessionResume = useCallback((reason = 'manual') => {
-    if (resumePromiseRef.current) return;
-    resumePromiseRef.current = resumeSession(reason).finally(() => {
-      resumePromiseRef.current = null;
-    });
-  }, [resumeSession]);
+    const doResume = async () => {
+      console.log(`🔄 세션 복구 시작 (${reason})`);
+      setIsLoading(true);
+
+      try {
+        const { data, error } = await supabase.auth.refreshSession();
+
+        if (error || !data.session) {
+          console.warn(`세션 갱신 실패 (${reason}):`, error?.message ?? 'no session');
+          await supabase.auth.signOut();
+          clearStoredAuthState();
+          clearSessionRefreshState();
+          setUser(null);
+          return;
+        }
+
+        console.log(`✅ 세션 갱신 성공 (${reason})`);
+        await refreshUser();
+      } catch (refreshError) {
+        console.error(`세션 복구 중 오류 (${reason}):`, refreshError);
+        try {
+          await supabase.auth.signOut();
+        } catch {}
+        clearStoredAuthState();
+        clearSessionRefreshState();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+        resumePromiseRef.current = null;
+      }
+    };
+
+    resumePromiseRef.current = doResume();
+    return resumePromiseRef.current;
+  }, [refreshUser]);
 
   useEffect(() => {
     supabase.auth.startAutoRefresh();

@@ -23,6 +23,21 @@ interface KakaoSessionResponse {
 
 // 카카오 OAuth 로그인 시작 (Supabase 세션으로 전환)
 export const loginWithKakao = async (): Promise<void> => {
+  // 기존 세션이 꼬여있을 수 있으므로 먼저 완전히 정리
+  try {
+    console.log('🧹 기존 세션 정리 시작');
+    clearSessionRefreshState();
+    await supabase.auth.signOut();
+    // 로컬 인증 캐시도 정리
+    try {
+      localStorage.removeItem('user');
+      localStorage.removeItem('admin_user');
+    } catch {}
+    console.log('✅ 기존 세션 정리 완료');
+  } catch (cleanupError) {
+    console.warn('기존 세션 정리 중 오류 (무시):', cleanupError);
+  }
+
   const { accessToken } = await kakaoLoginPopup();
   const session = await exchangeKakaoToken(accessToken);
 
