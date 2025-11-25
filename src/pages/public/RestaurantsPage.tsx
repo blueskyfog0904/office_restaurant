@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import { 
   MagnifyingGlassIcon, 
   FunnelIcon,
@@ -13,6 +13,7 @@ import {
   toggleFavorite,
   shareRestaurant 
 } from '../../services/authService';
+import { SessionExpiredError } from '../../services/sessionManager';
 import { 
   RestaurantWithStats, 
   Region, 
@@ -42,9 +43,10 @@ const CATEGORY_OPTIONS = [
 ];
 
 const RestaurantsPage: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const scrollPositionKey = 'restaurantsPageScrollPosition';
   
   // 상태 관리
@@ -60,6 +62,15 @@ const RestaurantsPage: React.FC = () => {
   const provinceParam = searchParams.get('province');
   const districtParam = searchParams.get('district');
   const regionIdFromUrl = provinceParam && districtParam ? `${provinceParam}|${districtParam}` : undefined;
+  const handleSessionExpired = useCallback(async () => {
+    alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+    try {
+      await logout();
+    } catch (error) {
+      console.error('자동 로그아웃 처리 실패:', error);
+    }
+    navigate('/login');
+  }, [logout, navigate]);
   
   const [searchKeyword, setSearchKeyword] = useState(searchParams.get('keyword') || '');
   const [selectedRegion, setSelectedRegion] = useState<string | undefined>(
@@ -120,7 +131,12 @@ const RestaurantsPage: React.FC = () => {
         console.log('지역 데이터 샘플:', response.data.slice(0, 3));
         setRegions(response.data);
       } catch (error) {
+        if (error instanceof SessionExpiredError) {
+          await handleSessionExpired();
+          return;
+        }
         console.error('❌ 지역 데이터 로드 실패:', error);
+        alert('지역 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
       }
     };
 
@@ -188,8 +204,12 @@ const RestaurantsPage: React.FC = () => {
       
       setHasMore(response.pagination.page < response.pagination.pages);
     } catch (error) {
-      console.error('❌ 음식점 데이터 로드 실패:', error);
-      alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+      if (error instanceof SessionExpiredError) {
+        await handleSessionExpired();
+      } else {
+        console.error('❌ 음식점 데이터 로드 실패:', error);
+        alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setLoading(false);
     }

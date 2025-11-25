@@ -27,6 +27,7 @@ import {
   getRestaurantPhotos,
   RestaurantPhoto
 } from '../../services/authService';
+import { SessionExpiredError } from '../../services/sessionManager';
 import { 
   Region, 
   RestaurantWithStats,
@@ -87,7 +88,7 @@ const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number): Map
 });
 
 const RegionsPage: React.FC = () => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate();
@@ -96,6 +97,16 @@ const RegionsPage: React.FC = () => {
   const displayedCountKey = 'regionsPageDisplayedCount';
   const searchParamsKey = 'regionsPageSearchParams';
   const previousLocationKeyRef = useRef<string | null>(null);
+
+  const handleSessionExpired = useCallback(async () => {
+    alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+    try {
+      await logout();
+    } catch (error) {
+      console.error('자동 로그아웃 처리 실패:', error);
+    }
+    navigate('/login');
+  }, [logout, navigate]);
   
   // 상태 관리
   const [mapViewState, setMapViewState] = useState<{ latitude: number; longitude: number; level: number } | null>(null);
@@ -603,7 +614,12 @@ const RegionsPage: React.FC = () => {
         console.log('✅ 지역 데이터 로드 성공:', response.data.length, '개 지역');
         setRegions(response.data);
       } catch (error) {
+        if (error instanceof SessionExpiredError) {
+          await handleSessionExpired();
+          return;
+        }
         console.error('지역 데이터 로드 실패:', error);
+        alert('지역 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
       }
     };
 
@@ -712,8 +728,12 @@ const RegionsPage: React.FC = () => {
               console.log('🔄 URL 파라미터 새 검색으로 displayedCount 초기화 (명시적)');
             }
           } catch (error) {
-            console.error('음식점 검색 실패:', error);
-            alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+            if (error instanceof SessionExpiredError) {
+              await handleSessionExpired();
+            } else {
+              console.error('음식점 검색 실패:', error);
+              alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+            }
           } finally {
             setLoading(false);
           }
@@ -795,8 +815,12 @@ const RegionsPage: React.FC = () => {
       });
       
     } catch (error) {
-      console.error('음식점 검색 실패:', error);
-      alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+      if (error instanceof SessionExpiredError) {
+        await handleSessionExpired();
+      } else {
+        console.error('음식점 검색 실패:', error);
+        alert('음식점 검색에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setLoading(false);
     }

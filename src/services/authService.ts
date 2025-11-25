@@ -11,7 +11,7 @@ import {
   Restaurant,
   Region,
 } from '../types';
-import { ensureSession } from './sessionManager';
+import { ensureSession, executeWithSession } from './sessionManager';
 
 // ===================================
 // 인증 관련 API
@@ -289,7 +289,7 @@ export const getUserReviews = async (userId: string): Promise<any[]> => {
 // 음식점 관련 API
 // ===================================
 
-export const searchRestaurants = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
+const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
   const startTime = performance.now();
   console.log('🔍 [searchRestaurants] 시작, params:', params);
   
@@ -569,6 +569,10 @@ export const searchRestaurants = async (params: RestaurantSearchRequest): Promis
   };
 };
 
+export const searchRestaurants = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
+  return executeWithSession(() => searchRestaurantsInternal(params), 'searchRestaurants');
+};
+
 export const getRestaurantById = async (id: string): Promise<RestaurantWithStats> => {
   const startTime = performance.now();
   // ID로 조회하는 경우도 직접 restaurants 테이블 사용 (더 빠름)
@@ -791,36 +795,51 @@ export const getRestaurantsByRegion = async (
 // ===================================
 
 export const getRegions = async (): Promise<RegionListResponse> => {
-  // RPC로 DISTINCT 쿼리 실행 (중복 제거)
-  const { data, error } = await supabase.rpc('get_distinct_regions');
-  
-  if (error) {
-    // Fallback: RPC가 없으면 기존 방식 사용
-    console.warn('⚠️ RPC get_distinct_regions not found, using fallback');
-    const { data: restaurantData, error: fallbackError } = await supabase
-      .from('restaurants')
-      .select('sub_add1, sub_add2')
-      .not('sub_add1', 'is', null)
-      .not('sub_add2', 'is', null);
+  return executeWithSession(async () => {
+    const { data, error } = await supabase.rpc('get_distinct_regions');
     
-    if (fallbackError) throw new Error(getErrorMessage(fallbackError));
-    
-    // 중복 제거
-    const uniqueMap = new Map<string, any>();
-    (restaurantData as any[]).forEach((r) => {
-      const key = `${r.sub_add1}__${r.sub_add2}`;
-      if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, r);
-      }
-    });
-    
-    const unique = Array.from(uniqueMap.values())
-      .sort((a: any, b: any) => {
-        if (a.sub_add1 !== b.sub_add1) return a.sub_add1.localeCompare(b.sub_add1);
-        return a.sub_add2.localeCompare(b.sub_add2);
+    if (error) {
+      console.warn('⚠️ RPC get_distinct_regions not found, using fallback');
+      const { data: restaurantData, error: fallbackError } = await supabase
+        .from('restaurants')
+        .select('sub_add1, sub_add2')
+        .not('sub_add1', 'is', null)
+        .not('sub_add2', 'is', null);
+      
+      if (fallbackError) throw new Error(getErrorMessage(fallbackError));
+      
+      const uniqueMap = new Map<string, any>();
+      (restaurantData as any[]).forEach((r) => {
+        const key = `${r.sub_add1}__${r.sub_add2}`;
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, r);
+        }
       });
+      
+      const unique = Array.from(uniqueMap.values())
+        .sort((a: any, b: any) => {
+          if (a.sub_add1 !== b.sub_add1) return a.sub_add1.localeCompare(b.sub_add1);
+          return a.sub_add2.localeCompare(b.sub_add2);
+        });
+      
+      const regionsFromFallback: Region[] = unique.map((r: any, idx) => ({
+        id: (idx + 1).toString(),
+        code: '',
+        sub_add1: r.sub_add1,
+        sub_add2: r.sub_add2,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+      
+      return {
+        success: true,
+        message: 'ok',
+        data: regionsFromFallback,
+        pagination: { page: 1, size: regionsFromFallback.length, total: regionsFromFallback.length, pages: 1 },
+      };
+    }
     
-    const regions: Region[] = unique.map((r: any, idx) => ({
+    const regions: Region[] = (data as any[]).map((r: any, idx) => ({
       id: (idx + 1).toString(),
       code: '',
       sub_add1: r.sub_add1,
@@ -829,58 +848,43 @@ export const getRegions = async (): Promise<RegionListResponse> => {
       updated_at: new Date().toISOString(),
     }));
     
+    console.log('✅ RPC get_distinct_regions 사용:', regions.length, '개 지역');
+    
     return {
       success: true,
       message: 'ok',
       data: regions,
       pagination: { page: 1, size: regions.length, total: regions.length, pages: 1 },
     };
-  }
-  
-  // RPC 결과 반환
-  const regions: Region[] = (data as any[]).map((r: any, idx) => ({
-    id: (idx + 1).toString(),
-    code: '',
-    sub_add1: r.sub_add1,
-    sub_add2: r.sub_add2,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }));
-  
-  console.log('✅ RPC get_distinct_regions 사용:', regions.length, '개 지역');
-  
-  return {
-    success: true,
-    message: 'ok',
-    data: regions,
-    pagination: { page: 1, size: regions.length, total: regions.length, pages: 1 },
-  };
+  }, 'getRegions');
 };
 
 export const getRegionsByProvince = async (province: string): Promise<RegionListResponse> => {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select('sub_add1, sub_add2')
-    .eq('sub_add1', province)
-    .order('sub_add2', { ascending: true });
-  if (error) throw new Error(getErrorMessage(error));
-  const unique = Array.from(
-    new Map((data ?? []).map((r: any) => [`${r.sub_add1}__${r.sub_add2}`, r])).values()
-  );
-  const regions: Region[] = unique.map((r: any, idx: number) => ({
-    id: (idx + 1).toString(),
-    code: '',
-    sub_add1: r.sub_add1,
-    sub_add2: r.sub_add2,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }));
-  return {
-    success: true,
-    message: 'ok',
-    data: regions,
-    pagination: { page: 1, size: regions.length, total: regions.length, pages: 1 },
-  };
+  return executeWithSession(async () => {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('sub_add1, sub_add2')
+      .eq('sub_add1', province)
+      .order('sub_add2', { ascending: true });
+    if (error) throw new Error(getErrorMessage(error));
+    const unique = Array.from(
+      new Map((data ?? []).map((r: any) => [`${r.sub_add1}__${r.sub_add2}`, r])).values()
+    );
+    const regions: Region[] = unique.map((r: any, idx: number) => ({
+      id: (idx + 1).toString(),
+      code: '',
+      sub_add1: r.sub_add1,
+      sub_add2: r.sub_add2,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+    return {
+      success: true,
+      message: 'ok',
+      data: regions,
+      pagination: { page: 1, size: regions.length, total: regions.length, pages: 1 },
+    };
+  }, 'getRegionsByProvince');
 };
 
 // ===================================

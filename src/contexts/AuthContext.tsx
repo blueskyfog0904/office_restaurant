@@ -54,6 +54,15 @@ export const useAuth = () => {
 // 단일 스토리지 키 사용 (admin/user 구분 없이 하나로 통일)
 const STORAGE_KEY = 'user';
 
+const clearStoredAuthState = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('admin_user');
+  } catch (error) {
+    console.warn('로컬 인증 캐시 삭제 실패:', error);
+  }
+};
+
 const getStoredUser = (): User | null => {
   try {
     const userStr = localStorage.getItem(STORAGE_KEY);
@@ -80,10 +89,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logoutCalledRef = useRef(false);
   const initTimeoutRef = useRef<number | null>(null);
   const resumePromiseRef = useRef<Promise<void> | null>(null);
+  const inactivityRefreshRef = useRef<Promise<void> | null>(null);
 
   const handleInactivity = useCallback(() => {
-    console.log('🛑 비활성 상태 감지, 토큰 자동 갱신 일시 중지');
-    supabase.auth.stopAutoRefresh();
+    if (inactivityRefreshRef.current) return;
+    console.log('🛑 비활성 상태 감지, 조용히 토큰 점검 시작');
+    inactivityRefreshRef.current = supabase.auth.refreshSession()
+      .then(({ error }) => {
+        if (error) {
+          console.warn('비활성 상태 토큰 갱신 실패:', error.message ?? error);
+        }
+      })
+      .catch(refreshError => {
+        console.error('비활성 상태 토큰 갱신 중 오류:', refreshError);
+      })
+      .finally(() => {
+        inactivityRefreshRef.current = null;
+      });
   }, []);
 
   useActivityTracker(handleInactivity);
@@ -117,8 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (!session?.user) {
           setUser(null);
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('admin_user');
+          clearStoredAuthState();
           return;
         }
 
@@ -159,8 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           } else if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid'))) {
             console.warn('인증 토큰 오류 감지, 세션 정리');
             setUser(null);
-            localStorage.removeItem(STORAGE_KEY);
-            localStorage.removeItem('admin_user');
+            clearStoredAuthState();
             clearSessionRefreshState();
             try {
               await supabase.auth.signOut();
@@ -188,8 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           console.error('인증 초기화 실패:', error);
           setUser(null);
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('admin_user');
+          clearStoredAuthState();
         }
       } finally {
         if (initTimeoutRef.current !== null) {
@@ -208,8 +227,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       try {
         if (event === 'SIGNED_OUT') {
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('admin_user'); // 레거시 키도 정리
+          clearStoredAuthState();
           sessionStorage.clear();
           setUser(null);
           setIsLoading(false);
@@ -359,8 +377,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await logoutAPI();
       clearSessionRefreshState();
       setUser(null);
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem('admin_user'); // 레거시 키도 정리
+      clearStoredAuthState();
       sessionStorage.clear();
       
       // 로그아웃 성공 알림
@@ -384,16 +401,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (!session?.user) {
         setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
+        clearStoredAuthState();
         return;
       }
 
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
         setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
+        clearStoredAuthState();
         return;
       }
 
@@ -425,8 +440,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (error instanceof Error && (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401'))) {
         console.warn('인증 토큰 오류로 인한 로그아웃 처리');
         setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('admin_user');
+        clearStoredAuthState();
         clearSessionRefreshState();
         try {
           await supabase.auth.signOut();
@@ -442,12 +456,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const triggerSessionResume = useCallback(() => {
+  const resumeSession = useCallback(async (reason: string) => {
+    try {
+      const { error } = await supabase.auth.refreshSession();
+      if (error) {
+        console.warn(`세션 강제 갱신 실패 (${reason}):`, error.message ?? error);
+      }
+    } catch (refreshError) {
+      console.error(`세션 갱신 호출 실패 (${reason}):`, refreshError);
+    }
+    await refreshUser();
+  }, [refreshUser]);
+
+  const triggerSessionResume = useCallback((reason = 'manual') => {
     if (resumePromiseRef.current) return;
-    resumePromiseRef.current = refreshUser().finally(() => {
+    resumePromiseRef.current = resumeSession(reason).finally(() => {
       resumePromiseRef.current = null;
     });
-  }, [refreshUser]);
+  }, [resumeSession]);
 
   useEffect(() => {
     supabase.auth.startAutoRefresh();
@@ -455,7 +481,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
         supabase.auth.startAutoRefresh();
-        triggerSessionResume();
+        triggerSessionResume('visibilitychange');
       } else {
         supabase.auth.stopAutoRefresh();
       }
@@ -463,13 +489,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const handleFocus = () => {
       supabase.auth.startAutoRefresh();
-      triggerSessionResume();
+      triggerSessionResume('focus');
     };
 
     const handleOnline = () => {
       if (navigator.onLine) {
         supabase.auth.startAutoRefresh();
-        triggerSessionResume();
+        triggerSessionResume('online');
       }
     };
 
