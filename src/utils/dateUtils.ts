@@ -24,3 +24,4 @@ export const formatDetailDate = (dateString: string): string => {
   return format(date, 'yyyy.MM.dd HH:mm:ss');
 };
 
+
