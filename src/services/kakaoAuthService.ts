@@ -38,20 +38,46 @@ export const loginWithKakao = async (): Promise<void> => {
     console.warn('기존 세션 정리 중 오류 (무시):', cleanupError);
   }
 
+  console.log('🔑 카카오 팝업 로그인 시작...');
   const { accessToken } = await kakaoLoginPopup();
+  console.log('✅ 카카오 토큰 획득 완료');
+  
+  console.log('🔄 Edge Function 호출 중...');
   const session = await exchangeKakaoToken(accessToken);
+  console.log('✅ Edge Function 응답:', { 
+    hasAccessToken: !!session.access_token,
+    hasRefreshToken: !!session.refresh_token,
+    user: session.user?.email 
+  });
 
   if (!session.refresh_token) {
     throw new Error('Supabase 세션 토큰을 받지 못했습니다.');
   }
 
-  const { error } = await supabase.auth.setSession({
+  console.log('🔐 Supabase 세션 설정 중...');
+  const { data, error } = await supabase.auth.setSession({
     access_token: session.access_token,
     refresh_token: session.refresh_token,
   });
 
   if (error) {
+    console.error('❌ 세션 설정 실패:', error);
     throw new Error(`Supabase 세션 설정 실패: ${getErrorMessage(error)}`);
+  }
+
+  console.log('✅ 세션 설정 완료:', { 
+    hasSession: !!data.session,
+    user: data.user?.email 
+  });
+
+  // 사용자 정보 로컬 저장
+  if (session.user) {
+    try {
+      localStorage.setItem('user', JSON.stringify(session.user));
+      console.log('💾 사용자 정보 로컬 저장 완료');
+    } catch (storageError) {
+      console.warn('사용자 정보 저장 실패:', storageError);
+    }
   }
 
   const termsConsentData = sessionStorage.getItem('termsConsent');
@@ -64,6 +90,8 @@ export const loginWithKakao = async (): Promise<void> => {
       console.error('약관 동의 저장 실패:', consentError);
     }
   }
+  
+  console.log('🎉 카카오 로그인 완료!');
 };
 
 // 카카오 OAuth 회원가입 (로그인과 동일한 플로우)
