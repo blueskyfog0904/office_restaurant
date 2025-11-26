@@ -230,6 +230,34 @@ export const executeWithSession = async <T>(
   }
 };
 
+/**
+ * 세션 없이도 실행 가능한 공개 API용 래퍼
+ * 세션 획득 실패 시에도 operation을 실행합니다
+ */
+export const executePublicApi = async <T>(
+  operation: () => Promise<T>,
+  context?: string
+): Promise<T> => {
+  // localhost 환경에서는 바로 실행
+  if (isLocalhost()) {
+    return await operation();
+  }
+
+  // 세션 획득 시도 (실패해도 계속 진행)
+  try {
+    await ensureSession();
+  } catch (error) {
+    if (isSessionTimeoutError(error)) {
+      console.warn(`[${context}] 세션 타임아웃, 세션 없이 진행`);
+    } else if (!isOfflineError(error)) {
+      console.warn(`[${context}] 세션 획득 실패, 세션 없이 진행:`, error);
+    }
+  }
+
+  // 세션 유무와 관계없이 operation 실행
+  return await operation();
+};
+
 export const isOfflineError = (error: unknown): boolean => {
   return (
     error instanceof OfflineError ||

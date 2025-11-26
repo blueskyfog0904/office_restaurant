@@ -11,7 +11,7 @@ import {
   Restaurant,
   Region,
 } from '../types';
-import { ensureSession, executeWithSession } from './sessionManager';
+import { ensureSession, executeWithSession, executePublicApi } from './sessionManager';
 
 const isLocalhost = () => {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -580,55 +580,57 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
 };
 
 export const searchRestaurants = async (params: RestaurantSearchRequest): Promise<RestaurantListResponse> => {
-  return executeWithSession(() => searchRestaurantsInternal(params), 'searchRestaurants');
+  return executePublicApi(() => searchRestaurantsInternal(params), 'searchRestaurants');
 };
 
 export const getRestaurantById = async (id: string): Promise<RestaurantWithStats> => {
-  const startTime = performance.now();
-  // ID로 조회하는 경우도 직접 restaurants 테이블 사용 (더 빠름)
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,primary_photo_url')
-    .eq('id', id)
-    .single();
-  if (error) throw new Error(getErrorMessage(error));
-  
-  const queryTime = performance.now() - startTime;
-  console.log(`⏱️ getRestaurantById 쿼리 시간: ${queryTime.toFixed(2)}ms`);
-  
-  const row: any = data;
-  const mapped: RestaurantWithStats = {
-    id: row.id,
-    name: row.title || row.name,
-    title: row.title || row.name,
-    address: row.address,
-    road_address: row.road_address,
-    phone: row.telephone,
-    latitude: row.latitude,
-    longitude: row.longitude,
-    category: row.category,
-    sub_category: row.category,
-    category2: row.category2,
-    region_id: 0,
-    sub_add1: row.sub_add1,
-    sub_add2: row.sub_add2,
-    status: row.is_active ? 'active' : 'inactive',
-    created_at: row.created_at,
-    updated_at: row.updated_at,
-    total_amount: (row.total_count ?? 0) as number,
-    visit_count: row.total_count ?? 0,
-    avg_rating: 0,
-    review_count: 0,
-    region_rank: null,
-    province_rank: null,
-    national_rank: null,
-    favorite_count: 0,
-    region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
-    recent_visits: [],
-    recent_rankings: [],
-    primary_photo_url: row.primary_photo_url,
-  } as any;
-  return mapped as any;
+  return executePublicApi(async () => {
+    const startTime = performance.now();
+    // ID로 조회하는 경우도 직접 restaurants 테이블 사용 (더 빠름)
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('id,name,title,address,road_address,telephone,latitude,longitude,category,category2,sub_add1,sub_add2,is_active,created_at,updated_at,total_count,primary_photo_url')
+      .eq('id', id)
+      .single();
+    if (error) throw new Error(getErrorMessage(error));
+    
+    const queryTime = performance.now() - startTime;
+    console.log(`⏱️ getRestaurantById 쿼리 시간: ${queryTime.toFixed(2)}ms`);
+    
+    const row: any = data;
+    const mapped: RestaurantWithStats = {
+      id: row.id,
+      name: row.title || row.name,
+      title: row.title || row.name,
+      address: row.address,
+      road_address: row.road_address,
+      phone: row.telephone,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      category: row.category,
+      sub_category: row.category,
+      category2: row.category2,
+      region_id: 0,
+      sub_add1: row.sub_add1,
+      sub_add2: row.sub_add2,
+      status: row.is_active ? 'active' : 'inactive',
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      total_amount: (row.total_count ?? 0) as number,
+      visit_count: row.total_count ?? 0,
+      avg_rating: 0,
+      review_count: 0,
+      region_rank: null,
+      province_rank: null,
+      national_rank: null,
+      favorite_count: 0,
+      region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
+      recent_visits: [],
+      recent_rankings: [],
+      primary_photo_url: row.primary_photo_url,
+    } as any;
+    return mapped as any;
+  }, 'getRestaurantById');
 };
 
 export const getNearbyRestaurants = async (
@@ -805,7 +807,7 @@ export const getRestaurantsByRegion = async (
 // ===================================
 
 export const getRegions = async (): Promise<RegionListResponse> => {
-  return executeWithSession(async () => {
+  return executePublicApi(async () => {
     const { data, error } = await supabase.rpc('get_distinct_regions');
     
     if (error) {
@@ -870,7 +872,7 @@ export const getRegions = async (): Promise<RegionListResponse> => {
 };
 
 export const getRegionsByProvince = async (province: string): Promise<RegionListResponse> => {
-  return executeWithSession(async () => {
+  return executePublicApi(async () => {
     const { data, error } = await supabase
       .from('restaurants')
       .select('sub_add1, sub_add2')
