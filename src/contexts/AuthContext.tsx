@@ -103,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const logoutCalledRef = useRef(false);
+  const logoutAlertShownRef = useRef(false);
   const initTimeoutRef = useRef<number | null>(null);
   const resumePromiseRef = useRef<Promise<void> | null>(null);
   const inactivityRefreshRef = useRef<Promise<void> | null>(null);
@@ -268,9 +269,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setIsLoading(false);
           
-          // 로그아웃 상태 알림 (logout 함수에서 이미 띄운 경우를 제외)
-          // logout 함수가 호출되지 않은 경우(자동 로그아웃, 세션 만료 등)에만 알림 띄우기
-          if (!logoutCalledRef.current) {
+          // 로그아웃 상태 알림 (이미 표시했거나 logout 함수에서 호출한 경우 제외)
+          // 무한 알림 방지: logoutAlertShownRef로 이미 표시 여부 추적
+          if (!logoutCalledRef.current && !logoutAlertShownRef.current) {
+            logoutAlertShownRef.current = true;
             alert('로그아웃이 되었습니다.');
           }
           // 플래그 리셋
@@ -301,6 +303,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         // SIGNED_IN, INITIAL_SESSION만 처리
         if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+          // 로그인 시 로그아웃 알림 플래그 리셋
+          logoutAlertShownRef.current = false;
+          
           try {
             const currentUser = await getCurrentUser();
             
