@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { ArrowLeftIcon, EyeIcon, HeartIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { getPostById, deletePost, toggleLike, Post } from '../../../services/boardService';
+import { ArrowLeftIcon, EyeIcon, HandThumbUpIcon, HandThumbDownIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { HandThumbUpIcon as HandThumbUpSolid, HandThumbDownIcon as HandThumbDownSolid } from '@heroicons/react/24/solid';
+import { getPostById, deletePost, togglePostReaction, Post } from '../../../services/boardService';
 import { useAuth } from '../../../contexts/AuthContext';
 import CommentList from '../../../components/comments/CommentList';
+import { formatDetailDate } from '../../../utils/dateUtils';
 
 const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
@@ -20,8 +22,9 @@ const PostDetailPage: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
+  const [userReaction, setUserReaction] = useState<'like' | 'dislike' | null>(null);
   const [likeCount, setLikeCount] = useState(0);
+  const [dislikeCount, setDislikeCount] = useState(0);
 
   // 게시판 타입에 따른 제목
   const getBoardTitle = () => {
@@ -37,7 +40,6 @@ const PostDetailPage: React.FC = () => {
     }
   };
 
-  // useEffect를 최상위 레벨로 이동
   useEffect(() => {
     const loadPost = async () => {
       if (!postId || !boardType) return;
@@ -47,6 +49,8 @@ const PostDetailPage: React.FC = () => {
         const postData = await getPostById(postId);
         setPost(postData);
         setLikeCount(postData.like_count);
+        setDislikeCount(postData.dislike_count);
+        setUserReaction(postData.user_reaction || null);
       } catch (error) {
         console.error('게시글 로드 실패:', error);
         setError('게시글을 불러올 수 없습니다.');
@@ -58,25 +62,21 @@ const PostDetailPage: React.FC = () => {
     loadPost();
   }, [postId, boardType]);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ko-KR');
-  };
-
-  const handleLike = async () => {
+  const handleReaction = async (type: 'like' | 'dislike') => {
     if (!isLoggedIn) {
       alert('로그인이 필요한 기능입니다.');
       return;
     }
-
     if (!postId) return;
 
     try {
-      await toggleLike(postId);
-      setLikeCount(prev => prev + 1);
-      setIsLiked(true);
+      const result = await togglePostReaction(postId, type);
+      setLikeCount(result.like_count);
+      setDislikeCount(result.dislike_count);
+      setUserReaction(result.user_reaction);
     } catch (error) {
-      console.error('좋아요 실패:', error);
-      alert('좋아요에 실패했습니다.');
+      console.error('반응 처리 실패:', error);
+      alert('처리에 실패했습니다.');
     }
   };
 
@@ -100,21 +100,15 @@ const PostDetailPage: React.FC = () => {
     navigate(`/board/${boardType}/edit/${postId}`);
   };
 
-  // boardType이 유효하지 않은 경우 처리
   if (!boardType || !postId) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         <div className="text-center py-12">
           <div className="text-6xl mb-4">❌</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            잘못된 접근입니다
-          </h3>
-          <p className="text-gray-600 mb-4">
-            올바른 게시글 페이지로 이동해주세요.
-          </p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">잘못된 접근입니다</h3>
           <button
             onClick={() => navigate('/board')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
           >
             게시판으로 이동
           </button>
@@ -125,9 +119,9 @@ const PostDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
           <span className="ml-2 text-gray-600">게시글을 불러오는 중...</span>
         </div>
       </div>
@@ -136,18 +130,14 @@ const PostDetailPage: React.FC = () => {
 
   if (error || !post) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
         <div className="text-center py-12">
           <div className="text-6xl mb-4">❌</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            게시글을 찾을 수 없습니다
-          </h3>
-          <p className="text-gray-600 mb-4">
-            {error || '요청하신 게시글이 존재하지 않거나 삭제되었습니다.'}
-          </p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">게시글을 찾을 수 없습니다</h3>
+          <p className="text-gray-600 mb-4">{error || '요청하신 게시글이 존재하지 않거나 삭제되었습니다.'}</p>
           <button
             onClick={() => navigate(`/board/${boardType}`)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
           >
             게시판으로 돌아가기
           </button>
@@ -159,75 +149,80 @@ const PostDetailPage: React.FC = () => {
   const isAuthor = isLoggedIn && user && post.author_id === user.id;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8">
       {/* 헤더 */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => navigate(`/board/${boardType}`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-            <span>목록으로</span>
-          </button>
-        </div>
-        
-        <div className="mb-2">
-          <h1 className="text-3xl font-bold text-gray-900">{getBoardTitle()}</h1>
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+          <Link to="/board" className="hover:text-gray-900">게시판</Link>
+          <span>&gt;</span>
+          <Link to={`/board/${boardType}`} className="hover:text-gray-900">{getBoardTitle()}</Link>
         </div>
       </div>
 
       {/* 게시글 내용 */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* 게시글 헤더 */}
-        <div className="border-b border-gray-200 p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {post.title}
-              </h2>
-              
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <div className="flex items-center gap-1">
-                  <CalendarIcon className="h-4 w-4" />
-                  <span>{formatDate(post.created_at)}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <EyeIcon className="h-4 w-4" />
-                  <span>{post.view_count}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <HeartIcon className="h-4 w-4" />
-                  <span>{likeCount}</span>
-                </div>
-                <span>작성자: {post.author?.nickname || '익명'}</span>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {/* 게시글 헤더 (요청사항 반영) */}
+        <div className="border-b border-gray-200 px-6 py-4 bg-gray-50">
+          {/* 1행: 제목 / 댓글수 / 날짜 */}
+          <div className="flex items-start justify-between mb-3">
+            <h2 className="text-xl font-bold text-gray-900 flex-1 mr-4">
+              {post.title}
+              {post.comment_count > 0 && (
+                <span className="ml-2 text-primary-600 text-lg">
+                  [{post.comment_count}]
+                </span>
+              )}
+            </h2>
+            <div className="text-sm text-gray-500 whitespace-nowrap flex items-center gap-1">
+              <CalendarIcon className="h-4 w-4" />
+              {formatDetailDate(post.created_at)}
+            </div>
+          </div>
+
+          {/* 2행: 글쓴이 / 조회수 / 공감 / 비공감 */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="font-medium text-gray-900">
+              {post.author?.nickname || '익명'}
+            </div>
+            <div className="flex items-center gap-4 text-gray-500">
+              <div className="flex items-center gap-1" title="조회수">
+                <EyeIcon className="h-4 w-4" />
+                <span>{post.view_count}</span>
+              </div>
+              <div className="flex items-center gap-1 text-primary-600" title="공감">
+                <HandThumbUpIcon className="h-4 w-4" />
+                <span>{likeCount}</span>
+              </div>
+              <div className="flex items-center gap-1 text-red-500" title="비공감">
+                <HandThumbDownIcon className="h-4 w-4" />
+                <span>{dislikeCount}</span>
               </div>
             </div>
-
-            {/* 작성자만 보이는 수정/삭제 버튼 */}
-            {isAuthor && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleEdit}
-                  className="flex items-center gap-1 px-3 py-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                >
-                  <PencilIcon className="h-4 w-4" />
-                  수정
-                </button>
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center gap-1 px-3 py-1 text-sm text-red-600 hover:text-red-700 transition-colors"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                  삭제
-                </button>
-              </div>
-            )}
           </div>
         </div>
 
+        {/* 수정/삭제 버튼 (작성자만) */}
+        {isAuthor && (
+          <div className="px-6 py-2 border-b border-gray-200 flex justify-end gap-2 bg-gray-50/50">
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <PencilIcon className="h-3 w-3" />
+              수정
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-700 transition-colors"
+            >
+              <TrashIcon className="h-3 w-3" />
+              삭제
+            </button>
+          </div>
+        )}
+
         {/* 게시글 본문 */}
-        <div className="p-6">
+        <div className="p-6 min-h-[200px]">
           <div className="prose max-w-none">
             <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
               {post.content}
@@ -235,20 +230,41 @@ const PostDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 좋아요 버튼 */}
-        <div className="border-t border-gray-200 p-6">
-          <div className="flex items-center justify-center">
+        {/* 공감/비공감 버튼 영역 */}
+        <div className="border-t border-gray-200 p-8 bg-gray-50/30">
+          <div className="flex items-center justify-center gap-4">
             <button
-              onClick={handleLike}
-              disabled={!isLoggedIn || isLiked}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full transition-colors ${
-                isLiked
-                  ? 'bg-red-100 text-red-600 cursor-not-allowed'
-                  : 'bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-600'
+              onClick={() => handleReaction('like')}
+              className={`flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 transition-all ${
+                userReaction === 'like'
+                  ? 'border-primary-500 bg-primary-50 text-primary-600 shadow-md'
+                  : 'border-gray-200 bg-white text-gray-400 hover:border-primary-200 hover:text-primary-500'
               }`}
+              title="공감"
             >
-              <HeartIcon className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`} />
-              <span>{isLiked ? '좋아요 완료' : '좋아요'}</span>
+              {userReaction === 'like' ? (
+                <HandThumbUpSolid className="h-8 w-8 mb-1" />
+              ) : (
+                <HandThumbUpIcon className="h-8 w-8 mb-1" />
+              )}
+              <span className="text-xs font-bold">{likeCount}</span>
+            </button>
+
+            <button
+              onClick={() => handleReaction('dislike')}
+              className={`flex flex-col items-center justify-center w-24 h-24 rounded-full border-2 transition-all ${
+                userReaction === 'dislike'
+                  ? 'border-red-500 bg-red-50 text-red-600 shadow-md'
+                  : 'border-gray-200 bg-white text-gray-400 hover:border-red-200 hover:text-red-500'
+              }`}
+              title="비공감"
+            >
+              {userReaction === 'dislike' ? (
+                <HandThumbDownSolid className="h-8 w-8 mb-1" />
+              ) : (
+                <HandThumbDownIcon className="h-8 w-8 mb-1" />
+              )}
+              <span className="text-xs font-bold">{dislikeCount}</span>
             </button>
           </div>
         </div>
@@ -258,7 +274,9 @@ const PostDetailPage: React.FC = () => {
       {(boardType === 'free' || boardType === 'suggestion') && postId && (
         <div className="mt-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">댓글</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+              댓글 <span className="text-primary-600">{post.comment_count}</span>
+            </h3>
             <CommentList postId={postId} />
           </div>
         </div>
@@ -277,7 +295,7 @@ const PostDetailPage: React.FC = () => {
           {boardType !== 'notice' && (
             <Link
               to={`/board/${boardType}/write`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
             >
               글쓰기
             </Link>

@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
-import { formatDistanceToNow, format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import {
-  HeartIcon,
-  ChatBubbleLeftIcon,
-  EllipsisVerticalIcon,
+  EllipsisHorizontalIcon,
   PencilIcon,
   TrashIcon,
   FlagIcon,
-  UserIcon
+  ArrowTurnDownRightIcon
 } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { Comment } from '../../services/commentApi';
 import { useAuth } from '../../contexts/AuthContext';
+import { formatDetailDate } from '../../utils/dateUtils';
 
 interface CommentItemProps {
   comment: Comment;
@@ -49,200 +45,137 @@ const CommentItem: React.FC<CommentItemProps> = ({
   // 작성자 배지
   const getAuthorBadge = () => {
     if (comment.author_role === 'admin') {
-      return <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">관리자</span>;
-    }
-    if (comment.author_role === 'moderator') {
-      return <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">운영자</span>;
+      return <span className="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded border border-red-200 ml-1">관리자</span>;
     }
     return null;
   };
 
-  // 상대 시간 표시
-  const getRelativeTime = () => {
-    try {
-      return formatDistanceToNow(new Date(comment.created_at), {
-        addSuffix: true,
-        locale: ko
-      });
-    } catch {
-      return '방금 전';
-    }
-  };
-
-  // 절대 시간 표시 (툴팁용)
-  const getAbsoluteTime = () => {
-    try {
-      return format(new Date(comment.created_at), 'yyyy년 MM월 dd일 HH:mm', { locale: ko });
-    } catch {
-      return '';
-    }
-  };
-
   return (
-    <div className={`${isReply ? 'ml-8 border-l-2 border-gray-100 pl-4' : ''}`}>
-      <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
-        {/* 헤더 */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            {/* 아바타 */}
-            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-              {comment.author_avatar ? (
-                <img
-                  src={comment.author_avatar}
-                  alt={comment.author_nickname}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <UserIcon className="w-5 h-5 text-gray-400" />
+    <div className={`py-3 border-b border-gray-100 last:border-0 ${isReply ? 'pl-8 bg-gray-50/50' : ''}`}>
+      <div className="flex items-start gap-2 group">
+        {isReply && (
+          <ArrowTurnDownRightIcon className="w-4 h-4 text-gray-300 mt-1 flex-shrink-0" />
+        )}
+        
+        <div className="flex-1 min-w-0">
+          {/* 헤더: 닉네임 / 날짜 / 메뉴 */}
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-bold text-gray-900">
+                {comment.author_nickname}
+              </span>
+              {getAuthorBadge()}
+              <span className="text-xs text-gray-400">
+                {formatDetailDate(comment.created_at)}
+              </span>
+              {comment.is_edited && (
+                <span className="text-xs text-gray-300">(수정됨)</span>
               )}
             </div>
 
-            {/* 작성자 정보 */}
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-900 text-sm">
-                  {comment.author_nickname}
-                </span>
-                {getAuthorBadge()}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span
-                  className="cursor-pointer hover:text-gray-700"
-                  title={getAbsoluteTime()}
+            {/* 메뉴 버튼 (로그인 시에만) */}
+            {user && (
+              <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-400 hover:text-gray-600"
                 >
-                  {getRelativeTime()}
-                </span>
-                {comment.is_edited && (
-                  <span className="text-gray-400">(수정됨)</span>
+                  <EllipsisHorizontalIcon className="w-4 h-4" />
+                </button>
+
+                {/* 드롭다운 메뉴 */}
+                {showMenu && (
+                  <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded shadow-lg py-1 z-10 min-w-[80px]">
+                    {canEdit && (
+                      <button
+                        onClick={() => {
+                          onEdit(comment);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <PencilIcon className="w-3 h-3" />
+                        수정
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => {
+                          onDelete(comment.id);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <TrashIcon className="w-3 h-3" />
+                        삭제
+                      </button>
+                    )}
+                    {!isOwner && (
+                      <button
+                        onClick={() => {
+                          onReport(comment);
+                          setShowMenu(false);
+                        }}
+                        className="w-full px-3 py-1.5 text-left text-xs text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+                      >
+                        <FlagIcon className="w-3 h-3" />
+                        신고
+                      </button>
+                    )}
+                  </div>
+                )}
+                
+                {/* 메뉴 닫기용 오버레이 */}
+                {showMenu && (
+                  <div
+                    className="fixed inset-0 z-0"
+                    onClick={() => setShowMenu(false)}
+                  />
                 )}
               </div>
-            </div>
+            )}
           </div>
 
-          {/* 메뉴 버튼 */}
-          {user && (
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <EllipsisVerticalIcon className="w-4 h-4 text-gray-400" />
-              </button>
+          {/* 댓글 내용 */}
+          <div className="text-sm text-gray-800 leading-relaxed break-words mb-1">
+            {comment.status === 'deleted' ? (
+              <span className="text-gray-400 italic">삭제된 댓글입니다.</span>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: comment.content_html }} />
+            )}
+          </div>
 
-              {/* 드롭다운 메뉴 */}
-              {showMenu && (
-                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-32">
-                  {canEdit && (
-                    <button
-                      onClick={() => {
-                        onEdit(comment);
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                      수정
-                    </button>
-                  )}
-                  {canDelete && (
-                    <button
-                      onClick={() => {
-                        onDelete(comment.id);
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                      삭제
-                    </button>
-                  )}
-                  {!isOwner && (
-                    <button
-                      onClick={() => {
-                        onReport(comment);
-                        setShowMenu(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-orange-600 hover:bg-orange-50 flex items-center gap-2"
-                    >
-                      <FlagIcon className="w-4 h-4" />
-                      신고
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* 댓글 내용 */}
-        <div className="mb-3">
-          {comment.status === 'deleted' ? (
-            <p className="text-gray-500 italic">삭제된 댓글입니다.</p>
-          ) : (
-            <div
-              className="text-gray-800 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: comment.content_html }}
-            />
-          )}
-        </div>
-
-        {/* 액션 버튼들 */}
-        {comment.status !== 'deleted' && user && (
-          <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
-            {/* 좋아요 버튼 */}
-            <button
-              onClick={() => onLike(comment.id)}
-              className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm transition-colors ${
-                comment.user_liked
-                  ? 'text-red-500 bg-red-50 hover:bg-red-100'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {comment.user_liked ? (
-                <HeartSolidIcon className="w-4 h-4" />
-              ) : (
-                <HeartIcon className="w-4 h-4" />
-              )}
-              <span>{comment.like_count}</span>
-            </button>
-
-            {/* 답글 버튼 */}
-            {!isReply && (
+          {/* 답글 버튼 등 */}
+          {comment.status !== 'deleted' && !isReply && user && (
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => onReply(comment.id)}
-                className="flex items-center gap-1 px-2 py-1 rounded-full text-sm text-gray-500 hover:bg-gray-100 transition-colors"
+                className="text-xs text-gray-400 hover:text-gray-600 hover:underline"
               >
-                <ChatBubbleLeftIcon className="w-4 h-4" />
-                <span>답글</span>
+                답글쓰기
               </button>
-            )}
-
-            {/* 답글 보기/숨기기 버튼 */}
-            {!isReply && comment.reply_count > 0 && onToggleReplies && (
-              <button
-                onClick={() => onToggleReplies(comment.id)}
-                className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                {showReplies ? '답글 숨기기' : `답글 ${comment.reply_count}개 보기`}
-              </button>
-            )}
-          </div>
-        )}
+              
+              {comment.reply_count > 0 && onToggleReplies && (
+                <>
+                  <span className="text-[10px] text-gray-300">|</span>
+                  <button
+                    onClick={() => onToggleReplies(comment.id)}
+                    className="text-xs text-primary-600 hover:text-primary-700"
+                  >
+                    {showReplies ? '답글 접기' : `답글 ${comment.reply_count}개 보기`}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 답글들 */}
       {children && (
-        <div className="mt-3">
+        <div className="mt-1">
           {children}
         </div>
-      )}
-
-      {/* 메뉴 닫기용 오버레이 */}
-      {showMenu && (
-        <div
-          className="fixed inset-0 z-5"
-          onClick={() => setShowMenu(false)}
-        />
       )}
     </div>
   );

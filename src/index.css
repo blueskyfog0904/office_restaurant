@@ -1,24 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --color-primary: #FACC15;
-  --color-primary-dark: #EAB308;
+  --color-primary: #1B365D; /* Navy Blue */
+  --color-primary-light: #2C4A7C;
+  --color-primary-dark: #10223A;
+  --color-secondary: #D69E2E; /* Gold/Amber */
   --color-text-main: #111827;
   --color-text-sub: #6B7280;
   --color-card-bg: #FFFFFF;
-  --color-border: #E5E7EB;
-  --shadow-soft: 0 6px 16px rgba(15, 23, 42, 0.16);
+  --color-border: #E2E8F0;
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #F8FAFC;
+  color: var(--color-text-main);
 }
 
 code {
@@ -26,7 +33,64 @@ code {
     monospace;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
 .restaurant-marker {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restaurant-marker__pin {
+  width: 12px;
+  height: 12px;
+  background: #F59E0B;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.restaurant-marker__icon {
+  display: none;
+}
+
+.restaurant-marker--hover .restaurant-marker__pin,
+.restaurant-marker--selected .restaurant-marker__pin {
+  background: #F59E0B;
+  transform: scale(1.2);
+  box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
+  z-index: 10;
+}
+
+.restaurant-marker--dimmed .restaurant-marker__pin {
+  opacity: 0.5;
+  box-shadow: none;
+  background: #94A3B8;
+}
+
+/* 내 위치 마커 (빨간색) */
+.user-location-marker {
   position: relative;
   width: 40px;
   height: 40px;
@@ -36,70 +100,66 @@ code {
   justify-content: center;
 }
 
-.restaurant-marker__pin {
-  width: 24px;
-  height: 24px;
-  background: var(--color-primary);
+.user-location-marker__pin {
+  width: 32px;
+  height: 32px;
+  background: #DC2626;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
-  border: 2px solid #FFFFFF;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+  border: 3px solid #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: user-marker-pulse 2s infinite;
 }
 
-.restaurant-marker__icon {
+.user-location-marker__icon {
   transform: rotate(45deg);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1;
 }
 
-.restaurant-marker--hover .restaurant-marker__pin,
-.restaurant-marker--selected .restaurant-marker__pin {
-  background: var(--color-primary-dark);
-  transform: rotate(-45deg) scale(1.06);
-  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.35);
-}
-
-.restaurant-marker--dimmed .restaurant-marker__pin {
-  opacity: 0.5;
-  box-shadow: none;
+@keyframes user-marker-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.8);
+  }
 }
 
 .restaurant-card {
-  min-width: 200px;
-  max-width: 260px;
-  background: var(--color-card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-soft);
-  padding: 8px 10px;
-  color: var(--color-text-main);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
-    "Noto Sans KR", sans-serif;
+  min-width: auto;
+  max-width: 200px;
+  background: #FFFFFF;
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 6px 12px;
+  color: #333333;
+  font-family: 'Noto Sans KR', sans-serif;
   position: relative;
-  margin-bottom: -10px;
+  margin-bottom: 8px;
   transform: translateY(-100%);
+  transition: all 0.2s ease;
+}
+
+.restaurant-card:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(calc(-100% - 2px));
 }
 
 .restaurant-card::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  border-width: 8px 8px 0 8px;
-  border-style: solid;
-  border-color: var(--color-card-bg) transparent transparent transparent;
+  display: none;
 }
 
 .restaurant-card__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
 .restaurant-card__title-wrap {
@@ -112,96 +172,126 @@ code {
 .restaurant-card__category-dot {
   width: 8px;
   height: 8px;
-  border-radius: 999px;
-  background: var(--color-primary);
+  border-radius: 50%;
+  background: #F59E0B;
   flex-shrink: 0;
 }
 
 .restaurant-card__title {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-main);
+  font-size: 13px;
+  font-weight: 500;
+  color: #333333;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.02em;
 }
 
 .restaurant-card__badge {
   font-size: 11px;
-  color: var(--color-text-sub);
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: rgba(250, 204, 21, 0.16);
+  font-weight: 400;
+  color: #666666;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
   white-space: nowrap;
 }
 
 .restaurant-card__meta {
-  margin: 2px 0 8px;
+  margin: 4px 0 12px;
   font-size: 12px;
   color: var(--color-text-sub);
+  font-weight: 400;
 }
 
 .restaurant-card__actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .restaurant-card__action-btn {
   flex: 1;
-  height: 30px;
-  border-radius: 999px;
+  height: 32px;
+  border-radius: 8px;
   border: none;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   background: var(--color-primary);
-  color: #111827;
+  color: #FFFFFF;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+  transition: all 0.2s ease;
 }
 
 .restaurant-card__action-btn--ghost {
-  background: #F9FAFB;
+  background: #F8FAFC;
   color: var(--color-text-main);
   border: 1px solid var(--color-border);
 }
 
 .restaurant-card__action-btn:hover {
-  background: var(--color-primary-dark);
-  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.25);
+  background: var(--color-primary-light);
+  box-shadow: 0 4px 12px rgba(27, 54, 93, 0.2);
+  transform: translateY(-1px);
 }
 
 .restaurant-card__action-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .restaurant-card__action-btn--ghost:hover {
-  background: #E5E7EB;
+  background: #F1F5F9;
+  border-color: #CBD5E1;
 }
 
 .restaurant-card--selected {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #FFFFFF;
+  border: none;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
 }
 
 .restaurant-card--selected::after {
-  border-color: #2563eb transparent transparent transparent;
+  display: none;
 }
 
 .restaurant-card--selected .restaurant-card__title {
-  color: #FFFFFF;
+  color: #333333;
+  font-weight: 600;
+}
+
+.restaurant-card--selected .restaurant-card__meta {
+  color: #666666;
 }
 
 .restaurant-card--selected .restaurant-card__badge {
-  color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.2);
+  color: #666666;
+  background: transparent;
 }
 
 .restaurant-card--selected .restaurant-card__category-dot {
-  background: #FFFFFF;
+  background: #F59E0B;
+}
+
+.restaurant-card--selected .restaurant-card__action-btn {
+  background: #F59E0B;
+  color: #FFFFFF;
+}
+
+.restaurant-card--selected .restaurant-card__action-btn:hover {
+  background: #D97706;
+}
+
+.restaurant-card--selected .restaurant-card__action-btn--ghost {
+  background: transparent;
+  border-color: #E5E7EB;
+  color: #333333;
+}
+
+.restaurant-card--selected .restaurant-card__action-btn--ghost:hover {
+  background: #F3F4F6;
 }

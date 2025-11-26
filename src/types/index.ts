@@ -146,6 +146,9 @@ export interface UserReview {
   created_at: string;
   updated_at: string;
   user?: User;
+  like_count?: number;
+  dislike_count?: number;
+  reply_count?: number;
 }
 
 export interface UserReviewCreateRequest {
@@ -164,6 +167,62 @@ export interface RestaurantReviewSummary {
   average_rating?: number;
   rating_distribution: Record<string, number>;
   recent_reviews: UserReview[];
+}
+
+// ===================================
+// 리뷰 사진 관련 타입
+// ===================================
+
+export interface ReviewPhoto {
+  id: string;
+  review_id: string;
+  user_id: string;
+  photo_url: string;
+  storage_path: string;
+  file_size?: number;
+  display_order: number;
+  created_at: string;
+}
+
+export interface ReviewPhotoUploadResult {
+  id: string;
+  photo_url: string;
+  storage_path: string;
+  file_size: number;
+}
+
+export interface UserReviewWithPhotos extends UserReview {
+  photos?: ReviewPhoto[];
+}
+
+// ===================================
+// 리뷰 반응 관련 타입
+// ===================================
+
+export interface ReviewReaction {
+  id: string;
+  review_id: string;
+  user_id: string;
+  reaction_type: 'like' | 'dislike';
+  created_at: string;
+}
+
+// ===================================
+// 리뷰 답글 관련 타입
+// ===================================
+
+export interface ReviewReply {
+  id: string;
+  review_id: string;
+  parent_id?: string;
+  user_id: string;
+  content: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+  nickname?: string;
+  avatar_url?: string;
+  replies?: ReviewReply[];
 }
 
 // ===================================

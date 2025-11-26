@@ -8,6 +8,8 @@ export interface Post {
   board_type: 'notice' | 'free' | 'suggestion';
   view_count: number;
   like_count: number;
+  dislike_count: number;
+  comment_count: number;
   is_pinned: boolean;
   status?: 'pending' | 'in_progress' | 'completed' | 'rejected';
   is_active: boolean;
@@ -17,6 +19,7 @@ export interface Post {
     nickname: string;
     email: string;
   };
+  user_reaction?: 'like' | 'dislike' | null;
 }
 
 export interface PostCreateRequest {
@@ -255,13 +258,101 @@ export const getPostById = async (id: string): Promise<Post> => {
     .eq('user_id', data.author_id)
     .single();
 
+  // 로그인한 경우 사용자의 반응 조회
+  let userReaction: 'like' | 'dislike' | null = null;
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    const { data: reaction } = await supabase
+      .from('post_reactions')
+      .select('reaction_type')
+      .eq('post_id', id)
+      .eq('user_id', user.id)
+      .single();
+    
+    if (reaction) {
+      userReaction = reaction.reaction_type as 'like' | 'dislike';
+    }
+  }
+
   return {
     ...data,
-    author: profile || { nickname: '알 수 없음', email: '' }
+    author: profile || { nickname: '알 수 없음', email: '' },
+    user_reaction: userReaction
   };
 };
 
-// 마지막 게시글 작성 시간 확인
+// 게시글 반응 토글 (좋아요/비공감)
+export const togglePostReaction = async (id: string, type: 'like' | 'dislike'): Promise<{ like_count: number; dislike_count: number; user_reaction: 'like' | 'dislike' | null }> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    throw new Error('로그인이 필요합니다.');
+  }
+
+  // 기존 반응 조회
+  const { data: existingReaction } = await supabase
+    .from('post_reactions')
+    .select('*')
+    .eq('post_id', id)
+    .eq('user_id', user.id)
+    .single();
+
+  if (existingReaction) {
+    if (existingReaction.reaction_type === type) {
+      // 같은 반응이면 삭제 (취소)
+      await supabase
+        .from('post_reactions')
+        .delete()
+        .eq('id', existingReaction.id);
+    } else {
+      // 다른 반응이면 업데이트
+      await supabase
+        .from('post_reactions')
+        .update({ reaction_type: type })
+        .eq('id', existingReaction.id);
+    }
+  } else {
+    // 반응이 없으면 생성
+    await supabase
+      .from('post_reactions')
+      .insert({
+        post_id: id,
+        user_id: user.id,
+        reaction_type: type
+      });
+  }
+
+  // 업데이트된 카운트 조회
+  const { data: updatedPost, error } = await supabase
+    .from('posts')
+    .select('like_count, dislike_count')
+    .eq('id', id)
+    .single();
+
+  if (error || !updatedPost) {
+    throw new Error('반응 업데이트 후 조회 실패');
+  }
+
+  // 업데이트된 사용자 반응 상태 결정
+  let newUserReaction: 'like' | 'dislike' | null = null;
+  if (existingReaction) {
+    newUserReaction = existingReaction.reaction_type === type ? null : type;
+  } else {
+    newUserReaction = type;
+  }
+
+  return {
+    like_count: updatedPost.like_count,
+    dislike_count: updatedPost.dislike_count,
+    user_reaction: newUserReaction
+  };
+};
+
+// 게시글 좋아요 토글 (Deprecated: togglePostReaction 사용 권장)
+export const toggleLike = async (id: string): Promise<void> => {
+  await togglePostReaction(id, 'like');
+};
 export const checkPostCooldown = async (): Promise<{ canPost: boolean; remainingTime?: number }> => {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -410,37 +501,6 @@ export const deletePost = async (id: string): Promise<void> => {
   }
 };
 
-// 게시글 좋아요 토글
-export const toggleLike = async (id: string): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error('로그인이 필요합니다.');
-  }
-
-  // 먼저 현재 좋아요 수를 가져옴
-  const { data: currentPost, error: fetchError } = await supabase
-    .from('posts')
-    .select('like_count')
-    .eq('id', id)
-    .single();
-
-  if (fetchError) {
-    throw new Error(`좋아요 실패: ${fetchError.message}`);
-  }
-
-  // 좋아요 수 증가
-  const { error } = await supabase
-    .from('posts')
-    .update({ 
-      like_count: (currentPost.like_count || 0) + 1 
-    })
-    .eq('id', id);
-
-  if (error) {
-    throw new Error(`좋아요 실패: ${error.message}`);
-  }
-};
 
 // 관리자용 게시글 관리
 export const adminUpdatePost = async (id: string, postData: PostUpdateRequest): Promise<Post> => {

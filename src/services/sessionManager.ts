@@ -1,6 +1,11 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 
+const isLocalhost = () => {
+  return typeof window !== 'undefined' && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+};
+
 const REFRESH_TIMEOUT_MS = 10000;
 const GET_SESSION_TIMEOUT_MS = 5000;
 const OFFLINE_ERROR_MESSAGE = 'OFFLINE';
@@ -165,6 +170,11 @@ export const executeWithSession = async <T>(
   operation: () => Promise<T>,
   context?: string
 ): Promise<T> => {
+  // localhost 환경에서는 세션 체크 우회
+  if (isLocalhost()) {
+    return await operation();
+  }
+
   const session = await ensureSession();
 
   if (!session) {

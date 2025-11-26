@@ -561,22 +561,30 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       const userPos = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
       bounds.extend(userPos);
 
-      const marker = new kakao.maps.Marker({
+      // 내 위치 마커 (빨간색)
+      const userMarkerWrapper = document.createElement('div');
+      userMarkerWrapper.className = 'user-location-marker';
+      userMarkerWrapper.innerHTML = `
+        <div class="user-location-marker__pin">
+          <span class="user-location-marker__icon">📍</span>
+        </div>
+      `;
+      
+      const userMarkerOverlay = new kakao.maps.CustomOverlay({
         position: userPos,
+        yAnchor: 1.0,
+        xAnchor: 0.5,
+        content: userMarkerWrapper,
         zIndex: 1000,
-        image: new kakao.maps.MarkerImage(
-          'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-          new kakao.maps.Size(24, 35)
-        )
       });
-      marker.setMap(map);
-      mapMarkersRef.current.push(marker);
+      userMarkerOverlay.setMap(map);
+      overlaysRef.current.push(userMarkerOverlay);
 
       if (userLocation.label) {
         const overlay = new kakao.maps.CustomOverlay({
           position: userPos,
           yAnchor: 1.6,
-          content: `<div style="padding:4px 8px;background:#2563eb;color:white;border-radius:8px;font-size:12px;">${userLocation.label}</div>`
+          content: `<div style="padding:4px 8px;background:#DC2626;color:white;border-radius:8px;font-size:12px;font-weight:600;box-shadow:0 2px 6px rgba(220,38,38,0.3);">${userLocation.label}</div>`
         });
         overlay.setMap(map);
         overlay.setZIndex(1300);

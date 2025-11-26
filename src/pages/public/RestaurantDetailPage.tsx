@@ -8,7 +8,12 @@ import {
   ArrowLeftIcon,
   ShareIcon,
   HeartIcon,
-  ClipboardDocumentIcon
+  ClipboardDocumentIcon,
+  PhotoIcon,
+  TrashIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { 
@@ -24,15 +29,30 @@ import {
   RestaurantWithStats, 
   UserReview, 
   RestaurantReviewSummary, 
-  UserReviewCreateRequest 
+  UserReviewCreateRequest,
+  ReviewPhoto,
+  ReviewReply,
+  ReviewReaction
 } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import KakaoMap from '../../components/KakaoMap';
 import ShareModal from '../../components/ShareModal';
 import RestaurantPhotoGallery from '../../components/RestaurantPhotoGallery';
+import ReviewPhotoUploader from '../../components/ReviewPhotoUploader';
+import ReviewReactionButtons from '../../components/ReviewReactionButtons';
+import ReviewReplySection from '../../components/ReviewReplySection';
 import { ShareData } from '../../utils/socialShare';
 import { addToRecentHistory, isFavorite, addToFavorites, removeFromFavorites } from '../../utils/favorites';
 import { supabase } from '../../services/supabaseClient';
+import { 
+  uploadReviewPhotos, 
+  getReviewPhotos, 
+  deleteReviewPhoto,
+  PendingPhoto 
+} from '../../services/reviewPhotoService';
+import { getMyReactionsForReviews } from '../../services/reviewReactionService';
+import { getRepliesForReviews } from '../../services/reviewReplyService';
+import { revokePreviewUrl } from '../../utils/imageCompressor';
 
 const RestaurantDetailPage: React.FC = () => {
   const { subAdd1, subAdd2, title, id } = useParams<{ 
@@ -60,11 +80,25 @@ const RestaurantDetailPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(0); // 강제 리렌더링용
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
+  const [photoUploadProgress, setPhotoUploadProgress] = useState({ current: 0, total: 0 });
+  
+  // 리뷰별 사진 캐시
+  const [reviewPhotosMap, setReviewPhotosMap] = useState<Record<string, ReviewPhoto[]>>({});
+
+  // 리뷰별 반응/답글 캐시
+  const [reviewReactionsMap, setReviewReactionsMap] = useState<Record<string, ReviewReaction>>({});
+  const [reviewRepliesMap, setReviewRepliesMap] = useState<Record<string, ReviewReply[]>>({});
 
   // 소셜 공유 모달 상태
   const [showShareModal, setShowShareModal] = useState(false);
   const [isFavoriteRestaurant, setIsFavoriteRestaurant] = useState(false);
   const [shouldLoadMap, setShouldLoadMap] = useState(false);
+
+  // 리뷰 사진 모달 상태
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
+  const [photoModalImages, setPhotoModalImages] = useState<ReviewPhoto[]>([]);
+  const [photoModalIndex, setPhotoModalIndex] = useState(0);
 
   // 사용자가 이미 리뷰를 작성했는지 확인
   const checkUserReview = () => {
@@ -229,6 +263,34 @@ const RestaurantDetailPage: React.FC = () => {
       setReviewsLoading(true);
       const reviewsData = await getRestaurantReviews(restaurantId, 1, 10);
       setReviews(reviewsData.data);
+      
+      // 각 리뷰의 사진도 로드
+      const photosPromises = reviewsData.data.map(async (review) => {
+        try {
+          const photos = await getReviewPhotos(review.id);
+          return { reviewId: review.id, photos };
+        } catch {
+          return { reviewId: review.id, photos: [] };
+        }
+      });
+      
+      const photosResults = await Promise.all(photosPromises);
+      const photosMap: Record<string, ReviewPhoto[]> = {};
+      photosResults.forEach(({ reviewId, photos }) => {
+        photosMap[reviewId] = photos;
+      });
+      setReviewPhotosMap(photosMap);
+
+      // 리뷰 반응 및 답글 로드
+      const reviewIds = reviewsData.data.map(r => r.id);
+      if (reviewIds.length > 0) {
+        const [reactionsMap, repliesMap] = await Promise.all([
+          getMyReactionsForReviews(reviewIds),
+          getRepliesForReviews(reviewIds),
+        ]);
+        setReviewReactionsMap(reactionsMap);
+        setReviewRepliesMap(repliesMap);
+      }
     } catch (error) {
       console.error('리뷰 로드 실패:', error);
     } finally {
@@ -263,7 +325,25 @@ const RestaurantDetailPage: React.FC = () => {
         content: reviewContent.trim() || undefined
       };
 
-      await createReview(reviewData);
+      const createdReview = await createReview(reviewData);
+      
+      // 사진 업로드
+      if (pendingPhotos.length > 0 && createdReview?.id) {
+        setPhotoUploadProgress({ current: 0, total: pendingPhotos.length });
+        try {
+          await uploadReviewPhotos(
+            createdReview.id,
+            pendingPhotos.map(p => p.compressed.file),
+            (current, total) => setPhotoUploadProgress({ current, total })
+          );
+        } catch (photoError) {
+          console.error('사진 업로드 실패:', photoError);
+          alert('리뷰는 작성되었지만 일부 사진 업로드에 실패했습니다.');
+        }
+      }
+      
+      // 미리보기 URL 정리
+      pendingPhotos.forEach(p => revokePreviewUrl(p.preview));
       
       // 성공 후 즉시 사용자 리뷰 작성 여부를 true로 설정
       setHasUserReviewed(true);
@@ -271,6 +351,8 @@ const RestaurantDetailPage: React.FC = () => {
       // 폼 초기화
       setReviewContent('');
       setReviewRating(5);
+      setPendingPhotos([]);
+      setPhotoUploadProgress({ current: 0, total: 0 });
       
       // 리뷰 목록과 요약 새로고침
       await Promise.all([
@@ -301,6 +383,59 @@ const RestaurantDetailPage: React.FC = () => {
       setSubmitting(false);
     }
   };
+  
+  // 리뷰 사진 삭제
+  const handleDeleteReviewPhoto = async (photoId: string, reviewId: string) => {
+    if (!window.confirm('이 사진을 삭제하시겠습니까?')) return;
+    
+    try {
+      await deleteReviewPhoto(photoId);
+      // 해당 리뷰의 사진 목록 업데이트
+      setReviewPhotosMap(prev => ({
+        ...prev,
+        [reviewId]: prev[reviewId]?.filter(p => p.id !== photoId) || []
+      }));
+    } catch (error) {
+      console.error('사진 삭제 실패:', error);
+      alert('사진 삭제에 실패했습니다.');
+    }
+  };
+
+  // 리뷰 사진 모달 열기
+  const openPhotoModal = (photos: ReviewPhoto[], index: number) => {
+    setPhotoModalImages(photos);
+    setPhotoModalIndex(index);
+    setPhotoModalOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
+  // 리뷰 사진 모달 닫기
+  const closePhotoModal = () => {
+    setPhotoModalOpen(false);
+    document.body.style.overflow = 'unset';
+  };
+
+  // 이전 사진
+  const goToPrevPhoto = () => {
+    setPhotoModalIndex(prev => (prev > 0 ? prev - 1 : photoModalImages.length - 1));
+  };
+
+  // 다음 사진
+  const goToNextPhoto = () => {
+    setPhotoModalIndex(prev => (prev < photoModalImages.length - 1 ? prev + 1 : 0));
+  };
+
+  // 키보드 이벤트 처리
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!photoModalOpen) return;
+      if (e.key === 'Escape') closePhotoModal();
+      if (e.key === 'ArrowLeft') goToPrevPhoto();
+      if (e.key === 'ArrowRight') goToNextPhoto();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [photoModalOpen, photoModalImages.length]);
 
   // 별점 렌더링 함수
   const renderStars = (rating: number, size: 'sm' | 'md' | 'lg' = 'md') => {
@@ -684,20 +819,26 @@ const RestaurantDetailPage: React.FC = () => {
           </div>
         ) : reviews.length > 0 ? (
           <div className="space-y-6">
-            {reviews.map((review) => (
+            {reviews.map((review) => {
+              // v_reviews_detailed 뷰에서 nickname 필드 사용
+              const reviewAny = review as any;
+              const displayName = reviewAny.nickname || review.user?.username || '익명';
+              const displayInitial = displayName.charAt(0) || '?';
+              
+              return (
               <div key={review.id} className="border-b border-gray-200 pb-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="h-10 w-10 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-medium">
-                          {review.user?.username?.charAt(0) || '?'}
+                          {displayInitial}
                         </span>
                       </div>
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-900">
-                        {review.user?.username || '익명'}
+                        {displayName}
                       </p>
                       <div className="flex items-center mt-1">
                         {renderStars(review.rating, 'sm')}
@@ -726,8 +867,66 @@ const RestaurantDetailPage: React.FC = () => {
                     </p>
                   )}
                 </div>
+                
+                {/* 리뷰 사진 */}
+                {reviewPhotosMap[review.id] && reviewPhotosMap[review.id].length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex flex-wrap gap-2">
+                      {reviewPhotosMap[review.id].map((photo, photoIndex) => (
+                        <div key={photo.id} className="relative group">
+                          <img
+                            src={photo.photo_url}
+                            alt="리뷰 사진"
+                            className="w-24 h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => openPhotoModal(reviewPhotosMap[review.id], photoIndex)}
+                          />
+                          {/* 본인 사진인 경우 삭제 버튼 표시 */}
+                          {user?.id === photo.user_id && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteReviewPhoto(photo.id, review.id);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                              title="사진 삭제"
+                            >
+                              <TrashIcon className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 공감/비공감 버튼 */}
+                <div className="mt-4">
+                  <ReviewReactionButtons
+                    reviewId={review.id}
+                    initialLikeCount={reviewAny.like_count || 0}
+                    initialDislikeCount={reviewAny.dislike_count || 0}
+                    userReaction={reviewReactionsMap[review.id]?.reaction_type || null}
+                    isLoggedIn={isLoggedIn}
+                  />
+                </div>
+
+                {/* 답글 섹션 */}
+                <ReviewReplySection
+                  reviewId={review.id}
+                  reviewAuthorId={review.user_id}
+                  replies={reviewRepliesMap[review.id] || []}
+                  replyCount={reviewAny.reply_count || 0}
+                  isLoggedIn={isLoggedIn}
+                  currentUserId={user?.id}
+                  onRepliesChange={(newReplies) => {
+                    setReviewRepliesMap(prev => ({
+                      ...prev,
+                      [review.id]: newReplies,
+                    }));
+                  }}
+                />
               </div>
-            ))}
+            )})}
           </div>
         ) : (
           <div className="text-center py-12">
@@ -831,6 +1030,34 @@ const RestaurantDetailPage: React.FC = () => {
               </p>
             </div>
 
+            {/* 사진 업로드 */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <PhotoIcon className="inline h-5 w-5 mr-1" />
+                사진 첨부 (선택사항, 최대 10장)
+              </label>
+              <ReviewPhotoUploader
+                maxPhotos={10}
+                onPhotosChange={setPendingPhotos}
+                disabled={submitting}
+              />
+              {photoUploadProgress.total > 0 && (
+                <div className="mt-2">
+                  <div className="text-sm text-gray-600">
+                    사진 업로드 중... ({photoUploadProgress.current}/{photoUploadProgress.total})
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <div
+                      className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(photoUploadProgress.current / photoUploadProgress.total) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* 버튼들 */}
             <div className="flex space-x-3">
               <button
@@ -861,6 +1088,83 @@ const RestaurantDetailPage: React.FC = () => {
         onClose={() => setShowShareModal(false)}
         shareData={getShareData()}
       />
+
+      {/* 리뷰 사진 모달 */}
+      {photoModalOpen && photoModalImages.length > 0 && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={closePhotoModal}
+        >
+          {/* 닫기 버튼 */}
+          <button
+            onClick={closePhotoModal}
+            className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 transition-colors z-10"
+            aria-label="닫기"
+          >
+            <XMarkIcon className="h-8 w-8" />
+          </button>
+
+          {/* 사진 카운터 */}
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+            {photoModalIndex + 1} / {photoModalImages.length}
+          </div>
+
+          {/* 이전 버튼 */}
+          {photoModalImages.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goToPrevPhoto(); }}
+              className="absolute left-4 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full transition-colors"
+              aria-label="이전 사진"
+            >
+              <ChevronLeftIcon className="h-8 w-8" />
+            </button>
+          )}
+
+          {/* 메인 이미지 */}
+          <div 
+            className="max-w-[90vw] max-h-[85vh] flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={photoModalImages[photoModalIndex].photo_url}
+              alt={`리뷰 사진 ${photoModalIndex + 1}`}
+              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+            />
+          </div>
+
+          {/* 다음 버튼 */}
+          {photoModalImages.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goToNextPhoto(); }}
+              className="absolute right-4 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full transition-colors"
+              aria-label="다음 사진"
+            >
+              <ChevronRightIcon className="h-8 w-8" />
+            </button>
+          )}
+
+          {/* 썸네일 네비게이션 */}
+          {photoModalImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+              {photoModalImages.map((photo, idx) => (
+                <button
+                  key={photo.id}
+                  onClick={(e) => { e.stopPropagation(); setPhotoModalIndex(idx); }}
+                  className={`w-12 h-12 rounded overflow-hidden border-2 transition-all ${
+                    idx === photoModalIndex ? 'border-white scale-110' : 'border-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={photo.photo_url}
+                    alt={`썸네일 ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

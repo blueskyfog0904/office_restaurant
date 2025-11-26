@@ -3,6 +3,10 @@ import { useEffect, useRef, useCallback } from 'react';
 const ACTIVITY_STORAGE_KEY = 'lastActivityTime';
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10분 (밀리초)
 
+const isLocalhost = () => {
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+};
+
 export const useActivityTracker = (onInactive: () => void) => {
   const timeoutRef = useRef<number | null>(null);
   const onInactiveRef = useRef(onInactive);
@@ -49,6 +53,11 @@ export const useActivityTracker = (onInactive: () => void) => {
   }, []);
 
   useEffect(() => {
+    // localhost 환경에서는 activity tracking 비활성화
+    if (isLocalhost()) {
+      return () => {};
+    }
+
     const lastActivity = localStorage.getItem(ACTIVITY_STORAGE_KEY);
     if (lastActivity) {
       const timeSinceActivity = Date.now() - parseInt(lastActivity, 10);

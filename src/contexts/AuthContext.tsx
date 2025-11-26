@@ -54,6 +54,22 @@ export const useAuth = () => {
 // 단일 스토리지 키 사용 (admin/user 구분 없이 하나로 통일)
 const STORAGE_KEY = 'user';
 
+// localhost 개발 환경 체크
+const isLocalhost = () => {
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+};
+
+// localhost용 테스트 유저 (auth.users 테이블에 실제 존재하는 ID 사용)
+const LOCALHOST_TEST_USER: User = {
+  id: '11111111-1111-1111-1111-111111111111',
+  email: 'admin@test.com',
+  username: '테스트유저',
+  is_active: true,
+  is_admin: true,
+  created_at: new Date().toISOString(),
+  role: 'admin',
+};
+
 const clearStoredAuthState = () => {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -129,6 +145,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      // localhost 환경에서는 localStorage의 유저 정보 또는 기본 테스트 유저 사용
+      if (isLocalhost()) {
+        const storedUser = getStoredUser();
+        if (storedUser) {
+          console.log('🔧 localhost 환경 - 저장된 테스트 유저로 로그인:', storedUser.username);
+          setUser(storedUser);
+        } else {
+          console.log('🔧 localhost 환경 - 기본 테스트 유저로 자동 로그인');
+          setUser(LOCALHOST_TEST_USER);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(LOCALHOST_TEST_USER));
+        }
+        setIsLoading(false);
+        return;
+      }
+
       initTimeoutRef.current = window.setTimeout(() => {
         console.warn('⚠️ 인증 초기화 타임아웃, 로딩 해제');
         setIsLoading(false);
@@ -220,6 +251,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initAuth();
+    
+    // localhost 환경에서는 세션 구독 불필요
+    if (isLocalhost()) {
+      return () => {};
+    }
     
     // 세션 변경 구독: 로그인/로그아웃 등 인증 상태 변경 시 사용자 정보를 즉시 동기화
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -498,6 +534,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [refreshUser]);
 
   useEffect(() => {
+    // localhost 환경에서는 세션 자동 갱신 불필요
+    if (isLocalhost()) {
+      return () => {};
+    }
+
     supabase.auth.startAutoRefresh();
 
     const handleVisibility = () => {

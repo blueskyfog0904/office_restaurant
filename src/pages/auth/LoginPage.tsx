@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginWithKakao } from '../../services/kakaoAuthService';
 
+const isLocalhost = () => {
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+};
+
 const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // localhost 테스트 로그인용 상태
+  const [testEmail, setTestEmail] = useState('test@localhost.dev');
+  const [testUsername, setTestUsername] = useState('테스트유저');
+  const [isAdmin, setIsAdmin] = useState(true);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,6 +32,21 @@ const LoginPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // localhost 테스트 로그인
+  const handleTestLogin = () => {
+    const testUser = {
+      id: '00000000-0000-0000-0000-000000000000',
+      email: testEmail,
+      username: testUsername,
+      is_active: true,
+      is_admin: isAdmin,
+      created_at: new Date().toISOString(),
+      role: isAdmin ? 'admin' : 'user',
+    };
+    localStorage.setItem('user', JSON.stringify(testUser));
+    window.location.href = from || '/';
   };
 
   return (
@@ -60,6 +84,54 @@ const LoginPage: React.FC = () => {
                 <div className="ml-3">
                   <p className="text-sm">{error}</p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* localhost 테스트 로그인 */}
+          {isLocalhost() && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+              <h3 className="text-sm font-semibold text-orange-800 mb-3">
+                🔧 개발자 테스트 로그인 (localhost only)
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">이메일</label>
+                  <input
+                    type="email"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">닉네임</label>
+                  <input
+                    type="text"
+                    value={testUsername}
+                    onChange={(e) => setTestUsername(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isAdmin"
+                    checked={isAdmin}
+                    onChange={(e) => setIsAdmin(e.target.checked)}
+                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isAdmin" className="ml-2 text-sm text-gray-700">
+                    관리자 권한
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTestLogin}
+                  className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-md transition-colors"
+                >
+                  테스트 로그인
+                </button>
               </div>
             </div>
           )}

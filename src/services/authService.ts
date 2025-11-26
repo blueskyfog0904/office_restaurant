@@ -1,5 +1,5 @@
 import { getErrorMessage } from './api';
-import { supabase } from './supabaseClient';
+import { supabase, getSupabaseAdmin } from './supabaseClient';
 import {
   AuthResponse,
   LoginRequest,
@@ -12,6 +12,16 @@ import {
   Region,
 } from '../types';
 import { ensureSession, executeWithSession } from './sessionManager';
+
+const isLocalhost = () => {
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+};
+
+// auth.users 테이블에 실제 존재하는 테스트 유저 ID
+const LOCALHOST_USER_ID = '11111111-1111-1111-1111-111111111111';
+
+// localhost에서 사용할 클라이언트 (Service Role Key로 RLS 우회)
+const getClient = () => isLocalhost() ? getSupabaseAdmin() : supabase;
 
 // ===================================
 // 인증 관련 API
@@ -1063,29 +1073,39 @@ export const getRestaurantReviewSummary = async (
 export const createReview = async (
   reviewData: import('../types').UserReviewCreateRequest
 ): Promise<import('../types').UserReview> => {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError) throw new Error(getErrorMessage(userError));
-  const userId = userData.user?.id;
-  if (!userId) throw new Error('로그인이 필요합니다.');
-
-  // 사용자가 이미 이 음식점에 리뷰를 작성했는지 확인
-  const { data: existingReview, error: checkError } = await supabase
-    .from('reviews')
-    .select('id')
-    .eq('restaurant_id', reviewData.restaurant_id)
-    .eq('user_id', userId)
-    .single();
-
-  if (checkError && checkError.code !== 'PGRST116') {
-    // PGRST116는 결과가 없는 경우이므로 무시
-    throw new Error(getErrorMessage(checkError));
+  let userId: string;
+  
+  if (isLocalhost()) {
+    userId = LOCALHOST_USER_ID;
+  } else {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) throw new Error(getErrorMessage(userError));
+    userId = userData.user?.id || '';
+    if (!userId) throw new Error('로그인이 필요합니다.');
   }
 
-  if (existingReview) {
-    throw new Error('이미 이 음식점에 리뷰를 작성하셨습니다.');
+  // localhost가 아닌 경우에만 중복 리뷰 체크
+  if (!isLocalhost()) {
+    const { data: existingReview, error: checkError } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('restaurant_id', reviewData.restaurant_id)
+      .eq('user_id', userId)
+      .single();
+
+    if (checkError && checkError.code !== 'PGRST116') {
+      throw new Error(getErrorMessage(checkError));
+    }
+
+    if (existingReview) {
+      throw new Error('이미 이 음식점에 리뷰를 작성하셨습니다.');
+    }
   }
 
-  const { data, error } = await supabase
+  // localhost에서는 admin client 사용 (RLS 우회)
+  const client = getClient();
+  
+  const { data, error } = await client
     .from('reviews')
     .insert({
       restaurant_id: reviewData.restaurant_id,
@@ -1097,7 +1117,6 @@ export const createReview = async (
     .single();
     
   if (error) {
-    // 데이터베이스 제약 조건 위반 시 중복 리뷰 에러로 처리
     if (error.code === '23505' && error.message.includes('reviews_user_restaurant_unique')) {
       throw new Error('이미 이 음식점에 리뷰를 작성하셨습니다.');
     }
