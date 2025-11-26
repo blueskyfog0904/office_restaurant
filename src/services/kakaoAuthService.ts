@@ -372,13 +372,29 @@ export const removeFavorite = async (favoriteId: string): Promise<void> => {
 };
 
 const exchangeKakaoToken = async (kakaoAccessToken: string): Promise<KakaoSessionResponse> => {
-  const { data, error } = await supabase.functions.invoke('kakao-login', {
-    body: { access_token: kakaoAccessToken },
-  });
-
-  if (error || !data) {
-    throw new Error(error?.message || '카카오 로그인 연동 실패');
+  // Edge Function은 verify_jwt: true이므로 anon key를 직접 포함하여 호출
+  const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+  const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase 환경 변수가 설정되지 않았습니다.');
   }
 
+  const response = await fetch(`${supabaseUrl}/functions/v1/kakao-login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+    },
+    body: JSON.stringify({ access_token: kakaoAccessToken }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.error || `카카오 로그인 연동 실패 (${response.status})`);
+  }
+
+  const data = await response.json();
   return data as KakaoSessionResponse;
 };
