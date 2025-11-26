@@ -6,8 +6,10 @@ const isLocalhost = () => {
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 };
 
-const REFRESH_TIMEOUT_MS = 10000;
-const GET_SESSION_TIMEOUT_MS = 5000;
+const REFRESH_TIMEOUT_MS = 15000;
+const GET_SESSION_TIMEOUT_MS = 10000;
+const MAX_RETRY_COUNT = 2;
+const RETRY_DELAY_MS = 1000;
 const OFFLINE_ERROR_MESSAGE = 'OFFLINE';
 const AUTH_ERROR_KEYWORDS = ['jwt', 'expired', 'invalid', 'session', 'token', 'auth', '401'];
 
@@ -77,7 +79,9 @@ const withTimeout = <T>(
 type RefreshResponse = Awaited<ReturnType<typeof supabase.auth.refreshSession>>;
 type GetSessionResponse = Awaited<ReturnType<typeof supabase.auth.getSession>>;
 
-const runRefresh = async (): Promise<Session | null> => {
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const runRefreshWithRetry = async (retryCount = 0): Promise<Session | null> => {
   try {
     const result = await withTimeout<RefreshResponse>(
       supabase.auth.refreshSession(),
@@ -90,12 +94,25 @@ const runRefresh = async (): Promise<Session | null> => {
     }
 
     return result.data.session ?? null;
+  } catch (error) {
+    if (error instanceof SessionRefreshTimeoutError && retryCount < MAX_RETRY_COUNT) {
+      console.warn(`세션 갱신 타임아웃, 재시도 중... (${retryCount + 1}/${MAX_RETRY_COUNT})`);
+      await delay(RETRY_DELAY_MS);
+      return runRefreshWithRetry(retryCount + 1);
+    }
+    throw error;
+  }
+};
+
+const runRefresh = async (): Promise<Session | null> => {
+  try {
+    return await runRefreshWithRetry();
   } finally {
     refreshPromise = null;
   }
 };
 
-export const ensureSession = async (): Promise<Session | null> => {
+const getSessionWithRetry = async (retryCount = 0): Promise<Session | null> => {
   try {
     const { data, error } = await withTimeout<GetSessionResponse>(
       supabase.auth.getSession(),
@@ -110,16 +127,33 @@ export const ensureSession = async (): Promise<Session | null> => {
     if (error) {
       console.warn('supabase.auth.getSession 실패:', error.message ?? error);
     }
+    
+    return null;
   } catch (error) {
     if (error instanceof SessionGetTimeoutError) {
-      console.warn('Supabase 세션 조회 타임아웃 발생');
+      console.warn(`Supabase 세션 조회 타임아웃 발생 (시도 ${retryCount + 1}/${MAX_RETRY_COUNT + 1})`);
+      
+      if (retryCount < MAX_RETRY_COUNT) {
+        await delay(RETRY_DELAY_MS);
+        return getSessionWithRetry(retryCount + 1);
+      }
     } else if (!(error instanceof OfflineError)) {
       console.error('Supabase 세션 조회 중 알 수 없는 오류:', error);
     }
+    
+    return null;
   }
+};
 
+export const ensureSession = async (): Promise<Session | null> => {
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
     throw new OfflineError();
+  }
+
+  const session = await getSessionWithRetry();
+  
+  if (session) {
+    return session;
   }
 
   if (!refreshPromise) {
