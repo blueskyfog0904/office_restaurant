@@ -1,12 +1,15 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 
-const isLocalhost = () => {
-  return typeof window !== 'undefined' && 
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-};
-
+const REFRESH_TIMEOUT_MS = 10000;
 const OFFLINE_ERROR_MESSAGE = 'OFFLINE';
+
+class SessionRefreshTimeoutError extends Error {
+  constructor() {
+    super('SESSION_REFRESH_TIMEOUT');
+    this.name = 'SessionRefreshTimeoutError';
+  }
+}
 
 class OfflineError extends Error {
   constructor() {
@@ -15,62 +18,65 @@ class OfflineError extends Error {
   }
 }
 
-export class SessionExpiredError extends Error {
-  context?: string;
+let refreshPromise: Promise<Session | null> | null = null;
 
-  constructor(context?: string) {
-    super('세션이 만료되었습니다. 다시 로그인해주세요.');
-    this.name = 'SessionExpiredError';
-    this.context = context;
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  if (!timeoutMs) {
+    return promise;
   }
-}
 
-// 단순화된 세션 상태 관리
-export const clearSessionRefreshState = () => {
-  // Supabase가 내부적으로 관리하므로 별도 상태 불필요
+  return new Promise<T>((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new SessionRefreshTimeoutError());
+    }, timeoutMs);
+
+    promise
+      .then(value => {
+        clearTimeout(timeoutId);
+        resolve(value);
+      })
+      .catch(error => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
+  });
 };
 
-// 단순화된 세션 조회 - Supabase 기본 기능 사용
-export const getSession = async (): Promise<Session | null> => {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    console.warn('세션 조회 실패:', error.message);
-    return null;
+type RefreshResponse = Awaited<ReturnType<typeof supabase.auth.refreshSession>>;
+
+const runRefresh = async (): Promise<Session | null> => {
+  try {
+    const result = await withTimeout<RefreshResponse>(
+      supabase.auth.refreshSession(),
+      REFRESH_TIMEOUT_MS
+    );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return result.data.session ?? null;
+  } finally {
+    refreshPromise = null;
   }
-  return data.session;
 };
 
-// 하위 호환성을 위한 ensureSession (단순화)
 export const ensureSession = async (): Promise<Session | null> => {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (!error && data.session) {
+    return data.session;
+  }
+
   if (typeof navigator !== 'undefined' && !navigator.onLine) {
     throw new OfflineError();
   }
-  return getSession();
-};
 
-// 세션이 필요한 작업 실행
-export const executeWithSession = async <T>(
-  operation: () => Promise<T>,
-  context?: string
-): Promise<T> => {
-  if (isLocalhost()) {
-    return await operation();
+  if (!refreshPromise) {
+    refreshPromise = runRefresh();
   }
 
-  const session = await getSession();
-  if (!session) {
-    throw new SessionExpiredError(context);
-  }
-
-  return await operation();
-};
-
-// 공개 API용 래퍼 (세션 없어도 실행)
-export const executePublicApi = async <T>(
-  operation: () => Promise<T>,
-  _context?: string
-): Promise<T> => {
-  return await operation();
+  return refreshPromise;
 };
 
 export const isOfflineError = (error: unknown): boolean => {
@@ -81,7 +87,13 @@ export const isOfflineError = (error: unknown): boolean => {
   );
 };
 
-export const isSessionTimeoutError = (_error: unknown): boolean => {
-  // 타임아웃 로직 제거됨 - 항상 false 반환
-  return false;
+export const isSessionTimeoutError = (error: unknown): boolean => {
+  return (
+    error instanceof SessionRefreshTimeoutError ||
+    (error instanceof Error && error.name === 'SessionRefreshTimeoutError')
+  );
+};
+
+export const clearSessionRefreshState = () => {
+  refreshPromise = null;
 };

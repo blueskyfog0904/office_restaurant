@@ -1,106 +1,165 @@
 import { supabase } from './supabaseClient';
 import { getErrorMessage } from './api';
 import { User } from '../types';
-import { kakaoLoginPopup } from '../utils/kakao';
+import {
+  clearSessionRefreshState,
+  ensureSession,
+  isOfflineError,
+  isSessionTimeoutError,
+} from './sessionManager';
 
 // ===================================
-// 카카오 OAuth 전용 인증 서비스 (단순화)
+// 카카오 OAuth 전용 인증 서비스
 // ===================================
 
-interface KakaoSessionResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in?: number;
-  user: User;
+export interface KakaoUserProfile {
+  id: string;
+  email?: string;
+  nickname: string;
+  profile_image_url?: string;
 }
 
-// 카카오 OAuth 로그인 (단순화된 버전)
+// 카카오 OAuth 로그인 시작
 export const loginWithKakao = async (): Promise<void> => {
-  // 로그인 진행 상태 플래그 설정
-  sessionStorage.setItem('kakao_auth_ing', 'true');
-
-  try {
-    console.log('🔑 카카오 팝업 로그인 시작...');
-    const { accessToken } = await kakaoLoginPopup();
-    console.log('✅ 카카오 토큰 획득 완료');
-
-    console.log('🔄 Edge Function 호출 중...');
-    const session = await exchangeKakaoToken(accessToken);
-    console.log('✅ Edge Function 응답 수신');
-
-    if (!session.access_token || !session.refresh_token) {
-      throw new Error('Supabase 세션 토큰을 받지 못했습니다.');
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'kakao',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
     }
-
-    console.log('🔐 Supabase 세션 설정 중...');
-    const { error } = await supabase.auth.setSession({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-    });
-
-    if (error) {
-      throw new Error(`세션 설정 실패: ${error.message}`);
-    }
-
-    // Edge Function에서 받은 사용자 정보 저장
-    if (session.user) {
-      localStorage.setItem('user', JSON.stringify(session.user));
-    }
-
-    console.log('🎉 카카오 로그인 완료!');
-    // onAuthStateChange가 SIGNED_IN 이벤트로 나머지 처리
-  } finally {
-    sessionStorage.removeItem('kakao_auth_ing');
+  });
+  
+  if (error) {
+    throw new Error(`카카오 로그인 실패: ${getErrorMessage(error)}`);
   }
 };
 
-// 카카오 OAuth 회원가입 (로그인과 동일)
-export const signupWithKakao = loginWithKakao;
+// 카카오 OAuth 회원가입 (로그인과 동일한 플로우)
+export const signupWithKakao = async (): Promise<void> => {
+  // 카카오 OAuth에서는 로그인과 회원가입이 동일한 프로세스
+  return loginWithKakao();
+};
 
-// 현재 사용자 정보 가져오기 (단순화)
+// 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
 export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const session = await ensureSession();
+    if (!session) {
+      return null;
+    }
+  } catch (error) {
+    if (isOfflineError(error) || isSessionTimeoutError(error)) {
+      console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
+      return null;
+    }
+    throw error;
+  }
+  
   const { data: { user }, error } = await supabase.auth.getUser();
   
-  if (error || !user) {
-    return null;
+  if (error) {
+    // 인증 관련 에러인 경우 null 반환 (로그아웃 상태로 처리)
+    if (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401')) {
+      console.warn('getCurrentUser: 인증 토큰 오류:', error.message);
+      return null;
+    }
+    throw new Error(getErrorMessage(error));
   }
+  
+  if (!user) return null;
 
-  // profiles 테이블에서 추가 정보 조회
-  const { data: profile } = await supabase
+  // profiles 테이블에서 정보 조회 (필수)
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role, nickname, profile_image_url')
     .eq('user_id', user.id)
     .single();
 
+  console.log('🔍 getCurrentUser - profiles 조회:', {
+    user_id: user.id,
+    email: user.email,
+    profile_nickname: profile?.nickname,
+    profile_role: profile?.role,
+    kakao_metadata_name: user.user_metadata?.name,
+    kakao_metadata_nickname: user.user_metadata?.nickname,
+    has_profile: !!profile,
+    has_error: !!profileError
+  });
+
+  if (profileError) {
+    console.error('Profile 조회 실패:', profileError);
+    // profiles가 없는 경우 기본 프로필 생성 시도
+    const defaultNickname = user.user_metadata?.name || 
+                           user.user_metadata?.nickname || 
+                           user.email?.split('@')[0] || 
+                           'Unknown';
+    
+    console.log('🆕 기본 프로필 생성 시도:', defaultNickname);
+    
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({
+        user_id: user.id,
+        nickname: defaultNickname,
+        role: 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    
+    if (insertError) {
+      console.error('Profile 생성 실패:', insertError);
+    } else {
+      console.log('✅ 기본 프로필 생성 성공');
+    }
+  }
+
+  // Supabase Auth 사용자 정보를 기반으로 User 타입 생성
+  const kakaoId = user.user_metadata?.sub || user.user_metadata?.kakao_id;
+  
+  // profiles.nickname을 최우선으로 사용 (사용자가 수정한 이름 보존)
+  // 카카오 메타데이터는 fallback으로만 사용
   const username = profile?.nickname || 
+                   user.user_metadata?.name || 
                    user.user_metadata?.nickname || 
-                   user.user_metadata?.name ||
+                   user.user_metadata?.full_name ||
                    user.email?.split('@')[0] || 
                    'Unknown';
+
+  console.log('✅ getCurrentUser 최종 username:', username, '(profile?.nickname:', profile?.nickname, ')');
 
   return {
     id: user.id,
     email: user.email || '',
-    username,
+    username: username,
     is_active: true,
     is_admin: profile?.role === 'admin',
     created_at: user.created_at || new Date().toISOString(),
+    kakao_id: kakaoId,
+    profile_image_url: profile?.profile_image_url || user.user_metadata?.avatar_url,
+    provider: 'kakao',
     role: profile?.role || 'user',
     nickname: profile?.nickname,
-    profile_image_url: profile?.profile_image_url || user.user_metadata?.avatar_url,
-  } as User;
+  } as User & { kakao_id?: string; profile_image_url?: string; provider: string };
 };
 
 // 로그아웃
 export const logout = async (): Promise<void> => {
-  await supabase.auth.signOut();
-  localStorage.removeItem('user');
-  localStorage.removeItem('admin_user');
-  sessionStorage.clear();
+  try {
+    await supabase.auth.signOut();
+  } finally {
+    clearSessionRefreshState();
+    // 로컬 캐시 정리
+    try { 
+      localStorage.removeItem('user'); 
+      sessionStorage.clear(); 
+    } catch {}
+  }
 };
 
-// 프로필 업데이트
+// 프로필 업데이트 (닉네임만 수정 가능)
 export const updateProfile = async (nickname: string): Promise<User> => {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   
@@ -108,22 +167,48 @@ export const updateProfile = async (nickname: string): Promise<User> => {
     throw new Error('로그인된 사용자를 찾을 수 없습니다.');
   }
 
-  const { error: updateError } = await supabase
+  console.log('🔄 프로필 업데이트 시작:', {
+    user_id: user.id,
+    new_nickname: nickname,
+    email: user.email
+  });
+
+  // profiles 테이블 업데이트
+  const { data: updateData, error: updateError } = await supabase
     .from('profiles')
     .update({ 
-      nickname,
+      nickname: nickname,
       updated_at: new Date().toISOString()
     })
-    .eq('user_id', user.id);
+    .eq('user_id', user.id)
+    .select();
 
   if (updateError) {
+    console.error('❌ 프로필 업데이트 실패:', updateError);
     throw new Error(getErrorMessage(updateError));
   }
 
+  console.log('✅ 프로필 업데이트 성공:', updateData);
+
+  // 업데이트 확인 쿼리
+  const { data: verifyData } = await supabase
+    .from('profiles')
+    .select('nickname, role')
+    .eq('user_id', user.id)
+    .single();
+
+  console.log('✅ 업데이트 확인 (DB에서 다시 조회):', verifyData);
+
+  // 업데이트된 사용자 정보 반환
   const updatedUser = await getCurrentUser();
   if (!updatedUser) {
-    throw new Error('사용자 정보 조회 실패');
+    throw new Error('사용자 정보 업데이트 후 조회에 실패했습니다.');
   }
+
+  console.log('✅ getCurrentUser() 결과:', {
+    username: updatedUser.username,
+    nickname: updatedUser.nickname
+  });
 
   return updatedUser;
 };
@@ -136,6 +221,7 @@ export const deleteAccount = async (): Promise<void> => {
     throw new Error('로그인된 사용자를 찾을 수 없습니다.');
   }
 
+  // profiles 테이블에서 사용자 정보 삭제 (CASCADE로 관련 데이터도 삭제됨)
   const { error: deleteError } = await supabase
     .from('profiles')
     .delete()
@@ -145,10 +231,13 @@ export const deleteAccount = async (): Promise<void> => {
     throw new Error(getErrorMessage(deleteError));
   }
 
+  // Supabase Auth에서 사용자 삭제 (관리자 권한 필요)
+  // 실제로는 사용자가 직접 삭제할 수 없으므로, 프로필만 비활성화하거나
+  // 서버 사이드에서 처리해야 함
   await logout();
 };
 
-// 약관 동의 저장
+// 약관 동의 처리 (회원가입 시)
 export const saveTermsConsent = async (consents: Array<{
   terms_id: string;
   version: number;
@@ -178,7 +267,7 @@ export const saveTermsConsent = async (consents: Array<{
   }
 };
 
-// 사용자 즐겨찾기 조회
+// 사용자 활동 내역 관련 함수들 (기존과 동일)
 export const getUserFavorites = async (userId: string): Promise<any[]> => {
   const { data, error } = await supabase
     .from('favorites')
@@ -202,7 +291,6 @@ export const getUserFavorites = async (userId: string): Promise<any[]> => {
   return data || [];
 };
 
-// 사용자 게시글 조회
 export const getUserPosts = async (userId: string): Promise<any[]> => {
   const { data, error } = await supabase
     .from('posts')
@@ -223,7 +311,6 @@ export const getUserPosts = async (userId: string): Promise<any[]> => {
   return data || [];
 };
 
-// 사용자 리뷰 조회
 export const getUserReviews = async (userId: string): Promise<any[]> => {
   const { data, error } = await supabase
     .from('reviews')
@@ -247,7 +334,6 @@ export const getUserReviews = async (userId: string): Promise<any[]> => {
   return data || [];
 };
 
-// 즐겨찾기 삭제
 export const removeFavorite = async (favoriteId: string): Promise<void> => {
   const { error } = await supabase
     .from('favorites')
@@ -255,31 +341,4 @@ export const removeFavorite = async (favoriteId: string): Promise<void> => {
     .eq('id', favoriteId);
   
   if (error) throw new Error(getErrorMessage(error));
-};
-
-// Edge Function으로 카카오 토큰 교환
-const exchangeKakaoToken = async (kakaoAccessToken: string): Promise<KakaoSessionResponse> => {
-  const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-  const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase 환경 변수가 설정되지 않았습니다.');
-  }
-
-  const response = await fetch(`${supabaseUrl}/functions/v1/kakao-login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': supabaseAnonKey,
-      'Authorization': `Bearer ${supabaseAnonKey}`,
-    },
-    body: JSON.stringify({ access_token: kakaoAccessToken }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData?.error || `카카오 로그인 연동 실패 (${response.status})`);
-  }
-
-  return await response.json();
 };
