@@ -118,14 +118,14 @@ const RestaurantDetailPage: React.FC = () => {
         .select('id')
         .eq('restaurant_id', targetRestaurantId)
         .eq('user_id', user.id)
-        .single();
+        .limit(1);
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('사용자 리뷰 확인 실패:', error);
         return false;
       }
       
-      return !!data;
+      return data && data.length > 0;
     } catch (error) {
       console.error('사용자 리뷰 확인 중 오류:', error);
       return false;
