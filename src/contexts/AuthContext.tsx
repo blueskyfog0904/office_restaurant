@@ -146,6 +146,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      // 초기화 시 혹시 남아있을 수 있는 로그인 진행 플래그 제거
+      sessionStorage.removeItem('kakao_auth_ing');
+
       // localhost 환경에서는 localStorage의 유저 정보 또는 기본 테스트 유저 사용
       if (isLocalhost()) {
         const storedUser = getStoredUser();
@@ -508,6 +511,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // focus/visibility 이벤트로 인한 불필요한 호출 차단
     if (user && !isLoading) {
       console.log(`⏭️ 세션 복구 스킵 (이미 로그인됨, ${reason})`);
+      return;
+    }
+
+    // 카카오 로그인 진행 중이면 복구 스킵 (경쟁 상태 방지)
+    if (sessionStorage.getItem('kakao_auth_ing')) {
+      console.log(`🚫 로그인 진행 중, 세션 복구 건너뜀 (${reason})`);
       return;
     }
 
