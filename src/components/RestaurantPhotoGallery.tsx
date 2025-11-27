@@ -162,7 +162,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
       {/* 라이트박스 모달 */}
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] bg-black bg-opacity-90 flex items-center justify-center p-4"
           onClick={closeLightbox}
           onKeyDown={handleKeyDown}
           tabIndex={-1}

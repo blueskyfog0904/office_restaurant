@@ -174,16 +174,17 @@ export const deleteReviewPhoto = async (photoId: string): Promise<void> => {
 };
 
 export const getReviewPhotos = async (reviewId: string): Promise<ReviewPhoto[]> => {
-  const client = getClient();
-  
-  const { data, error } = await client
+  // 리뷰 사진 조회는 비로그인 사용자도 볼 수 있어야 하므로 일반 supabase 클라이언트 사용
+  const { data, error } = await supabase
     .from('review_photos')
     .select('*')
     .eq('review_id', reviewId)
     .order('display_order', { ascending: true });
 
   if (error) {
-    throw new Error(`사진 조회 실패: ${error.message}`);
+    console.error('리뷰 사진 조회 실패:', error);
+    // 에러가 발생해도 빈 배열 반환 (비로그인 상태에서 RLS 에러 발생 시)
+    return [];
   }
 
   return data || [];

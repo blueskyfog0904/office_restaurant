@@ -961,7 +961,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       </div>
 
       {mapLoaded && (
-        <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200]">
+        <div className="absolute top-3 left-3 flex items-center gap-2 z-[20]">
           {userLocation && showUserLocation && (
             <button
               type="button"

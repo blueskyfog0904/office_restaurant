@@ -1092,7 +1092,7 @@ const RestaurantDetailPage: React.FC = () => {
       {/* 리뷰 사진 모달 */}
       {photoModalOpen && photoModalImages.length > 0 && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90"
           onClick={closePhotoModal}
         >
           {/* 닫기 버튼 */}

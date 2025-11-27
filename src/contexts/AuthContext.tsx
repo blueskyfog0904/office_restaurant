@@ -3,7 +3,6 @@ import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
-import { useActivityTracker } from '../hooks/useActivityTracker';
 import {
   clearSessionRefreshState,
   ensureSession,
@@ -80,13 +79,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logoutCalledRef = useRef(false);
   const initTimeoutRef = useRef<number | null>(null);
   const resumePromiseRef = useRef<Promise<void> | null>(null);
-
-  const handleInactivity = useCallback(() => {
-    console.log('🛑 비활성 상태 감지, 토큰 자동 갱신 일시 중지');
-    supabase.auth.stopAutoRefresh();
-  }, []);
-
-  useActivityTracker(handleInactivity);
 
   const buildFallbackUser = (sessionUser: any): User => ({
     id: sessionUser.id,
@@ -450,37 +442,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [refreshUser]);
 
   useEffect(() => {
+    // 토큰 자동 갱신 항상 활성화 (비활성 상태에서도 DB 조회 가능하도록)
     supabase.auth.startAutoRefresh();
 
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        supabase.auth.startAutoRefresh();
-        triggerSessionResume();
-      } else {
-        supabase.auth.stopAutoRefresh();
-      }
-    };
-
-    const handleFocus = () => {
-      supabase.auth.startAutoRefresh();
-      triggerSessionResume();
-    };
-
+    // 온라인 복귀 시에만 세션 새로고침
     const handleOnline = () => {
       if (navigator.onLine) {
-        supabase.auth.startAutoRefresh();
         triggerSessionResume();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('focus', handleFocus);
     window.addEventListener('online', handleOnline);
 
     return () => {
-      supabase.auth.stopAutoRefresh();
-      document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleOnline);
     };
   }, [triggerSessionResume]);
