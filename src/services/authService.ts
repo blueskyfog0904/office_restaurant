@@ -1180,85 +1180,60 @@ export interface HomePageStats {
   totalVisits: number;
 }
 
-const retryWithBackoff = async <T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  delay: number = 1000
-): Promise<T> => {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
-    }
-  }
-  throw new Error('재시도 실패');
-};
-
 export const getHomePageStats = async (): Promise<HomePageStats> => {
+  console.log('📊 홈페이지 통계 데이터 로딩 시작...');
+  
+  // 각 통계를 독립적으로 조회 (하나가 실패해도 다른 것은 성공할 수 있도록)
+  let regionCount = 0;
+  let restaurantCount = 0;
+  let totalVisits = 0;
+
+  // 지역 수 조회
   try {
-    console.log('📊 홈페이지 통계 데이터 로딩 시작...');
-    
-    const fetchStats = async () => {
-      const [regionCountResult, restaurantResult, visitResult] = await Promise.all([
-        retryWithBackoff(async () => {
-          // RPC 함수를 사용하여 sub_add2의 DISTINCT 개수 가져오기
-          const { data, error } = await supabase.rpc('get_distinct_sub_add2_count');
-          if (error) {
-            console.warn('RPC 함수 호출 실패, fallback 사용:', error);
-            // Fallback: 직접 쿼리로 계산
-            const { data: fallbackData, error: fallbackError } = await supabase
-              .from('restaurants')
-              .select('sub_add2')
-              .not('sub_add2', 'is', null)
-              .limit(100000);
-            if (fallbackError) throw fallbackError;
-            const uniqueSubAdd2 = new Set(
-              fallbackData?.map((r: any) => r.sub_add2).filter((val: any) => val != null) || []
-            );
-            return uniqueSubAdd2.size;
-          }
-          return data;
-        }),
-        retryWithBackoff(async () => {
-          const { count, error } = await supabase
-            .from('restaurants')
-            .select('*', { count: 'exact', head: true });
-          if (error) throw error;
-          return count;
-        }),
-        retryWithBackoff(async () => {
-          const { data, error } = await supabase
-            .from('visit_summary')
-            .select('total_count');
-          if (error) throw error;
-          return data;
-        })
-      ]);
-
-      const regionCount = regionCountResult || 0;
-      const restaurantCount = restaurantResult || 0;
-      const totalVisits = visitResult?.reduce((sum: number, item: any) => sum + (item.total_count || 0), 0) || 0;
-
-      console.log('✅ 지역 수 (sub_add2 DISTINCT):', regionCount);
-      console.log('✅ 등록된 맛집 수:', restaurantCount);
-      console.log('✅ 총 방문 기록:', totalVisits);
-
-      return {
-        regionCount: regionCount || 0,
-        restaurantCount: restaurantCount || 0,
-        totalVisits: totalVisits || 0
-      };
-    };
-
-    return await fetchStats();
-  } catch (error) {
-    console.error('❌ 홈페이지 통계 조회 실패:', error);
-    return {
-      regionCount: 0,
-      restaurantCount: 0,
-      totalVisits: 0
-    };
+    const { data, error } = await supabase.rpc('get_distinct_sub_add2_count');
+    if (!error && data) {
+      regionCount = data;
+    } else {
+      // Fallback: 직접 쿼리
+      const { data: fallbackData } = await supabase
+        .from('restaurants')
+        .select('sub_add2')
+        .not('sub_add2', 'is', null)
+        .limit(10000);
+      if (fallbackData) {
+        const uniqueSubAdd2 = new Set(fallbackData.map((r: any) => r.sub_add2).filter(Boolean));
+        regionCount = uniqueSubAdd2.size;
+      }
+    }
+  } catch (e) {
+    console.warn('지역 수 조회 실패:', e);
   }
+
+  // 음식점 수 조회
+  try {
+    const { count, error } = await supabase
+      .from('restaurants')
+      .select('*', { count: 'exact', head: true });
+    if (!error && count) {
+      restaurantCount = count;
+    }
+  } catch (e) {
+    console.warn('음식점 수 조회 실패:', e);
+  }
+
+  // 총 방문 수 조회
+  try {
+    const { data, error } = await supabase
+      .from('visit_summary')
+      .select('total_count');
+    if (!error && data) {
+      totalVisits = data.reduce((sum: number, item: any) => sum + (item.total_count || 0), 0);
+    }
+  } catch (e) {
+    console.warn('방문 수 조회 실패:', e);
+  }
+
+  console.log('✅ 통계 로드 완료:', { regionCount, restaurantCount, totalVisits });
+
+  return { regionCount, restaurantCount, totalVisits };
 }; 
