@@ -107,19 +107,28 @@ export const signupWithKakao = async (): Promise<void> => {
   return loginWithKakao();
 };
 
+interface GetCurrentUserOptions {
+  skipSessionCheck?: boolean;
+}
+
 // 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
-export const getCurrentUser = async (): Promise<User | null> => {
-  try {
-    const session = await ensureSession();
-    if (!session) {
-      return null;
+export const getCurrentUser = async (options?: GetCurrentUserOptions): Promise<User | null> => {
+  const { skipSessionCheck = false } = options || {};
+
+  // skipSessionCheck가 true면 세션 검증 건너뛰기 (이미 SIGNED_IN 이벤트 등으로 세션이 확인된 경우)
+  if (!skipSessionCheck) {
+    try {
+      const session = await ensureSession();
+      if (!session) {
+        return null;
+      }
+    } catch (error) {
+      if (isOfflineError(error) || isSessionTimeoutError(error)) {
+        console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
+        return null;
+      }
+      throw error;
     }
-  } catch (error) {
-    if (isOfflineError(error) || isSessionTimeoutError(error)) {
-      console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
-      return null;
-    }
-    throw error;
   }
   
   const { data: { user }, error } = await supabase.auth.getUser();

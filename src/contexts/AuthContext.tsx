@@ -287,9 +287,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (event === 'TOKEN_REFRESHED') {
           console.log('✅ 토큰이 자동으로 갱신되었습니다.');
           // 토큰 갱신 후 사용자 정보가 유효한지 확인
+          // 세션은 이미 갱신되었으므로 skipSessionCheck: true
           if (session?.user) {
             try {
-              const currentUser = await getCurrentUser();
+              const currentUser = await getCurrentUser({ skipSessionCheck: true });
               if (currentUser) {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
                 setUser(currentUser);
@@ -297,7 +298,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               }
             } catch (userError) {
               console.warn('토큰 갱신 후 사용자 정보 확인 실패:', userError);
-              // 사용자 정보 확인 실패해도 계속 진행 (토큰은 유효할 수 있음)
             }
           }
           setIsLoading(false);
@@ -310,7 +310,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           logoutAlertShownRef.current = false;
           
           try {
-            const currentUser = await getCurrentUser();
+            // 세션은 이미 설정되었으므로 skipSessionCheck: true로 타임아웃 방지
+            const currentUser = await getCurrentUser({ skipSessionCheck: true });
             
             if (currentUser) {
               console.log('✅ 사용자 정보 업데이트:', {
