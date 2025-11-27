@@ -45,13 +45,13 @@ export const loginWithKakao = async (): Promise<void> => {
     console.log('🔑 카카오 팝업 로그인 시작...');
     const { accessToken } = await kakaoLoginPopup();
     console.log('✅ 카카오 토큰 획득 완료');
-    
+
     console.log('🔄 Edge Function 호출 중...');
     const session = await exchangeKakaoToken(accessToken);
-    console.log('✅ Edge Function 응답:', { 
+    console.log('✅ Edge Function 응답:', {
       hasAccessToken: !!session.access_token,
       hasRefreshToken: !!session.refresh_token,
-      user: session.user?.email 
+      user: session.user?.email,
     });
 
     if (!session.refresh_token) {
@@ -69,9 +69,9 @@ export const loginWithKakao = async (): Promise<void> => {
       throw new Error(`Supabase 세션 설정 실패: ${getErrorMessage(error)}`);
     }
 
-    console.log('✅ 세션 설정 완료:', { 
+    console.log('✅ 세션 설정 완료:', {
       hasSession: !!data.session,
-      user: data.user?.email 
+      user: data.user?.email,
     });
 
     // 사용자 정보 로컬 저장
@@ -94,7 +94,7 @@ export const loginWithKakao = async (): Promise<void> => {
         console.error('약관 동의 저장 실패:', consentError);
       }
     }
-    
+
     console.log('🎉 카카오 로그인 완료!');
   } finally {
     // 로그인 진행 상태 플래그 해제
@@ -107,28 +107,19 @@ export const signupWithKakao = async (): Promise<void> => {
   return loginWithKakao();
 };
 
-interface GetCurrentUserOptions {
-  skipSessionCheck?: boolean;
-}
-
 // 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
-export const getCurrentUser = async (options?: GetCurrentUserOptions): Promise<User | null> => {
-  const { skipSessionCheck = false } = options || {};
-  
-  // skipSessionCheck가 true면 세션 검증 건너뛰기 (이미 SIGNED_IN 이벤트 등으로 세션이 확인된 경우)
-  if (!skipSessionCheck) {
-    try {
-      const session = await ensureSession();
-      if (!session) {
-        return null;
-      }
-    } catch (error) {
-      if (isOfflineError(error) || isSessionTimeoutError(error)) {
-        console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
-        return null;
-      }
-      throw error;
+export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const session = await ensureSession();
+    if (!session) {
+      return null;
     }
+  } catch (error) {
+    if (isOfflineError(error) || isSessionTimeoutError(error)) {
+      console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
+      return null;
+    }
+    throw error;
   }
   
   const { data: { user }, error } = await supabase.auth.getUser();
