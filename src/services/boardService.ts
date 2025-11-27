@@ -263,15 +263,15 @@ export const getPostById = async (id: string): Promise<Post> => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (user) {
-    const { data: reaction } = await supabase
+    const { data: reactions } = await supabase
       .from('post_reactions')
       .select('reaction_type')
       .eq('post_id', id)
       .eq('user_id', user.id)
-      .single();
+      .limit(1);
     
-    if (reaction) {
-      userReaction = reaction.reaction_type as 'like' | 'dislike';
+    if (reactions && reactions.length > 0) {
+      userReaction = reactions[0].reaction_type as 'like' | 'dislike';
     }
   }
 
@@ -291,12 +291,14 @@ export const togglePostReaction = async (id: string, type: 'like' | 'dislike'): 
   }
 
   // 기존 반응 조회
-  const { data: existingReaction } = await supabase
+  const { data: reactions } = await supabase
     .from('post_reactions')
     .select('*')
     .eq('post_id', id)
     .eq('user_id', user.id)
-    .single();
+    .limit(1);
+
+  const existingReaction = reactions && reactions.length > 0 ? reactions[0] : null;
 
   if (existingReaction) {
     if (existingReaction.reaction_type === type) {
