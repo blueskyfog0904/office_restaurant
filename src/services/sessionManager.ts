@@ -97,3 +97,34 @@ export const isSessionTimeoutError = (error: unknown): boolean => {
 export const clearSessionRefreshState = () => {
   refreshPromise = null;
 };
+
+// 세션이 필요한 API 호출을 위한 래퍼 함수
+export const executeWithSession = async <T>(
+  fn: () => Promise<T>,
+  operationName?: string
+): Promise<T> => {
+  try {
+    await ensureSession();
+    return await fn();
+  } catch (error) {
+    if (operationName) {
+      console.error(`${operationName} 실패:`, error);
+    }
+    throw error;
+  }
+};
+
+// 공개 API 호출을 위한 래퍼 함수 (세션 불필요)
+export const executePublicApi = async <T>(
+  fn: () => Promise<T>,
+  operationName?: string
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (operationName) {
+      console.error(`${operationName} 실패:`, error);
+    }
+    throw error;
+  }
+};
