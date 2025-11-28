@@ -12,6 +12,14 @@ let kakaoSDKLoadPromise: Promise<void> | null = null;
 // 전역 지도 인스턴스 추적 (중복 생성 방지)
 const activeMapInstances = new WeakMap<HTMLDivElement, boolean>();
 
+const RESTAURANT_MARKER_SVG = `
+<svg width="32" height="48" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M16 0C7.16344 0 0 7.16344 0 16C0 28 16 42 16 42C16 42 32 28 32 16C32 7.16344 24.8366 0 16 0Z" fill="#FF6B35"/>
+  <circle cx="16" cy="16" r="11" fill="white"/>
+  <path d="M11.5 10V14C11.5 15.1 12.4 16 13.5 16V22H14.5V16C15.6 16 16.5 15.1 16.5 14V10H15.5V13H14.5V10H13.5V13H12.5V10H11.5ZM19.5 10C18.9 10 18.5 10.4 18.5 11V22H19.5V14C20.1 14 20.5 13.6 20.5 13V10H19.5Z" fill="#FF6B35"/>
+</svg>
+`;
+
 const getKakaoApiKey = () => {
   const key = process.env.REACT_APP_KAKAO_JAVASCRIPT_KEY || process.env.REACT_APP_KAKAO_MAP_API_KEY;
   if (!key) {
@@ -501,6 +509,12 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     const card = document.createElement('div');
     card.className = `restaurant-card ${isSelected ? 'restaurant-card--selected' : ''}`;
 
+    if (isSelected) {
+      card.style.backgroundColor = '#FF6B35'; // appetite-stimulating orange
+      card.style.color = '#FFFFFF';
+      card.style.borderColor = '#FF6B35';
+    }
+
     const header = document.createElement('div');
     header.className = 'restaurant-card__header';
 
@@ -509,10 +523,16 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
     const categoryDot = document.createElement('div');
     categoryDot.className = 'restaurant-card__category-dot';
+    if (isSelected) {
+      categoryDot.style.backgroundColor = '#FFFFFF'; // white for contrast against orange
+    }
 
     const title = document.createElement('h3');
     title.className = 'restaurant-card__title';
     title.textContent = marker.name || '음식점';
+    if (isSelected) {
+      title.style.color = '#FFFFFF';
+    }
 
     titleWrap.appendChild(categoryDot);
     titleWrap.appendChild(title);
@@ -597,14 +617,27 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
       const markerWrapper = document.createElement('div');
       markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
+      // Ensure inline styles match the desired SVG size
+      markerWrapper.style.width = '32px';
+      markerWrapper.style.height = '48px';
 
       const pin = document.createElement('div');
       pin.className = 'restaurant-marker__pin';
-
-      const icon = document.createElement('span');
-      icon.className = 'restaurant-marker__icon';
-      icon.textContent = '🍽️';
-      pin.appendChild(icon);
+      // Ensure inline styles match the desired SVG size
+      pin.style.width = '32px';
+      pin.style.height = '48px';
+      pin.style.background = 'transparent'; // Ensure background doesn't interfere
+      pin.style.boxShadow = 'none'; // Remove any default shadow
+      pin.style.border = 'none'; // Remove any default border
+      
+      // Use SVG directly
+      pin.innerHTML = RESTAURANT_MARKER_SVG;
+      const svg = pin.querySelector('svg');
+      if (svg) {
+        svg.style.width = '96px';
+        svg.style.height = '126px';
+        svg.style.display = 'block';
+      }
 
       markerWrapper.appendChild(pin);
 
@@ -713,14 +746,27 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
       const markerWrapper = document.createElement('div');
       markerWrapper.className = 'restaurant-marker restaurant-marker--selected';
+      // Ensure inline styles match the desired SVG size
+      markerWrapper.style.width = '32px';
+      markerWrapper.style.height = '48px';
 
       const pin = document.createElement('div');
       pin.className = 'restaurant-marker__pin';
+      // Ensure inline styles match the desired SVG size
+      pin.style.width = '32px';
+      pin.style.height = '48px';
+      pin.style.background = 'transparent';
+      pin.style.boxShadow = 'none';
+      pin.style.border = 'none';
 
-      const icon = document.createElement('span');
-      icon.className = 'restaurant-marker__icon';
-      icon.textContent = '🍽️';
-      pin.appendChild(icon);
+      // Use SVG directly
+      pin.innerHTML = RESTAURANT_MARKER_SVG;
+      const svg = pin.querySelector('svg');
+      if (svg) {
+        svg.style.width = '96px';
+        svg.style.height = '126px';
+        svg.style.display = 'block';
+      }
 
       markerWrapper.appendChild(pin);
 

@@ -51,35 +51,35 @@ code {
 
 .restaurant-marker {
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .restaurant-marker__pin {
-  width: 12px;
-  height: 12px;
-  background: #F59E0B;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border: 2px solid #FFFFFF;
+  width: 32px;
+  height: 48px;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
 }
 
-.restaurant-marker__icon {
-  display: none;
+.restaurant-marker__icon-img {
+  display: none; /* 기존 img 태그 숨김 (SVG 사용) */
 }
 
 .restaurant-marker--hover .restaurant-marker__pin,
 .restaurant-marker--selected .restaurant-marker__pin {
-  background: #F59E0B;
-  transform: scale(1.2);
-  box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
+  background: transparent;
+  transform: scale(1.1);
+  box-shadow: none;
   z-index: 10;
 }
 

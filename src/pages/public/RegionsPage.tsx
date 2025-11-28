@@ -118,7 +118,6 @@ const RegionsPage: React.FC = () => {
   const [centerOnUserLocation, setCenterOnUserLocation] = useState(false);
   const [hoveredRestaurantId, setHoveredRestaurantId] = useState<string | null>(null);
   const [selectedRestaurantForModal, setSelectedRestaurantForModal] = useState<RestaurantWithStats | null>(null);
-  const [lastClickedRestaurantId, setLastClickedRestaurantId] = useState<string | null>(null);
   
   // 모달 관련 state
   const [modalReviews, setModalReviews] = useState<UserReview[]>([]);
@@ -1134,6 +1133,26 @@ const RegionsPage: React.FC = () => {
     }
   }, [regionMapOpen]);
 
+  // Scroll to selected nearby restaurant
+  useEffect(() => {
+    if (hoveredRestaurantId) {
+      const element = document.getElementById(`nearby-restaurant-${hoveredRestaurantId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [hoveredRestaurantId]);
+
+  // Scroll to selected region restaurant (in modal)
+  useEffect(() => {
+    if (focusedRegionMarkerId && regionMapOpen) {
+      const element = document.getElementById(`region-restaurant-${focusedRegionMarkerId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [focusedRegionMarkerId, regionMapOpen]);
+
   // 모달이 열릴 때 리뷰 및 관련 데이터 로드
   useEffect(() => {
     if (selectedRestaurantForModal) {
@@ -1348,34 +1367,37 @@ const RegionsPage: React.FC = () => {
                       >
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 justify-items-start w-full min-w-0">
                           {nearbyRestaurantData.map(({ restaurant, distance }) => {
+                            const isHovered = hoveredRestaurantId === restaurant.id;
                             const handleNearbyRestaurantCardClick = () => {
-                              // 모든 모드에서 동일하게 동작: 첫 번째 클릭은 지도 이동, 두 번째 클릭은 모달 열기
-                              if (lastClickedRestaurantId === restaurant.id) {
-                                // 같은 음식점을 두 번째 클릭하면 모달 열기
+                              // 이미 선택된(음영 처리된) 상태라면 모달 열기
+                              if (hoveredRestaurantId === restaurant.id) {
                                 setSelectedRestaurantForModal(restaurant);
-                                setLastClickedRestaurantId(null);
                               } else {
-                                // 첫 번째 클릭이면 지도로 이동
+                                // 아니면 선택(음영 처리) 및 지도 이동
                                 setHoveredRestaurantId(restaurant.id);
-                                setLastClickedRestaurantId(restaurant.id);
                               }
                             };
                             
                             return (
                               <button
+                                id={`nearby-restaurant-${restaurant.id}`}
                                 key={restaurant.id}
                                 onClick={handleNearbyRestaurantCardClick}
-                                className="border border-gray-200 rounded-lg p-3 hover:border-primary-400 hover:shadow-sm transition-all text-left w-full min-w-0 max-w-full"
+                                className={`border rounded-lg p-3 transition-all text-left w-full min-w-0 max-w-full ${
+                                  isHovered 
+                                    ? 'bg-[#FF6B35] border-[#FF6B35] ring-2 ring-[#FF6B35] ring-opacity-50' 
+                                    : 'border-gray-200 hover:border-[#FF6B35] hover:shadow-sm'
+                                }`}
                               >
-                                <p className="font-medium text-gray-900 truncate">
+                                <p className={`font-medium truncate ${isHovered ? 'text-white' : 'text-gray-900'}`}>
                                   {restaurant.title || restaurant.name}
                                   {restaurant.category && (
-                                    <span className="ml-2 text-xs font-normal text-gray-500">
+                                    <span className={`ml-2 text-xs font-normal ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
                                       {restaurant.category}
                                     </span>
                                   )}
                                 </p>
-                                <p className="text-xs text-gray-500 mt-1 truncate">
+                                <p className={`text-xs mt-1 truncate ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
                                   {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}
                                 </p>
                               </button>
@@ -1726,42 +1748,40 @@ const RegionsPage: React.FC = () => {
                     {regionRestaurants.map((restaurant) => {
                       const isFocused = focusedRegionMarkerId === restaurant.id;
                       const handleRestaurantCardClick = () => {
-                        // 모든 모드에서 동일하게 동작: 첫 번째 클릭은 지도 이동, 두 번째 클릭은 모달 열기
-                        if (lastClickedRestaurantId === restaurant.id) {
-                          // 같은 음식점을 두 번째 클릭하면 모달 열기
+                        // 이미 선택된(음영 처리된) 상태라면 모달 열기
+                        if (focusedRegionMarkerId === restaurant.id) {
                           setSelectedRestaurantForModal(restaurant);
-                          setLastClickedRestaurantId(null);
                         } else {
                           // 첫 번째 클릭이면 지도로 이동
                           setFocusedRegionMarkerId(restaurant.id);
-                          setLastClickedRestaurantId(restaurant.id);
                         }
                       };
                       
                       return (
                         <li key={restaurant.id}>
                           <button
+                            id={`region-restaurant-${restaurant.id}`}
                             onClick={handleRestaurantCardClick}
                             className={`block w-full text-left px-5 py-4 transition-colors ${
-                              isFocused ? 'bg-primary-50 border-l-4 border-primary-500' : 'hover:bg-white'
+                              isFocused ? 'bg-[#FF6B35]' : 'hover:bg-white'
                             }`}
                           >
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-semibold text-gray-900 truncate">
+                              <p className={`text-sm font-semibold truncate ${isFocused ? 'text-white' : 'text-gray-900'}`}>
                                 {restaurant.title || restaurant.name}
                               </p>
                               {restaurant.region_rank && (
-                                <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
+                                <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isFocused ? 'bg-white text-[#FF6B35]' : 'bg-primary-100 text-primary-800'}`}>
                                   {restaurant.region_rank}위
                                 </span>
                               )}
                               {restaurant.category && (
-                                <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isFocused ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-800'}`}>
                                   {restaurant.category}
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1 truncate">
+                            <p className={`text-xs mt-1 truncate ${isFocused ? 'text-white/90' : 'text-gray-500'}`}>
                               {restaurant.address || '주소 정보 없음'}
                             </p>
                           </button>
@@ -1790,7 +1810,6 @@ const RegionsPage: React.FC = () => {
             className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black bg-opacity-50"
             onClick={() => {
               setSelectedRestaurantForModal(null);
-              setLastClickedRestaurantId(null);
             }}
           >
             <div 
@@ -1805,7 +1824,6 @@ const RegionsPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setSelectedRestaurantForModal(null);
-                    setLastClickedRestaurantId(null);
                   }}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                   aria-label="닫기"
