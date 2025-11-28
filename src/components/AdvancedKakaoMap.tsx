@@ -423,7 +423,10 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
           currentLevelRef.current = newLevel;
 
           if (validPositionsRef.current.length > 0) {
+            // 줌 변경 시에는 선택된 음식점으로 자동 이동하지 않음
+            ignoreFocusMarkerRef.current = true;
             renderMarkersWithClustering(validPositionsRef.current, map, newLevel);
+            ignoreFocusMarkerRef.current = false;
           }
         };
 
