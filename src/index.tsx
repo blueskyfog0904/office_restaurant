@@ -4,8 +4,9 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-// 빌드 시간 기반 버전 (배포마다 자동 캐시 정리)
-const APP_VERSION = process.env.REACT_APP_BUILD_TIME || Date.now().toString();
+// 앱 버전 (배포 시 환경변수로 설정하거나 수동 업데이트)
+// 주의: Date.now() 사용 금지 - 매 페이지 로드마다 캐시 정리됨
+const APP_VERSION = process.env.REACT_APP_BUILD_TIME || '1.0.1';
 const STORAGE_VERSION_KEY = 'app_version';
 
 const clearOldCache = () => {
@@ -17,12 +18,14 @@ const clearOldCache = () => {
       current: APP_VERSION
     });
     
+    // Supabase 세션 키(sb-로 시작)는 보존하여 로그인 유지
     const keysToKeep = ['lastActivityTime'];
     const keysToRemove: string[] = [];
     
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && !keysToKeep.includes(key)) {
+      // Supabase 세션 키는 제외 (로그인 상태 유지)
+      if (key && !keysToKeep.includes(key) && !key.startsWith('sb-')) {
         keysToRemove.push(key);
       }
     }
@@ -38,7 +41,7 @@ const clearOldCache = () => {
     sessionStorage.clear();
     
     localStorage.setItem(STORAGE_VERSION_KEY, APP_VERSION);
-    console.log('✅ 캐시 정리 완료');
+    console.log('✅ 캐시 정리 완료 (Supabase 세션 유지)');
   }
 };
 
