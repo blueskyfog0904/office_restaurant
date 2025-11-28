@@ -221,10 +221,15 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
   const currentLevelRef = useRef<number>(level);
   const validPositionsRef = useRef<Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }>>([]);
   const zoomHandlerRef = useRef<(() => void) | null>(null);
+  const focusMarkerIdRef = useRef<string | undefined>(focusMarkerId);
 
   useEffect(() => {
     viewStateKeyRef.current = viewStateKey;
   }, [viewStateKey]);
+
+  useEffect(() => {
+    focusMarkerIdRef.current = focusMarkerId;
+  }, [focusMarkerId]);
 
   const saveCurrentView = useCallback((view: { lat: number; lng: number; level: number }) => {
     currentViewRef.current = view;
@@ -567,28 +572,41 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
 
     console.log('🗺️ 클러스터링 적용 - 현재 레벨:', currentLevel, '마커 수:', positions.length);
 
-    if (currentLevel <= 2) {
-      console.log('📍 레벨 1-2: 개별 마커 표시');
-      positions.forEach(({ marker: item, position }) => {
-        const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
-        renderSingleMarker(item, position, isFocused, map);
+    // 선택된 음식점(focusMarkerId)은 항상 개별 마커로 표시 (클러스터링 제외)
+    // ref를 사용하여 항상 최신 focusMarkerId 값을 참조
+    const currentFocusMarkerId = focusMarkerIdRef.current;
+    const focusedPosition = currentFocusMarkerId 
+      ? positions.find(({ marker: item }) => item.id === currentFocusMarkerId)
+      : null;
+    const otherPositions = currentFocusMarkerId
+      ? positions.filter(({ marker: item }) => item.id !== currentFocusMarkerId)
+      : positions;
+
+    // 선택된 음식점은 항상 개별 마커로 먼저 표시
+    if (focusedPosition) {
+      renderSingleMarker(focusedPosition.marker, focusedPosition.position, true, map);
+    }
+
+    if (currentLevel <= 3) {
+      console.log('📍 레벨 1-3: 개별 마커 표시');
+      otherPositions.forEach(({ marker: item, position }) => {
+        renderSingleMarker(item, position, false, map);
       });
       return;
     }
 
     const baseDistance = 80;
-    const levelMultiplier = Math.pow(1.5, currentLevel - 3);
+    const levelMultiplier = Math.pow(1.5, currentLevel - 4);
     const clusterDistance = baseDistance * levelMultiplier;
     console.log('🔍 클러스터링 거리:', clusterDistance, 'px (레벨:', currentLevel, ')');
 
-    const groups = createClusterGroups(positions, map, clusterDistance);
+    const groups = createClusterGroups(otherPositions, map, clusterDistance);
     console.log('📊 클러스터 결과:', groups.length, '개 그룹');
 
     groups.forEach((group) => {
       if (group.markers.length === 1) {
         const { marker: item, position } = group.markers[0];
-        const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
-        renderSingleMarker(item, position, isFocused, map);
+        renderSingleMarker(item, position, false, map);
       } else {
         renderCluster(group, map);
       }
@@ -629,7 +647,10 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
           onMarkerClick(item);
         } else if (onCardClick) {
           onCardClick(item);
+          // 레벨 2로 변경하여 클러스터링 해제 후 이동
+          map.setLevel(2);
           map.panTo(position);
+          currentLevelRef.current = 2;
         } else if (onMarkerClick) {
           onMarkerClick(item);
         }
@@ -654,7 +675,10 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
           onMarkerClick(item);
         } else if (onCardClick) {
           onCardClick(item);
+          // 레벨 2로 변경하여 클러스터링 해제 후 이동
+          map.setLevel(2);
           map.panTo(position);
+          currentLevelRef.current = 2;
         }
       });
 
@@ -685,10 +709,12 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
 
     clusterDiv.addEventListener('click', (e) => {
       e.stopPropagation();
-      console.log('🖱️ 클러스터 클릭 - 레벨 2로 변경');
-      map.setLevel(2);
+      const currentLevel = map.getLevel();
+      const newLevel = Math.max(1, currentLevel - 1);
+      console.log('🖱️ 클러스터 클릭 - 레벨', currentLevel, '→', newLevel, '로 변경');
+      map.setLevel(newLevel);
       map.panTo(clusterPosition);
-      currentLevelRef.current = 2;
+      currentLevelRef.current = newLevel;
     });
 
     const clusterOverlay = new kakao.maps.CustomOverlay({
@@ -696,7 +722,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       yAnchor: 1.0,
       xAnchor: 0.5,
       content: clusterDiv,
-      zIndex: 1500,
+      zIndex: 1100,
     });
     clusterOverlay.setMap(map);
     overlaysRef.current.push(clusterOverlay);
