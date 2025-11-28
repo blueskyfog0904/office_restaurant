@@ -91,30 +91,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // 로딩 즉시 해제 - 세션 확인은 백그라운드에서 진행
     setIsLoading(false);
 
-    // 백그라운드에서 세션 확인
+    // 백그라운드에서 세션 확인 (서버에서 실제 유효성 검증)
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // 1. 먼저 실제 유저 정보를 서버에서 가져와 세션 유효성 검증
+        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
         
-        if (session?.user) {
-          // 세션이 있으면 사용자 정보 업데이트
-          try {
-            const currentUser = await getCurrentUser();
-            if (currentUser) {
-              setUser(currentUser);
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
-            }
-          } catch (e) {
-            // 사용자 정보 조회 실패해도 저장된 정보 유지
-            console.warn('사용자 정보 조회 실패:', e);
-          }
-        } else if (!storedUser) {
-          // 세션도 없고 저장된 정보도 없으면 로그아웃 상태
-          setUser(null);
+        // 2. 세션이 유효하지 않으면 강제 로그아웃
+        if (userError || !authUser) {
+          console.warn('⚠️ 세션이 유효하지 않음, 로그아웃 처리');
+          // 모든 인증 관련 데이터 정리
+          await supabase.auth.signOut();
           localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem('admin_user');
+          setUser(null);
+          
+          // 저장된 사용자가 있었다면 (로그인 상태였다면) 새로고침
+          if (storedUser) {
+            window.location.reload();
+          }
+          return;
+        }
+        
+        // 3. 세션이 유효하면 사용자 정보 업데이트
+        try {
+          const currentUser = await getCurrentUser();
+          if (currentUser) {
+            setUser(currentUser);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
+          }
+        } catch (e) {
+          console.warn('사용자 정보 조회 실패:', e);
         }
       } catch (e) {
         console.warn('세션 확인 실패:', e);
+        // 네트워크 오류 등의 경우 기존 저장된 정보 유지
       }
     };
 

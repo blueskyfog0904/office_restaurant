@@ -4,7 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-const APP_VERSION = '1.0.0';
+// 빌드 시간 기반 버전 (배포마다 자동 캐시 정리)
+const APP_VERSION = process.env.REACT_APP_BUILD_TIME || Date.now().toString();
 const STORAGE_VERSION_KEY = 'app_version';
 
 const clearOldCache = () => {

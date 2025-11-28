@@ -98,6 +98,50 @@ export const clearSessionRefreshState = () => {
   refreshPromise = null;
 };
 
+// 인증 관련 에러인지 확인
+export const isAuthError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes('jwt') ||
+      message.includes('token') ||
+      message.includes('expired') ||
+      message.includes('invalid') ||
+      message.includes('unauthorized') ||
+      message.includes('401') ||
+      message.includes('refresh_token_not_found')
+    );
+  }
+  return false;
+};
+
+// 세션 초기화 및 로그아웃
+export const forceSignOut = async () => {
+  try {
+    await supabase.auth.signOut();
+  } catch (e) {
+    console.warn('signOut 실패:', e);
+  }
+  
+  // localStorage 정리
+  const keysToRemove = ['user', 'admin_user'];
+  keysToRemove.forEach(key => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      // ignore
+    }
+  });
+  
+  // Supabase 세션 키 정리
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('sb-')) {
+      localStorage.removeItem(key);
+    }
+  }
+};
+
 // 세션이 필요한 API 호출을 위한 래퍼 함수
 export const executeWithSession = async <T>(
   fn: () => Promise<T>,
@@ -114,7 +158,7 @@ export const executeWithSession = async <T>(
   }
 };
 
-// 공개 API 호출을 위한 래퍼 함수 (세션 불필요)
+// 공개 API 호출을 위한 래퍼 함수 (세션 불필요, 인증 오류 시 자동 정리)
 export const executePublicApi = async <T>(
   fn: () => Promise<T>,
   operationName?: string
@@ -125,6 +169,15 @@ export const executePublicApi = async <T>(
     if (operationName) {
       console.error(`${operationName} 실패:`, error);
     }
+    
+    // 인증 에러면 세션 정리 후 재시도
+    if (isAuthError(error)) {
+      console.warn('⚠️ 인증 오류 감지, 세션 정리 후 재시도');
+      await forceSignOut();
+      // 한 번 더 시도
+      return await fn();
+    }
+    
     throw error;
   }
 };
