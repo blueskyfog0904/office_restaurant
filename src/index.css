@@ -295,3 +295,55 @@ code {
 .restaurant-card--selected .restaurant-card__action-btn--ghost:hover {
   background: #F3F4F6;
 }
+
+/* Cluster Card Styles */
+.cluster-card {
+  min-width: auto;
+  background: linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%);
+  border-radius: 24px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35);
+  padding: 10px 16px;
+  color: #FFFFFF;
+  font-family: 'Noto Sans KR', sans-serif;
+  position: relative;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.cluster-card:hover {
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.5);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.cluster-card:active {
+  transform: translateY(0) scale(1);
+}
+
+.cluster-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cluster-card__icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cluster-card__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.cluster-card__text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+}

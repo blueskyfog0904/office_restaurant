@@ -82,7 +82,7 @@ const loadKakaoMapScript = (): Promise<void> => {
     // 새 스크립트 생성 (autoload 옵션 추가로 document.write 문제 해결)
     const script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services&autoload=false`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&libraries=services,clusterer&autoload=false`;
     script.async = true;
     
     const timeout = setTimeout(() => {
@@ -132,6 +132,11 @@ export interface MapMarker {
   address?: string;
   subAdd1?: string;
   subAdd2?: string;
+}
+
+interface ClusterGroup {
+  markers: Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }>;
+  center: { lat: number; lng: number };
 }
 
 export interface UserLocation {
@@ -201,6 +206,9 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
   const userInteractedRef = useRef(false);
   const lastMarkerSignatureRef = useRef<string>('');
   const isInitializingRef = useRef(false);
+  const currentLevelRef = useRef<number>(level);
+  const validPositionsRef = useRef<Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }>>([]);
+  const zoomHandlerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     // cleanup 함수에서 사용할 컨테이너 참조를 미리 저장
@@ -331,9 +339,19 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
         kakao.maps.event.addListener(map, 'dragstart', () => {
           userInteractedRef.current = true;
         });
-        kakao.maps.event.addListener(map, 'zoom_changed', () => {
+
+        const handleZoomChanged = () => {
           userInteractedRef.current = true;
-        });
+          const newLevel = map.getLevel();
+          currentLevelRef.current = newLevel;
+
+          if (validPositionsRef.current.length > 0) {
+            renderMarkersWithClustering(validPositionsRef.current, map, newLevel);
+          }
+        };
+
+        zoomHandlerRef.current = handleZoomChanged;
+        kakao.maps.event.addListener(map, 'zoom_changed', handleZoomChanged);
         console.log('🗺️ 지도 객체 생성 완료');
         // 지도 컨트롤 추가
         const mapTypeControl = new kakao.maps.MapTypeControl();
@@ -357,15 +375,21 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     initializeMap();
 
     return () => {
-      if (mapInstance.current && idleHandlerRef.current && window.kakao?.maps?.event) {
-        window.kakao.maps.event.removeListener(mapInstance.current, 'idle', idleHandlerRef.current);
-        idleHandlerRef.current = null;
+      if (mapInstance.current && window.kakao?.maps?.event) {
+        if (idleHandlerRef.current) {
+          window.kakao.maps.event.removeListener(mapInstance.current, 'idle', idleHandlerRef.current);
+          idleHandlerRef.current = null;
+        }
+        if (zoomHandlerRef.current) {
+          window.kakao.maps.event.removeListener(mapInstance.current, 'zoom_changed', zoomHandlerRef.current);
+          zoomHandlerRef.current = null;
+        }
       }
       overlaysRef.current.forEach((overlay) => overlay.setMap(null));
       overlaysRef.current = [];
       mapMarkersRef.current = [];
+      validPositionsRef.current = [];
       
-      // 전역 인스턴스 추적에서 제거 (useEffect 시작 부분에서 저장한 containerElement 사용)
       if (containerElement) {
         activeMapInstances.delete(containerElement);
       }
@@ -549,39 +573,107 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     return card;
   };
 
-  const renderMarkers = async () => {
-    const map = mapInstance.current;
-    if (!map) return;
+  const calculateClusters = (
+    positions: Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }>,
+    map: any,
+    clusterDistance: number = 80
+  ): ClusterGroup[] => {
     const { kakao } = window;
-    if (!kakao?.maps?.LatLngBounds) return;
+    if (!kakao?.maps || positions.length === 0) return [];
 
-    clearMapObjects();
+    const clusters: ClusterGroup[] = [];
+    const assigned = new Set<number>();
+    const proj = map.getProjection();
 
-    const markerItems = Array.isArray(markers) ? markers : [];
-    const signature = markerItems.map((m) => m.id).join('|');
-    if (signature !== lastMarkerSignatureRef.current) {
-      lastMarkerSignatureRef.current = signature;
-      if (!preserveView) {
-        userInteractedRef.current = false;
+    for (let i = 0; i < positions.length; i++) {
+      if (assigned.has(i)) continue;
+
+      const cluster: ClusterGroup = {
+        markers: [positions[i]],
+        center: positions[i].coords,
+      };
+      assigned.add(i);
+
+      const point1 = proj.pointFromCoords(positions[i].position);
+
+      for (let j = i + 1; j < positions.length; j++) {
+        if (assigned.has(j)) continue;
+
+        const point2 = proj.pointFromCoords(positions[j].position);
+        const dx = point1.x - point2.x;
+        const dy = point1.y - point2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < clusterDistance) {
+          cluster.markers.push(positions[j]);
+          assigned.add(j);
+        }
       }
-    }
-    const bounds = new kakao.maps.LatLngBounds();
-    const validPositions: Array<{ marker: MapMarker; position: any }> = [];
 
-    for (const item of markerItems) {
-      const coords = await resolveCoordinates(item);
-      if (!coords) continue;
+      if (cluster.markers.length > 1) {
+        let sumLat = 0, sumLng = 0;
+        cluster.markers.forEach(m => {
+          sumLat += m.coords.lat;
+          sumLng += m.coords.lng;
+        });
+        cluster.center = {
+          lat: sumLat / cluster.markers.length,
+          lng: sumLng / cluster.markers.length,
+        };
+      }
 
-      const position = new kakao.maps.LatLng(coords.lat, coords.lng);
-      validPositions.push({ marker: item, position });
-      bounds.extend(position);
+      clusters.push(cluster);
     }
+
+    const multiClusters = clusters.filter(c => c.markers.length > 1);
+    console.log('📊 클러스터 결과: 전체', clusters.length, '개 중', multiClusters.length, '개 그룹화됨');
+
+    return clusters;
+  };
+
+  const createClusterOverlay = (cluster: ClusterGroup, onClick: () => void): HTMLElement => {
+    const card = document.createElement('div');
+    card.className = 'cluster-card';
+
+    const header = document.createElement('div');
+    header.className = 'cluster-card__header';
+
+    const icon = document.createElement('div');
+    icon.className = 'cluster-card__icon';
+    icon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#FF6B35"/>
+      <circle cx="12" cy="9" r="2.5" fill="white"/>
+    </svg>`;
+
+    const text = document.createElement('span');
+    text.className = 'cluster-card__text';
+    text.textContent = `지역 맛집 ${cluster.markers.length}개`;
+
+    header.appendChild(icon);
+    header.appendChild(text);
+    card.appendChild(header);
+
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', onClick);
+
+    return card;
+  };
+
+  const renderMarkersWithClustering = (
+    positions: Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }>,
+    map: any,
+    currentLevel: number
+  ) => {
+    const { kakao } = window;
+    if (!kakao?.maps) return;
+
+    overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+    overlaysRef.current = [];
+    mapMarkersRef.current = [];
 
     if (showUserLocation && userLocation) {
       const userPos = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
-      bounds.extend(userPos);
 
-      // 내 위치 마커 (빨간색)
       const userMarkerWrapper = document.createElement('div');
       userMarkerWrapper.className = 'user-location-marker';
       userMarkerWrapper.innerHTML = `
@@ -612,68 +704,210 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       }
     }
 
-    validPositions.forEach(({ marker: item, position }) => {
-      const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
+    if (currentLevel <= 2) {
+      positions.forEach(({ marker: item, position }) => {
+        const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
 
-      const markerWrapper = document.createElement('div');
-      markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
-      // Ensure inline styles match the desired SVG size
-      markerWrapper.style.width = '32px';
-      markerWrapper.style.height = '48px';
+        const markerWrapper = document.createElement('div');
+        markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
+        markerWrapper.style.width = '32px';
+        markerWrapper.style.height = '48px';
 
-      const pin = document.createElement('div');
-      pin.className = 'restaurant-marker__pin';
-      // Ensure inline styles match the desired SVG size
-      pin.style.width = '32px';
-      pin.style.height = '48px';
-      pin.style.background = 'transparent'; // Ensure background doesn't interfere
-      pin.style.boxShadow = 'none'; // Remove any default shadow
-      pin.style.border = 'none'; // Remove any default border
-      
-      // Use SVG directly
-      pin.innerHTML = RESTAURANT_MARKER_SVG;
-      const svg = pin.querySelector('svg');
-      if (svg) {
-        svg.style.width = '96px';
-        svg.style.height = '126px';
-        svg.style.display = 'block';
-      }
+        const pin = document.createElement('div');
+        pin.className = 'restaurant-marker__pin';
+        pin.style.width = '32px';
+        pin.style.height = '48px';
+        pin.style.background = 'transparent';
+        pin.style.boxShadow = 'none';
+        pin.style.border = 'none';
+        pin.innerHTML = RESTAURANT_MARKER_SVG;
 
-      markerWrapper.appendChild(pin);
+        const svg = pin.querySelector('svg');
+        if (svg) {
+          svg.style.width = '96px';
+          svg.style.height = '126px';
+          svg.style.display = 'block';
+        }
 
-      if (onMarkerClick) {
+        markerWrapper.appendChild(pin);
+
+        const handleMarkerClick = () => {
+          if (currentLevel > 2) {
+            map.setLevel(2);
+            map.setCenter(position);
+            currentLevelRef.current = 2;
+            userInteractedRef.current = true;
+          }
+          if (onMarkerClick) {
+            onMarkerClick(item);
+          }
+        };
+
         markerWrapper.style.cursor = 'pointer';
-        markerWrapper.addEventListener('click', () => onMarkerClick(item));
-      }
+        markerWrapper.addEventListener('click', handleMarkerClick);
 
-      const markerOverlay = new kakao.maps.CustomOverlay({
-        position,
-        yAnchor: 1.0,
-        xAnchor: 0.5,
-        content: markerWrapper,
-        zIndex: isFocused ? 1300 : 1200,
-      });
-
-      markerOverlay.setMap(map);
-      overlaysRef.current.push(markerOverlay);
-
-      if (item.name) {
-        const card = createRestaurantCard(item, isFocused);
-        const cardOverlay = new kakao.maps.CustomOverlay({
+        const markerOverlay = new kakao.maps.CustomOverlay({
           position,
           yAnchor: 1.0,
           xAnchor: 0.5,
-          content: card,
-          zIndex: isFocused ? 1400 : 1300,
+          content: markerWrapper,
+          zIndex: isFocused ? 1300 : 1200,
         });
-        cardOverlay.setMap(map);
-        overlaysRef.current.push(cardOverlay);
+
+        markerOverlay.setMap(map);
+        overlaysRef.current.push(markerOverlay);
+
+        if (item.name) {
+          const card = createRestaurantCard(item, isFocused);
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', handleMarkerClick);
+          const cardOverlay = new kakao.maps.CustomOverlay({
+            position,
+            yAnchor: 1.0,
+            xAnchor: 0.5,
+            content: card,
+            zIndex: isFocused ? 1400 : 1300,
+          });
+          cardOverlay.setMap(map);
+          overlaysRef.current.push(cardOverlay);
+        }
+      });
+    } else {
+      const clusterDistance = Math.max(100, 60 + (currentLevel - 3) * 30);
+      console.log('🔍 클러스터링 거리:', clusterDistance, '레벨:', currentLevel);
+      const clusters = calculateClusters(positions, map, clusterDistance);
+
+      clusters.forEach((cluster) => {
+        if (cluster.markers.length === 1) {
+          const { marker: item, position } = cluster.markers[0];
+          const isFocused = !!(focusMarkerId && item.id === focusMarkerId);
+
+          const markerWrapper = document.createElement('div');
+          markerWrapper.className = `restaurant-marker ${isFocused ? 'restaurant-marker--selected' : ''}`;
+          markerWrapper.style.width = '32px';
+          markerWrapper.style.height = '48px';
+
+          const pin = document.createElement('div');
+          pin.className = 'restaurant-marker__pin';
+          pin.style.width = '32px';
+          pin.style.height = '48px';
+          pin.style.background = 'transparent';
+          pin.style.boxShadow = 'none';
+          pin.style.border = 'none';
+          pin.innerHTML = RESTAURANT_MARKER_SVG;
+
+          const svg = pin.querySelector('svg');
+          if (svg) {
+            svg.style.width = '96px';
+            svg.style.height = '126px';
+            svg.style.display = 'block';
+          }
+
+          markerWrapper.appendChild(pin);
+
+          const handleSingleMarkerClick = () => {
+            map.setLevel(2);
+            map.setCenter(position);
+            currentLevelRef.current = 2;
+            userInteractedRef.current = true;
+            if (onMarkerClick) {
+              onMarkerClick(item);
+            }
+          };
+
+          markerWrapper.style.cursor = 'pointer';
+          markerWrapper.addEventListener('click', handleSingleMarkerClick);
+
+          const markerOverlay = new kakao.maps.CustomOverlay({
+            position,
+            yAnchor: 1.0,
+            xAnchor: 0.5,
+            content: markerWrapper,
+            zIndex: isFocused ? 1300 : 1200,
+          });
+
+          markerOverlay.setMap(map);
+          overlaysRef.current.push(markerOverlay);
+
+          if (item.name) {
+            const card = createRestaurantCard(item, isFocused);
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', handleSingleMarkerClick);
+            const cardOverlay = new kakao.maps.CustomOverlay({
+              position,
+              yAnchor: 1.0,
+              xAnchor: 0.5,
+              content: card,
+              zIndex: isFocused ? 1400 : 1300,
+            });
+            cardOverlay.setMap(map);
+            overlaysRef.current.push(cardOverlay);
+          }
+        } else {
+          const clusterPosition = new kakao.maps.LatLng(cluster.center.lat, cluster.center.lng);
+
+          const handleClusterClick = () => {
+            map.setLevel(2);
+            map.setCenter(clusterPosition);
+            currentLevelRef.current = 2;
+            userInteractedRef.current = true;
+          };
+
+          const clusterCard = createClusterOverlay(cluster, handleClusterClick);
+          const clusterOverlay = new kakao.maps.CustomOverlay({
+            position: clusterPosition,
+            yAnchor: 0.5,
+            xAnchor: 0.5,
+            content: clusterCard,
+            zIndex: 1500,
+          });
+
+          clusterOverlay.setMap(map);
+          overlaysRef.current.push(clusterOverlay);
+        }
+      });
+    }
+  };
+
+  const renderMarkers = async () => {
+    const map = mapInstance.current;
+    if (!map) return;
+    const { kakao } = window;
+    if (!kakao?.maps?.LatLngBounds) return;
+
+    clearMapObjects();
+
+    const markerItems = Array.isArray(markers) ? markers : [];
+    const signature = markerItems.map((m) => m.id).join('|');
+    if (signature !== lastMarkerSignatureRef.current) {
+      lastMarkerSignatureRef.current = signature;
+      if (!preserveView) {
+        userInteractedRef.current = false;
       }
-    });
+    }
+    const bounds = new kakao.maps.LatLngBounds();
+    const validPositions: Array<{ marker: MapMarker; position: any; coords: { lat: number; lng: number } }> = [];
+
+    for (const item of markerItems) {
+      const coords = await resolveCoordinates(item);
+      if (!coords) continue;
+
+      const position = new kakao.maps.LatLng(coords.lat, coords.lng);
+      validPositions.push({ marker: item, position, coords });
+      bounds.extend(position);
+    }
+
+    validPositionsRef.current = validPositions;
+
+    if (showUserLocation && userLocation) {
+      const userPos = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
+      bounds.extend(userPos);
+    }
 
     if (validPositions.length === 0 && userLocation) {
       map.setCenter(new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude));
       map.setLevel(level);
+      currentLevelRef.current = level;
       map.relayout();
       setMapLoaded(true);
       return;
@@ -681,6 +915,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
 
     if (validPositions.length === 0) {
       map.setLevel(level);
+      currentLevelRef.current = level;
       map.relayout();
       setMapLoaded(true);
       return;
@@ -693,6 +928,7 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
       if (view) {
         map.setLevel(view.level);
         map.setCenter(new kakao.maps.LatLng(view.lat, view.lng));
+        currentLevelRef.current = view.level;
       }
       initialViewRef.current = null;
       fullscreenViewRef.current = null;
@@ -706,6 +942,14 @@ const KakaoMap: React.FC<KakaoMapProps> = ({
     }
 
     map.relayout();
+
+    setTimeout(() => {
+      const actualLevel = map.getLevel();
+      currentLevelRef.current = actualLevel;
+      console.log('🗺️ 클러스터링 적용 - 현재 레벨:', actualLevel, '마커 수:', validPositions.length);
+      renderMarkersWithClustering(validPositions, map, actualLevel);
+    }, 100);
+
     setMapLoaded(true);
   };
 
