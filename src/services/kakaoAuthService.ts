@@ -1,12 +1,7 @@
 import { supabase } from './supabaseClient';
 import { getErrorMessage } from './api';
 import { User } from '../types';
-import {
-  clearSessionRefreshState,
-  ensureSession,
-  isOfflineError,
-  isSessionTimeoutError,
-} from './sessionManager';
+import { clearSessionRefreshState } from './sessionManager';
 
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
@@ -45,24 +40,14 @@ export const signupWithKakao = async (): Promise<void> => {
 
 // 현재 사용자 정보 가져오기 (카카오 OAuth 기반)
 export const getCurrentUser = async (): Promise<User | null> => {
-  try {
-    const session = await ensureSession();
-    if (!session) {
-      return null;
-    }
-  } catch (error) {
-    if (isOfflineError(error) || isSessionTimeoutError(error)) {
-      console.warn('getCurrentUser: 세션 확인 불가 (오프라인/타임아웃)');
-      return null;
-    }
-    throw error;
-  }
-  
+  // getUser()가 이미 서버에서 세션을 검증하므로 ensureSession() 호출 제거
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error) {
     // 인증 관련 에러인 경우 null 반환 (로그아웃 상태로 처리)
-    if (error.message.includes('JWT') || error.message.includes('expired') || error.message.includes('invalid') || error.message.includes('401')) {
+    if (error.message.includes('JWT') || error.message.includes('expired') || 
+        error.message.includes('invalid') || error.message.includes('401') ||
+        error.message.includes('refresh_token_not_found')) {
       console.warn('getCurrentUser: 인증 토큰 오류:', error.message);
       return null;
     }

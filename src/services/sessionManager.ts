@@ -1,7 +1,7 @@
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 
-const REFRESH_TIMEOUT_MS = 10000;
+const REFRESH_TIMEOUT_MS = 5000;
 const OFFLINE_ERROR_MESSAGE = 'OFFLINE';
 
 class SessionRefreshTimeoutError extends Error {
@@ -52,10 +52,18 @@ const runRefresh = async (): Promise<Session | null> => {
     );
 
     if (result.error) {
+      console.error('세션 갱신 실패:', result.error.message);
+      if (result.error.message.includes('refresh_token_not_found') ||
+          result.error.message.includes('Invalid Refresh Token')) {
+        return null;
+      }
       throw result.error;
     }
 
     return result.data.session ?? null;
+  } catch (error) {
+    console.error('세션 갱신 중 예외:', error);
+    return null;
   } finally {
     refreshPromise = null;
   }
