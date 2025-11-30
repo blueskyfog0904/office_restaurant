@@ -575,6 +575,40 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
 
     console.log('🗺️ 클러스터링 적용 - 현재 레벨:', currentLevel, '마커 수:', positions.length);
 
+    // 사용자 위치 마커 렌더링 (클러스터링과 무관하게 항상 표시)
+    if (showUserLocation && userLocation) {
+      const userPos = new kakao.maps.LatLng(userLocation.latitude, userLocation.longitude);
+      
+      const userMarkerWrapper = document.createElement('div');
+      userMarkerWrapper.className = 'user-location-marker';
+      userMarkerWrapper.innerHTML = `
+        <div class="user-location-marker__pin">
+          <span class="user-location-marker__icon">📍</span>
+        </div>
+      `;
+      
+      const userMarkerOverlay = new kakao.maps.CustomOverlay({
+        position: userPos,
+        yAnchor: 1.0,
+        xAnchor: 0.5,
+        content: userMarkerWrapper,
+        zIndex: 2000,
+      });
+      userMarkerOverlay.setMap(map);
+      overlaysRef.current.push(userMarkerOverlay);
+
+      if (userLocation.label) {
+        const labelOverlay = new kakao.maps.CustomOverlay({
+          position: userPos,
+          yAnchor: 1.6,
+          content: `<div style="padding:4px 8px;background:#DC2626;color:white;border-radius:8px;font-size:12px;font-weight:600;box-shadow:0 2px 6px rgba(220,38,38,0.3);">${userLocation.label}</div>`
+        });
+        labelOverlay.setMap(map);
+        labelOverlay.setZIndex(2100);
+        overlaysRef.current.push(labelOverlay);
+      }
+    }
+
     // 선택된 음식점(focusMarkerId)은 항상 개별 마커로 표시 (클러스터링 제외)
     // ref를 사용하여 항상 최신 focusMarkerId 값을 참조
     const currentFocusMarkerId = focusMarkerIdRef.current;
