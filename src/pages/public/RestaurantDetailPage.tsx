@@ -625,6 +625,18 @@ const RestaurantDetailPage: React.FC = () => {
         뒤로가기
       </button>
 
+      {/* 사진 갤러리 - 맨 위에 배치 */}
+      {(photos.length > 0 || photosLoading) && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
+          <RestaurantPhotoGallery 
+            photos={photos} 
+            restaurantName={restaurant.title || restaurant.name}
+            isLoading={photosLoading}
+          />
+        </div>
+      )}
+
       {/* 음식점 기본 정보 */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
@@ -752,17 +764,6 @@ const RestaurantDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* 사진 갤러리 */}
-      {photos.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
-          <RestaurantPhotoGallery 
-            photos={photos} 
-            restaurantName={restaurant.title || restaurant.name}
-          />
-        </div>
-      )}
 
       {/* 카카오 지도 */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">

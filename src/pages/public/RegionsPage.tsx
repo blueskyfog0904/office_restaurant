@@ -1834,6 +1834,18 @@ const RegionsPage: React.FC = () => {
 
               {/* 모달 내용 */}
               <div className="p-6">
+                {/* 사진 갤러리 - 맨 위에 배치 */}
+                {(modalPhotos.length > 0 || modalPhotosLoading) && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
+                    <RestaurantPhotoGallery 
+                      photos={modalPhotos} 
+                      restaurantName={selectedRestaurantForModal.title || selectedRestaurantForModal.name}
+                      isLoading={modalPhotosLoading}
+                    />
+                  </div>
+                )}
+
                 {/* 음식점 기본 정보 */}
                 <div className="bg-gray-50 rounded-lg p-6 mb-6">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
@@ -1949,17 +1961,6 @@ const RegionsPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* 사진 갤러리 */}
-                {modalPhotos.length > 0 && (
-                  <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">사진</h2>
-                    <RestaurantPhotoGallery 
-                      photos={modalPhotos} 
-                      restaurantName={selectedRestaurantForModal.title || selectedRestaurantForModal.name}
-                    />
-                  </div>
-                )}
 
                 {/* 카카오 지도 */}
                 <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

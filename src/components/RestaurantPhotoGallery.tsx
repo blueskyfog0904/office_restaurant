@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { RestaurantPhoto } from '../services/authService';
 import { getPhotoUrl } from '../utils/googlePlacesPhoto';
@@ -6,10 +6,66 @@ import { getPhotoUrl } from '../utils/googlePlacesPhoto';
 interface RestaurantPhotoGalleryProps {
   photos: RestaurantPhoto[];
   restaurantName?: string;
+  isLoading?: boolean;
 }
 
-const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos, restaurantName = '음식점' }) => {
+// 개별 이미지 컴포넌트 (로딩 상태 포함)
+const PhotoImage: React.FC<{
+  src: string;
+  alt: string;
+  className?: string;
+  onClick?: () => void;
+}> = ({ src, alt, className, onClick }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div className="relative w-full h-full">
+      {isLoading && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mb-2"></div>
+            <span className="text-xs text-gray-500">로딩 중...</span>
+          </div>
+        </div>
+      )}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          <span className="text-sm text-gray-500">이미지 로드 실패</span>
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        onClick={onClick}
+        loading="lazy"
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          setIsLoading(false);
+          setHasError(true);
+        }}
+      />
+    </div>
+  );
+};
+
+const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ 
+  photos, 
+  restaurantName = '음식점',
+  isLoading = false 
+}) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [lightboxImageLoading, setLightboxImageLoading] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
+        <span className="ml-3 text-gray-600">사진을 불러오는 중...</span>
+      </div>
+    );
+  }
 
   if (photos.length === 0) {
     return null;
@@ -17,17 +73,20 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
 
   const openLightbox = (index: number) => {
     setSelectedIndex(index);
+    setLightboxImageLoading(true);
     document.body.style.overflow = 'hidden';
   };
 
   const closeLightbox = () => {
     setSelectedIndex(null);
+    setLightboxImageLoading(false);
     document.body.style.overflow = 'unset';
   };
 
   const goToPrevious = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedIndex !== null && selectedIndex > 0) {
+      setLightboxImageLoading(true);
       setSelectedIndex(selectedIndex - 1);
     }
   };
@@ -35,6 +94,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
   const goToNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (selectedIndex !== null && selectedIndex < photos.length - 1) {
+      setLightboxImageLoading(true);
       setSelectedIndex(selectedIndex + 1);
     }
   };
@@ -45,8 +105,10 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
     if (e.key === 'Escape') {
       closeLightbox();
     } else if (e.key === 'ArrowLeft' && selectedIndex > 0) {
+      setLightboxImageLoading(true);
       setSelectedIndex(selectedIndex - 1);
     } else if (e.key === 'ArrowRight' && selectedIndex < photos.length - 1) {
+      setLightboxImageLoading(true);
       setSelectedIndex(selectedIndex + 1);
     }
   };
@@ -57,13 +119,12 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
       const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
       
       return (
-        <div className="w-full">
-          <img
+        <div className="w-full aspect-video relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
+          <PhotoImage
             src={imageUrl}
             alt={`${restaurantName} 사진`}
-            className="w-full h-auto rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity"
+            className="w-full h-full object-cover"
             onClick={() => openLightbox(0)}
-            loading="lazy"
           />
         </div>
       );
@@ -83,14 +144,13 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
             return (
               <div
                 key={photo.id}
-                className={`${isLarge ? 'col-span-2 row-span-2' : ''} relative group cursor-pointer overflow-hidden rounded-lg`}
+                className={`${isLarge ? 'col-span-2 row-span-2' : ''} relative group cursor-pointer overflow-hidden rounded-lg aspect-square`}
                 onClick={() => openLightbox(index)}
               >
-                <img
+                <PhotoImage
                   src={imageUrl}
                   alt={`${restaurantName} 사진 ${index + 1}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
                 />
                 {photos.length > 4 && index === 3 && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold text-lg">
@@ -135,11 +195,10 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
                   onClick={() => openLightbox(index)}
                   style={{ scrollSnapAlign: 'start' }}
                 >
-                  <img
+                  <PhotoImage
                     src={imageUrl}
                     alt={`${restaurantName} 사진 ${index + 1}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
                   />
                 </div>
               );
@@ -195,15 +254,26 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
             </button>
           )}
 
-          <div className="max-w-7xl max-h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+          <div className="max-w-7xl max-h-full flex items-center justify-center relative" onClick={(e) => e.stopPropagation()}>
+            {/* 라이트박스 로딩 인디케이터 */}
+            {lightboxImageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div className="flex flex-col items-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-3"></div>
+                  <span className="text-white text-sm">사진 로딩 중...</span>
+                </div>
+              </div>
+            )}
             <img
               src={getPhotoUrl(photos[selectedIndex].photo_url, photos[selectedIndex].photo_reference)}
               alt={`${restaurantName} 사진 ${selectedIndex + 1}`}
-              className="max-w-full max-h-[90vh] object-contain"
+              className={`max-w-full max-h-[90vh] object-contain transition-opacity duration-300 ${lightboxImageLoading ? 'opacity-30' : 'opacity-100'}`}
+              onLoad={() => setLightboxImageLoading(false)}
+              onError={() => setLightboxImageLoading(false)}
             />
           </div>
 
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded-full">
             {selectedIndex + 1} / {photos.length}
           </div>
         </div>
@@ -213,4 +283,3 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ photos,
 };
 
 export default RestaurantPhotoGallery;
-
