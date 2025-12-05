@@ -14,6 +14,32 @@ if (!url || !anonKey) {
 const dummyUrl = url || 'https://dummy.supabase.co';
 const dummyKey = anonKey || 'dummy-key';
 
+// 커스텀 스토리지 - 세션 저장/조회 시 에러 핸들링 강화
+const customStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn('localStorage getItem 실패:', e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn('localStorage setItem 실패:', e);
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn('localStorage removeItem 실패:', e);
+    }
+  },
+};
+
 // 일반 사용자용 클라이언트 (anon key 사용)
 // 모든 Auth 작업에 이 클라이언트만 사용
 export const supabase: SupabaseClient = createClient(dummyUrl, dummyKey, {
@@ -21,7 +47,44 @@ export const supabase: SupabaseClient = createClient(dummyUrl, dummyKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    storage: customStorage,
+    // 세션 만료 전 갱신 시도 시간 (기본값보다 일찍)
+    flowType: 'pkce',
   },
+  global: {
+    headers: {
+      'x-client-info': 'office-restaurant-web',
+    },
+    // fetch 타임아웃 설정
+    fetch: (url, options) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15초 타임아웃
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+      }).finally(() => {
+        clearTimeout(timeoutId);
+      });
+    },
+  },
+});
+
+// Supabase 클라이언트 auth 상태 변경 리스너 등록 (전역)
+// TOKEN_REFRESHED 실패 시 이벤트 발생
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED') {
+    if (!session) {
+      console.warn('🔄 토큰 갱신 실패 - 세션 없음');
+      window.dispatchEvent(new CustomEvent('session-refresh-failed'));
+    } else {
+      console.log('✅ 토큰 갱신 성공');
+    }
+  }
+  
+  if (event === 'SIGNED_OUT') {
+    console.log('🚪 로그아웃됨');
+  }
 });
 
 // 관리자용 클라이언트 - Lazy 초기화로 필요할 때만 생성
@@ -45,6 +108,19 @@ export const getSupabaseAdmin = (): SupabaseClient => {
       },
       db: {
         schema: 'public'
+      },
+      global: {
+        fetch: (url, options) => {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000);
+          
+          return fetch(url, {
+            ...options,
+            signal: controller.signal,
+          }).finally(() => {
+            clearTimeout(timeoutId);
+          });
+        },
       },
     });
   }
