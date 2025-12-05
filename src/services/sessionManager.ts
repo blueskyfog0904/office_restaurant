@@ -2,12 +2,20 @@ import { Session } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
 
 const REFRESH_TIMEOUT_MS = 5000;
+const API_TIMEOUT_MS = 8000;
 const OFFLINE_ERROR_MESSAGE = 'OFFLINE';
 
 class SessionRefreshTimeoutError extends Error {
   constructor() {
     super('SESSION_REFRESH_TIMEOUT');
     this.name = 'SessionRefreshTimeoutError';
+  }
+}
+
+class ApiTimeoutError extends Error {
+  constructor(operation: string) {
+    super(`API_TIMEOUT: ${operation}`);
+    this.name = 'ApiTimeoutError';
   }
 }
 
@@ -20,14 +28,14 @@ class OfflineError extends Error {
 
 let refreshPromise: Promise<Session | null> | null = null;
 
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+export const withTimeout = <T>(promise: Promise<T>, timeoutMs: number, operationName?: string): Promise<T> => {
   if (!timeoutMs) {
     return promise;
   }
 
   return new Promise<T>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
-      reject(new SessionRefreshTimeoutError());
+      reject(operationName ? new ApiTimeoutError(operationName) : new SessionRefreshTimeoutError());
     }, timeoutMs);
 
     promise
@@ -40,6 +48,13 @@ const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
         reject(error);
       });
   });
+};
+
+export const isApiTimeoutError = (error: unknown): boolean => {
+  return (
+    error instanceof ApiTimeoutError ||
+    (error instanceof Error && error.name === 'ApiTimeoutError')
+  );
 };
 
 type RefreshResponse = Awaited<ReturnType<typeof supabase.auth.refreshSession>>;
@@ -123,15 +138,8 @@ export const isAuthError = (error: unknown): boolean => {
   return false;
 };
 
-// 세션 초기화 및 로그아웃
-export const forceSignOut = async () => {
-  try {
-    await supabase.auth.signOut();
-  } catch (e) {
-    console.warn('signOut 실패:', e);
-  }
-  
-  // localStorage 정리
+// 로컬 스토리지 정리 (signOut 실패해도 실행)
+const cleanupLocalStorage = () => {
   const keysToRemove = ['user', 'admin_user'];
   keysToRemove.forEach(key => {
     try {
@@ -148,6 +156,19 @@ export const forceSignOut = async () => {
       localStorage.removeItem(key);
     }
   }
+};
+
+// 세션 초기화 및 로그아웃 (타임아웃 포함)
+export const forceSignOut = async () => {
+  try {
+    await withTimeout(supabase.auth.signOut(), API_TIMEOUT_MS, 'signOut');
+  } catch (e) {
+    console.warn('signOut 실패 또는 타임아웃:', e);
+  }
+  
+  // signOut 성공/실패 관계없이 로컬 스토리지 정리
+  cleanupLocalStorage();
+  clearSessionRefreshState();
 };
 
 // 세션이 필요한 API 호출을 위한 래퍼 함수
@@ -172,18 +193,31 @@ export const executePublicApi = async <T>(
   operationName?: string
 ): Promise<T> => {
   try {
-    return await fn();
+    // API 호출에 타임아웃 적용
+    return await withTimeout(fn(), API_TIMEOUT_MS * 2, operationName);
   } catch (error) {
     if (operationName) {
       console.error(`${operationName} 실패:`, error);
+    }
+    
+    // 타임아웃 에러면 그대로 throw (재시도 안함)
+    if (isApiTimeoutError(error)) {
+      throw new Error(`요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.`);
     }
     
     // 인증 에러면 세션 정리 후 재시도
     if (isAuthError(error)) {
       console.warn('⚠️ 인증 오류 감지, 세션 정리 후 재시도');
       await forceSignOut();
-      // 한 번 더 시도
-      return await fn();
+      // 한 번 더 시도 (타임아웃 적용)
+      try {
+        return await withTimeout(fn(), API_TIMEOUT_MS * 2, operationName);
+      } catch (retryError) {
+        if (isApiTimeoutError(retryError)) {
+          throw new Error(`요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.`);
+        }
+        throw retryError;
+      }
     }
     
     throw error;

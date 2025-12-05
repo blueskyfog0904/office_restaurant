@@ -3,6 +3,9 @@ import { User } from '../types';
 import { getCurrentUser, logout as logoutAPI } from '../services/kakaoAuthService';
 import { login as loginAPI } from '../services/authService';
 import { supabase } from '../services/supabaseClient';
+import { withTimeout, forceSignOut } from '../services/sessionManager';
+
+const SESSION_CHECK_TIMEOUT_MS = 8000;
 
 // ===================================
 // 인증 Context 타입 정의
@@ -89,32 +92,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setIsLoading(false);
 
-    const checkSession = async () => {
+    const checkSession = async (isVisibilityChange = false) => {
       if (isProcessingAuthRef.current) return;
       isProcessingAuthRef.current = true;
 
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // 타임아웃 적용된 세션 확인
+        const sessionResult = await withTimeout(
+          supabase.auth.getSession(),
+          SESSION_CHECK_TIMEOUT_MS,
+          'getSession'
+        );
         
-        if (sessionError || !session) {
+        if (sessionResult.error || !sessionResult.data.session) {
           console.warn('⚠️ 세션이 유효하지 않음, 로그아웃 처리');
-          await supabase.auth.signOut();
-          localStorage.removeItem(STORAGE_KEY);
-          localStorage.removeItem('admin_user');
+          await forceSignOut();
           setUser(null);
           
-          if (storedUser) {
+          // 저장된 사용자가 있었고 visibility change가 아닌 경우에만 새로고침
+          if (storedUser && !isVisibilityChange) {
             window.location.reload();
           }
           return;
         }
 
-        const { data: { user: authUser }, error: userError } = await supabase.auth.getUser();
+        // 타임아웃 적용된 사용자 정보 조회
+        const userResult = await withTimeout(
+          supabase.auth.getUser(),
+          SESSION_CHECK_TIMEOUT_MS,
+          'getUser'
+        );
         
-        if (userError || !authUser) {
+        if (userResult.error || !userResult.data.user) {
           console.warn('⚠️ 사용자 정보 조회 실패, 로그아웃 처리');
-          await supabase.auth.signOut();
-          localStorage.removeItem(STORAGE_KEY);
+          await forceSignOut();
           setUser(null);
           return;
         }
@@ -129,13 +140,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.warn('사용자 정보 조회 실패:', e);
         }
       } catch (e) {
-        console.warn('세션 확인 실패:', e);
+        console.warn('세션 확인 실패 (타임아웃 포함):', e);
+        // 타임아웃 시 로컬 상태 정리
+        if (storedUser) {
+          await forceSignOut();
+          setUser(null);
+        }
       } finally {
         isProcessingAuthRef.current = false;
       }
     };
 
-    const timeoutId = setTimeout(checkSession, 100);
+    const timeoutId = setTimeout(() => checkSession(false), 100);
+
+    // 앱이 백그라운드 → 포그라운드로 전환될 때 세션 재확인 (iOS Safari 대응)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('📱 앱 포그라운드 전환 - 세션 재확인');
+        // 약간의 딜레이 후 세션 확인 (iOS Safari 안정화)
+        setTimeout(() => checkSession(true), 500);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔐 Auth state change:', event, session?.user?.email);
@@ -194,6 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return () => {
       clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       subscription.unsubscribe();
     };
   }, []);
@@ -233,15 +261,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       logoutCalledRef.current = true;
       await logoutAPI();
+    } catch (error) {
+      console.error('로그아웃 실패 또는 타임아웃:', error);
+      // 실패해도 로컬 상태는 정리
+      await forceSignOut();
+    } finally {
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('admin_user');
-      alert('로그아웃이 되었습니다.');
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-      setUser(null);
-    } finally {
       setIsLoading(false);
+      alert('로그아웃이 되었습니다.');
     }
   };
 

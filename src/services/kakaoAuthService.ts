@@ -1,7 +1,9 @@
 import { supabase } from './supabaseClient';
 import { getErrorMessage } from './api';
 import { User } from '../types';
-import { clearSessionRefreshState } from './sessionManager';
+import { clearSessionRefreshState, withTimeout } from './sessionManager';
+
+const LOGOUT_TIMEOUT_MS = 5000;
 
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
@@ -130,16 +132,26 @@ export const getCurrentUser = async (): Promise<User | null> => {
   } as User & { kakao_id?: string; profile_image_url?: string; provider: string };
 };
 
-// 로그아웃
+// 로그아웃 (타임아웃 포함)
 export const logout = async (): Promise<void> => {
   try {
-    await supabase.auth.signOut();
+    await withTimeout(supabase.auth.signOut(), LOGOUT_TIMEOUT_MS, 'logout');
+  } catch (e) {
+    console.warn('로그아웃 실패 또는 타임아웃:', e);
   } finally {
     clearSessionRefreshState();
-    // 로컬 캐시 정리
+    // 로컬 캐시 정리 (signOut 성공/실패 관계없이)
     try { 
       localStorage.removeItem('user'); 
-      sessionStorage.clear(); 
+      localStorage.removeItem('admin_user');
+      sessionStorage.clear();
+      // Supabase 세션 키 정리
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      }
     } catch {}
   }
 };
