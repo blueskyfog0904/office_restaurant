@@ -1128,6 +1128,49 @@ export const createReview = async (
   return data as any;
 };
 
+export const updateReview = async (
+  reviewId: string,
+  reviewData: import('../types').UserReviewUpdateRequest
+): Promise<import('../types').UserReview> => {
+  let userId: string;
+  
+  if (isLocalhost()) {
+    userId = LOCALHOST_USER_ID;
+  } else {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) throw new Error(getErrorMessage(userError));
+    userId = userData.user?.id || '';
+    if (!userId) throw new Error('로그인이 필요합니다.');
+  }
+
+  const client = getClient();
+  
+  const updateData: any = {};
+  if (reviewData.rating !== undefined) {
+    updateData.rating = reviewData.rating;
+  }
+  if (reviewData.content !== undefined) {
+    updateData.content = reviewData.content || null;
+  }
+
+  const { data, error } = await client
+    .from('reviews')
+    .update(updateData)
+    .eq('id', reviewId)
+    .eq('user_id', userId)
+    .select('*')
+    .single();
+    
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('리뷰를 찾을 수 없거나 수정 권한이 없습니다.');
+    }
+    throw new Error(getErrorMessage(error));
+  }
+  
+  return data as any;
+};
+
 // ===================================
 // 공유 관련 유틸리티
 // ===================================

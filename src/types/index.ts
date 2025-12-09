@@ -157,6 +157,11 @@ export interface UserReviewCreateRequest {
   content?: string;
 }
 
+export interface UserReviewUpdateRequest {
+  rating?: number;
+  content?: string;
+}
+
 export interface UserReviewListResponse extends BaseResponse {
   data: UserReview[];
   pagination: PaginationResponse;
