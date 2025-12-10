@@ -229,11 +229,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (event === 'SIGNED_OUT') {
+        const wasLoggedIn = !!getStoredUser();
+        
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem('admin_user');
         setUser(null);
         
-        if (!logoutCalledRef.current) {
+        // 이미 로그아웃 상태였거나, 명시적 로그아웃이면 알람 표시 안함
+        if (wasLoggedIn && !logoutCalledRef.current) {
           alert('로그아웃이 되었습니다.');
         }
         logoutCalledRef.current = false;
