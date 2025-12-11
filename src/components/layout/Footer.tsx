@@ -44,16 +44,11 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-md font-medium text-gray-900 mb-4">지원</h4>
             <ul className="space-y-2">
-              {/* <li>
-                <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  서비스 소개
+              <li>
+                <a href="/support" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  지원
                 </a>
-              </li> */}
-              {/* <li>
-                <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  문의하기
-                </a>
-              </li> */}
+              </li>
               <li>
                 <a href="/privacy" className="text-gray-600 hover:text-blue-600 transition-colors">
                   개인정보처리방침
@@ -75,6 +70,9 @@ const Footer: React.FC = () => {
               
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
+              <a href="/support" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">
+                지원
+              </a>
               <a href="/privacy" className="text-sm text-gray-500 hover:text-blue-600 transition-colors">
                 개인정보처리방침
               </a>

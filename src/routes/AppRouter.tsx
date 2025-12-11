@@ -26,6 +26,7 @@ import WritePostPage from '../pages/public/board/WritePostPage';
 import PostDetailPage from '../pages/public/board/PostDetailPage';
 import TermsPage from '../pages/public/TermsPage';
 import PrivacyPage from '../pages/public/PrivacyPage';
+import SupportPage from '../pages/public/SupportPage';
 
 // Test Components
 import KakaoMapTest from '../components/KakaoMapTest';
@@ -161,6 +162,12 @@ const AppRouter: React.FC = () => {
           <Route path="/privacy" element={
             <MainLayout>
               <PrivacyPage />
+            </MainLayout>
+          } />
+          
+          <Route path="/support" element={
+            <MainLayout>
+              <SupportPage />
             </MainLayout>
           } />
 

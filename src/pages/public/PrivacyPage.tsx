@@ -160,6 +160,7 @@ const PrivacyPage: React.FC = () => {
                   <p className="text-gray-700">
                     <strong>개인정보 열람청구 접수·처리 부서</strong><br />
                     이메일: thenaum2030@naver.com
+                    담당지: 김광현 (KWANGHYUN KIM)
                   </p>
                 </div>
               </div>
