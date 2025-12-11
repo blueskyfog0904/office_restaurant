@@ -46,7 +46,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li>
                 <a href="/support" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  지원
+                  문의하기(Support)
                 </a>
               </li>
               <li>

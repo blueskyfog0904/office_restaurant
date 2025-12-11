@@ -49,7 +49,7 @@ const SupportPage: React.FC = () => {
               </p>
             </section>
 
-            <section>
+            {/* <section>
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <span>👥</span> 개발자 커뮤니티
               </h2>
@@ -64,7 +64,7 @@ const SupportPage: React.FC = () => {
               >
                 Apple Developer Forums 방문하기 →
               </a>
-            </section>
+            </section> */}
 
             <section>
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -116,4 +116,5 @@ const SupportPage: React.FC = () => {
 };
 
 export default SupportPage;
+
 
