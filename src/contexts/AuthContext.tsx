@@ -49,6 +49,21 @@ export const useAuth = () => {
 
 const STORAGE_KEY = 'user';
 
+const isLocalhost = (): boolean => {
+  try {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+};
+
+const isLocalTestUser = (u: User | null): boolean => {
+  if (!u) return false;
+  const isTestId = u.id === '00000000-0000-0000-0000-000000000000';
+  const isTestEmail = typeof u.email === 'string' && u.email.endsWith('localhost.dev');
+  return isLocalhost() && (isTestId || isTestEmail);
+};
+
 const getStoredUser = (): User | null => {
   try {
     const userStr = localStorage.getItem(STORAGE_KEY);
@@ -88,6 +103,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     sessionExpiredHandledRef.current = true;
 
     console.log('🔒 세션 만료 처리 시작');
+    // localhost 테스트 유저는 Supabase 세션이 없을 수 있으므로 강제 로그아웃을 막음
+    const localUser = getStoredUser();
+    if (isLocalTestUser(localUser)) {
+      setUser(localUser);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localUser));
+      sessionExpiredHandledRef.current = false;
+      return;
+    }
     
     try {
       await forceSignOut();
@@ -126,6 +149,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isProcessingAuthRef.current = true;
 
       try {
+        const localUserPresent = !!getStoredUser();
+        const localUser = getStoredUser();
+        if (isLocalTestUser(localUser)) {
+          setUser(localUser);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(localUser));
+          return;
+        }
         // 먼저 빠른 세션 검증 시도
         const { isValid, needsRefresh } = await validateSession();
         
@@ -229,6 +259,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (event === 'SIGNED_OUT') {
+        // localhost 테스트 유저 모드에서는 Supabase 세션 없음으로 SIGNED_OUT가 반복될 수 있음 → 무시
+        const localUser = getStoredUser();
+        if (isLocalTestUser(localUser)) {
+          return;
+        }
         const wasLoggedIn = !!getStoredUser();
         
         localStorage.removeItem(STORAGE_KEY);

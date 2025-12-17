@@ -1,11 +1,33 @@
 import { supabase } from './supabaseClient';
 
+export type BoardCode = 'restaurant_info' | 'civil_servant_spots' | 'civil_servant' | 'free' | 'notice' | 'suggestion';
+
+export interface Board {
+  id: string;
+  code: BoardCode;
+  name: string;
+  description?: string | null;
+  is_active: boolean;
+  write_policy?: any;
+}
+
+export interface BoardCategory {
+  id: string;
+  board_id: string;
+  code: string;
+  name: string;
+  display_order: number;
+  is_active: boolean;
+}
+
 export interface Post {
   id: string;
   author_id: string;
   title: string;
   content: string;
   board_type: 'notice' | 'free' | 'suggestion';
+  board_id?: string;
+  category_id?: string | null;
   view_count: number;
   like_count: number;
   dislike_count: number;
@@ -25,7 +47,40 @@ export interface Post {
 export interface PostCreateRequest {
   title: string;
   content: string;
-  board_type: 'notice' | 'free' | 'suggestion';
+  board_type: 'notice' | 'free' | 'suggestion' | 'restaurant_info' | 'civil_servant';
+  category_code?: string;
+}
+
+export interface RestaurantInfoMeta {
+  post_id: string;
+  restaurant_name: string;
+  address_text: string | null;
+  map_link: string | null;
+  representative_menus: string[];
+  price_range: string;
+  one_line_review: string;
+  visit_purpose?: string | null;
+  parking?: string | null;
+  waiting?: string | null;
+  reservation?: string | null;
+  recommended_for?: string | null;
+  tags?: string[] | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+export interface PostPhoto {
+  id: string;
+  post_id: string;
+  photo_url: string;
+  storage_path: string;
+  display_order?: number | null;
+  file_size?: number | null;
+}
+
+export interface RestaurantInfoPost extends Post {
+  meta?: RestaurantInfoMeta | null;
+  thumbnail_url?: string | null;
 }
 
 export interface PostUpdateRequest {
@@ -59,6 +114,246 @@ const withTimeout = async <T,>(promise: Promise<T>, ms = 12000): Promise<T> =>
 // Supabase 쿼리 빌더를 PromiseLike로 처리하기 위한 헬퍼
 const withTimeoutQuery = async <T,>(builder: any, ms = 12000): Promise<T> =>
   withTimeout<T>(Promise.resolve(builder as any), ms);
+
+const getBoardIdByCode = async (boardCode: BoardCode): Promise<string> => {
+  const { data, error } = await supabase.from('boards').select('id').eq('code', boardCode).single();
+  if (error || !data) throw new Error(`게시판 조회 실패: ${error?.message || 'unknown'}`);
+  return data.id;
+};
+
+const getCategoryIdByCode = async (boardId: string, categoryCode: string): Promise<string | null> => {
+  if (!categoryCode) return null;
+  const { data, error } = await supabase
+    .from('board_categories')
+    .select('id')
+    .eq('board_id', boardId)
+    .eq('code', categoryCode)
+    .eq('is_active', true)
+    .single();
+  if (error || !data) return null;
+  return data.id;
+};
+
+export const getBoardCategories = async (boardCode: BoardCode): Promise<BoardCategory[]> => {
+  const boardId = await getBoardIdByCode(boardCode);
+  const { data, error } = await supabase
+    .from('board_categories')
+    .select('id, board_id, code, name, display_order, is_active')
+    .eq('board_id', boardId)
+    .order('display_order', { ascending: true });
+  if (error) throw new Error(`카테고리 조회 실패: ${error.message}`);
+  return (data || []) as any;
+};
+
+export const getBoardPosts = async (
+  boardCode: BoardCode,
+  categoryCode: string | undefined,
+  page: number = 1,
+  size: number = 20
+): Promise<PostListResponse> => {
+  const boardId = await getBoardIdByCode(boardCode);
+  const categoryId = categoryCode ? await getCategoryIdByCode(boardId, categoryCode) : null;
+
+  const from = (page - 1) * size;
+  const to = from + size - 1;
+
+  let q = supabase
+    .from('posts')
+    .select('*', { count: 'exact' })
+    .eq('board_id', boardId)
+    .eq('is_active', true);
+
+  if (categoryId) q = q.eq('category_id', categoryId);
+
+  const { data, error, count } = await withTimeoutQuery<any>(
+    q.order('is_pinned', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(from, to)
+  );
+
+  if (error) throw new Error(`게시글 조회 실패: ${error.message}`);
+
+  const postsWithAuthors = await Promise.all(
+    (data || []).map(async (post: any) => {
+      const { data: profile } = await withTimeoutQuery<any>(
+        supabase.from('profiles').select('nickname, email').eq('user_id', post.author_id).single()
+      );
+      return { ...post, author: profile || { nickname: '알 수 없음', email: '' } };
+    })
+  );
+
+  return {
+    success: true,
+    message: '게시글 조회 성공',
+    data: postsWithAuthors,
+    pagination: {
+      page,
+      size,
+      total: count || 0,
+      pages: Math.ceil((count || 0) / size),
+    },
+  };
+};
+
+export const getHotPostsByBoardCode = async (
+  boardCode: BoardCode,
+  hours: number = 48,
+  limit: number = 10,
+  categoryCode?: string
+): Promise<Post[]> => {
+  // 카테고리 필터링 시 더 많은 데이터를 가져와서 필터링 후 제한
+  const fetchLimit = categoryCode ? limit * 3 : limit;
+  
+  const { data, error } = await supabase.rpc('get_hot_posts', {
+    p_hours: hours,
+    p_limit: fetchLimit,
+    p_board_code: boardCode,
+  });
+
+  if (error) throw new Error(`HOT게시글 조회 실패: ${error.message}`);
+
+  let filteredData = (data || []) as any[];
+  
+  // 카테고리 필터링
+  if (categoryCode) {
+    filteredData = filteredData.filter((post: any) => post.category_code === categoryCode);
+  }
+  
+  // 제한 적용
+  filteredData = filteredData.slice(0, limit);
+
+  const postsWithAuthors = await Promise.all(
+    filteredData.map(async (post: any) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nickname, email')
+        .eq('user_id', post.author_id)
+        .single();
+
+      return {
+        ...post,
+        author: profile || { nickname: '알 수 없음', email: '' },
+      };
+    })
+  );
+
+  return postsWithAuthors;
+};
+
+export const getRestaurantInfoPosts = async (
+  categoryCode: string,
+  page: number = 1,
+  size: number = 20
+): Promise<{ data: RestaurantInfoPost[]; pagination: PostListResponse['pagination'] }> => {
+  const base = await getBoardPosts('restaurant_info', categoryCode, page, size);
+  const ids = (base.data || []).map((p) => p.id);
+
+  if (!ids.length) {
+    return { data: [], pagination: base.pagination };
+  }
+
+  const [{ data: metas }, { data: photos }] = await Promise.all([
+    supabase
+      .from('restaurant_info_post_meta')
+      .select('*')
+      .in('post_id', ids),
+    supabase
+      .from('post_photos')
+      .select('id, post_id, photo_url, storage_path, display_order, file_size')
+      .in('post_id', ids),
+  ]);
+
+  const metaMap = new Map<string, any>();
+  (metas || []).forEach((m: any) => metaMap.set(m.post_id, m));
+
+  const photoMap = new Map<string, any[]>();
+  (photos || []).forEach((ph: any) => {
+    const list = photoMap.get(ph.post_id) || [];
+    list.push(ph);
+    photoMap.set(ph.post_id, list);
+  });
+
+  const merged: RestaurantInfoPost[] = (base.data as any[]).map((p: any) => {
+    const meta = metaMap.get(p.id) || null;
+    const ph = (photoMap.get(p.id) || []).slice().sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0));
+    const thumbnail_url = ph.length ? ph[0].photo_url : null;
+    return { ...p, meta, thumbnail_url };
+  });
+
+  return { data: merged, pagination: base.pagination };
+};
+
+export const getRestaurantInfoMeta = async (postId: string): Promise<RestaurantInfoMeta> => {
+  const { data, error } = await supabase.from('restaurant_info_post_meta').select('*').eq('post_id', postId).single();
+  if (error || !data) throw new Error(`맛집정보 메타 조회 실패: ${error?.message || 'unknown'}`);
+  return data as any;
+};
+
+export const getPostPhotos = async (postId: string): Promise<PostPhoto[]> => {
+  const { data, error } = await supabase
+    .from('post_photos')
+    .select('id, post_id, photo_url, storage_path, display_order, file_size')
+    .eq('post_id', postId)
+    .order('display_order', { ascending: true });
+  if (error) throw new Error(`사진 조회 실패: ${error.message}`);
+  return (data || []) as any;
+};
+
+export type CreatePostByEdgeRequest = {
+  board_code: BoardCode;
+  category_code?: string;
+  title: string;
+  content: string;
+  honeypot?: string;
+  restaurant_info?: any;
+  photos?: Array<{ storage_path: string; photo_url?: string; file_size?: number; display_order?: number }>;
+};
+
+export const createPostByEdge = async (payload: CreatePostByEdgeRequest): Promise<Post> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error('로그인이 필요합니다.');
+
+  const resp = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/functions/v1/create-post`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(json.error || '작성 실패');
+
+  const post = json?.data?.post as any;
+  if (!post?.id) throw new Error('작성 결과를 확인할 수 없습니다.');
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('nickname, email')
+    .eq('user_id', post.author_id)
+    .single();
+
+  return { ...post, author: profile || { nickname: '알 수 없음', email: '' } };
+};
+
+export const reportPostByEdge = async (postId: string, reason: string, description?: string) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) throw new Error('로그인이 필요합니다.');
+
+  const resp = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/functions/v1/report-post`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ post_id: postId, reason, description }),
+  });
+
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(json.error || '신고 실패');
+  return json;
+};
 
 // 게시글 목록 조회
 export const getPosts = async (
@@ -188,14 +483,11 @@ export const getLatestPosts = async (): Promise<Post[]> => {
 
 // HOT게시글 조회 (조회수 10회 이상 또는 추천 10개 이상)
 export const getHotPosts = async (): Promise<Post[]> => {
-  const { data, error } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('is_active', true)
-    .or('view_count.gte.10,like_count.gte.10')
-    .order('view_count', { ascending: false })
-    .order('like_count', { ascending: false })
-    .limit(10);
+  const { data, error } = await supabase.rpc('get_hot_posts', {
+    p_hours: 48,
+    p_limit: 10,
+    p_board_code: null,
+  });
 
   if (error) {
     throw new Error(`HOT게시글 조회 실패: ${error.message}`);
@@ -203,7 +495,7 @@ export const getHotPosts = async (): Promise<Post[]> => {
 
   // 작성자 정보 별도 조회
   const postsWithAuthors = await Promise.all(
-    (data || []).map(async (post) => {
+    ((data || []) as any[]).map(async (post: any) => {
       const { data: profile } = await supabase
         .from('profiles')
         .select('nickname, email')
@@ -406,21 +698,52 @@ export const createPost = async (postData: PostCreateRequest): Promise<Post> => 
     throw new Error(`게시글 작성은 ${cooldownCheck.remainingTime}초 후에 가능합니다.`);
   }
 
+  // board_id와 category_id 조회
+  let boardId: string | undefined;
+  let categoryId: string | null = null;
+
+  // board_type을 DB에 저장할 코드로 매핑
+  const boardCodeMap: Record<string, string> = {
+    'free': 'free',
+    'suggestion': 'suggestion',
+    'restaurant_info': 'restaurant_info',
+    'civil_servant': 'civil_servant',
+  };
+  
+  const boardCode = boardCodeMap[postData.board_type];
+  if (boardCode) {
+    boardId = await getBoardIdByCode(boardCode as BoardCode);
+    if (postData.category_code && boardId) {
+      categoryId = await getCategoryIdByCode(boardId, postData.category_code);
+    }
+  }
+
   console.log('Creating post with data:', {
     author_id: user.id,
     title: postData.title,
     content: postData.content,
     board_type: postData.board_type,
+    board_id: boardId,
+    category_id: categoryId,
   });
+
+  const insertData: any = {
+    author_id: user.id,
+    title: postData.title,
+    content: postData.content,
+    board_type: postData.board_type,
+  };
+
+  if (boardId) {
+    insertData.board_id = boardId;
+  }
+  if (categoryId) {
+    insertData.category_id = categoryId;
+  }
 
   const { data, error } = await supabase
     .from('posts')
-    .insert({
-      author_id: user.id,
-      title: postData.title,
-      content: postData.content,
-      board_type: postData.board_type,
-    })
+    .insert(insertData)
     .select('*')
     .single();
 

@@ -24,6 +24,9 @@ import FreeBoardPage from '../pages/public/board/FreeBoardPage';
 import SuggestionBoardPage from '../pages/public/board/SuggestionBoardPage';
 import WritePostPage from '../pages/public/board/WritePostPage';
 import PostDetailPage from '../pages/public/board/PostDetailPage';
+import RestaurantInfoBoardPage from '../pages/public/board/RestaurantInfoBoardPage';
+import CivilServantBoardPage from '../pages/public/board/CivilServantBoardPage';
+import HotBoardPage from '../pages/public/board/HotBoardPage';
 import TermsPage from '../pages/public/TermsPage';
 import PrivacyPage from '../pages/public/PrivacyPage';
 import SupportPage from '../pages/public/SupportPage';
@@ -43,6 +46,9 @@ import AdminUsers from '../pages/admin/AdminUsers';
 import AdminTerms from '../pages/admin/AdminTerms';
 import AdminCommentReports from '../pages/admin/AdminCommentReports';
 import AdminUserRoles from '../pages/admin/AdminUserRoles';
+import AdminBoardsPage from '../pages/admin/AdminBoardsPage';
+import AdminPostReportsPage from '../pages/admin/AdminPostReportsPage';
+import AdminPointsPage from '../pages/admin/AdminPointsPage';
 import AgencyManagementPage from '../pages/admin/AgencyManagementPage';
 import VisitRecordsPage from '../pages/admin/VisitRecordsPage';
 import DataUploadPage from '../pages/admin/DataUploadPage';
@@ -106,6 +112,36 @@ const AppRouter: React.FC = () => {
               <FreeBoardPage />
             </MainLayout>
           } />
+
+          <Route path="/board/free/category/:categoryCode" element={
+            <MainLayout>
+              <FreeBoardPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/free/hot" element={
+            <MainLayout>
+              <HotBoardPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/restaurant-info" element={
+            <MainLayout>
+              <RestaurantInfoBoardPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/restaurant-info/region/:categoryCode" element={
+            <MainLayout>
+              <RestaurantInfoBoardPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/civil-servant" element={
+            <MainLayout>
+              <CivilServantBoardPage />
+            </MainLayout>
+          } />
           
           <Route path="/board/suggestion" element={
             <MainLayout>
@@ -126,6 +162,18 @@ const AppRouter: React.FC = () => {
             </MainLayout>
           } />
 
+          <Route path="/board/civil-servant/write" element={
+            <MainLayout>
+              <WritePostPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/restaurant-info/write" element={
+            <MainLayout>
+              <WritePostPage />
+            </MainLayout>
+          } />
+
           {/* Board Detail Routes */}
           <Route path="/board/notice/:postId" element={
             <MainLayout>
@@ -140,6 +188,18 @@ const AppRouter: React.FC = () => {
           } />
           
           <Route path="/board/suggestion/:postId" element={
+            <MainLayout>
+              <PostDetailPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/restaurant-info/:postId" element={
+            <MainLayout>
+              <PostDetailPage />
+            </MainLayout>
+          } />
+
+          <Route path="/board/civil-servant/:postId" element={
             <MainLayout>
               <PostDetailPage />
             </MainLayout>
@@ -250,6 +310,24 @@ const AppRouter: React.FC = () => {
           <Route path="/admin/suggestions" element={
             <AdminRoute>
               <AdminSuggestions />
+            </AdminRoute>
+          } />
+
+          <Route path="/admin/boards" element={
+            <AdminRoute>
+              <AdminBoardsPage />
+            </AdminRoute>
+          } />
+
+          <Route path="/admin/post-reports" element={
+            <AdminRoute>
+              <AdminPostReportsPage />
+            </AdminRoute>
+          } />
+
+          <Route path="/admin/points" element={
+            <AdminRoute>
+              <AdminPointsPage />
             </AdminRoute>
           } />
           

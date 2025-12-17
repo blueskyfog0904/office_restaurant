@@ -1,6 +1,14 @@
-const MAX_FILE_SIZE = 500 * 1024; // 500KB
-const QUALITY_STEPS = [0.8, 0.6, 0.4, 0.2];
-const MAX_DIMENSION = 1920;
+const DEFAULT_MAX_FILE_SIZE = 500 * 1024; // 500KB (리뷰 업로드 등 기존 동작 기본값)
+const DEFAULT_QUALITY_STEPS = [0.8, 0.6, 0.4, 0.2];
+const DEFAULT_MAX_DIMENSION = 1920;
+
+export type CompressImageOptions = {
+  maxFileSizeBytes?: number;
+  maxDimension?: number;
+  qualitySteps?: number[];
+  outputType?: 'image/jpeg';
+  backgroundColor?: string;
+};
 
 export interface CompressedImage {
   file: File;
@@ -50,14 +58,19 @@ const canvasToBlob = (canvas: HTMLCanvasElement, type: string, quality: number):
   });
 };
 
-export const compressImage = async (file: File): Promise<CompressedImage> => {
+export const compressImage = async (file: File, options?: CompressImageOptions): Promise<CompressedImage> => {
   const originalSize = file.size;
+  const maxFileSizeBytes = options?.maxFileSizeBytes ?? DEFAULT_MAX_FILE_SIZE;
+  const maxDimension = options?.maxDimension ?? DEFAULT_MAX_DIMENSION;
+  const qualitySteps = options?.qualitySteps ?? DEFAULT_QUALITY_STEPS;
+  const outputType = options?.outputType ?? 'image/jpeg';
+  const backgroundColor = options?.backgroundColor ?? '#FFFFFF';
 
   if (!file.type.startsWith('image/')) {
     throw new Error('이미지 파일만 업로드 가능합니다.');
   }
 
-  if (originalSize <= MAX_FILE_SIZE) {
+  if (originalSize <= maxFileSizeBytes) {
     const preview = URL.createObjectURL(file);
     return {
       file,
@@ -68,7 +81,7 @@ export const compressImage = async (file: File): Promise<CompressedImage> => {
   }
 
   const img = await loadImage(file);
-  const { width, height } = calculateDimensions(img.width, img.height, MAX_DIMENSION);
+  const { width, height } = calculateDimensions(img.width, img.height, maxDimension);
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -79,23 +92,22 @@ export const compressImage = async (file: File): Promise<CompressedImage> => {
     throw new Error('Canvas context 생성 실패');
   }
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = backgroundColor;
   ctx.fillRect(0, 0, width, height);
   ctx.drawImage(img, 0, 0, width, height);
 
   URL.revokeObjectURL(img.src);
 
-  const outputType = 'image/jpeg';
   let compressedBlob: Blob | null = null;
 
-  for (const quality of QUALITY_STEPS) {
+  for (const quality of qualitySteps) {
     compressedBlob = await canvasToBlob(canvas, outputType, quality);
-    if (compressedBlob.size <= MAX_FILE_SIZE) {
+    if (compressedBlob.size <= maxFileSizeBytes) {
       break;
     }
   }
 
-  if (!compressedBlob || compressedBlob.size > MAX_FILE_SIZE) {
+  if (!compressedBlob || compressedBlob.size > maxFileSizeBytes) {
     let currentWidth = width;
     let currentHeight = height;
 
@@ -105,12 +117,12 @@ export const compressImage = async (file: File): Promise<CompressedImage> => {
 
       canvas.width = currentWidth;
       canvas.height = currentHeight;
-      ctx.fillStyle = '#FFFFFF';
+      ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, currentWidth, currentHeight);
       ctx.drawImage(img, 0, 0, currentWidth, currentHeight);
 
       compressedBlob = await canvasToBlob(canvas, outputType, 0.6);
-      if (compressedBlob.size <= MAX_FILE_SIZE) {
+      if (compressedBlob.size <= maxFileSizeBytes) {
         break;
       }
     }
@@ -138,12 +150,13 @@ export const compressImage = async (file: File): Promise<CompressedImage> => {
 
 export const compressImages = async (
   files: File[],
+  options?: CompressImageOptions,
   onProgress?: (current: number, total: number) => void
 ): Promise<CompressedImage[]> => {
   const results: CompressedImage[] = [];
 
   for (let i = 0; i < files.length; i++) {
-    const compressed = await compressImage(files[i]);
+    const compressed = await compressImage(files[i], options);
     results.push(compressed);
     onProgress?.(i + 1, files.length);
   }

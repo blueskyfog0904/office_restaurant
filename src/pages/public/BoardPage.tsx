@@ -158,7 +158,7 @@ const BoardPage: React.FC = () => {
                 <h2 className="text-lg font-semibold text-gray-900">HOT게시글</h2>
               </div>
               <Link
-                to="/board/free"
+                to="/board/free/hot"
                 className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
               >
                 <PlusIcon className="h-4 w-4" />
@@ -200,7 +200,25 @@ const BoardPage: React.FC = () => {
       {/* 서브 메뉴 */}
       <div className="mt-8 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">게시판 메뉴</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Link
+            to="/board/restaurant-info"
+            className="flex items-center justify-center gap-2 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
+            <span className="font-medium">맛집정보</span>
+          </Link>
+          <Link
+            to="/board/civil-servant"
+            className="flex items-center justify-center gap-2 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
+            <span className="font-medium">공무원맛집(UGC)</span>
+          </Link>
+          <Link
+            to="/board/free/hot"
+            className="flex items-center justify-center gap-2 p-4 border border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-colors"
+          >
+            <span className="font-medium">HOT인기글</span>
+          </Link>
           <Link
             to="/board/notice"
             className="flex items-center justify-center gap-2 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"

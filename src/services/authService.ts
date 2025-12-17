@@ -1011,6 +1011,7 @@ export const getRestaurantPhotos = async (restaurantId: string): Promise<Restaur
     .from('restaurant_photos')
     .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order')
     .eq('restaurant_id', restaurantId)
+    .eq('is_active', true)  // 비활성화된 이미지(Google 등) 제외
     .order('display_order', { ascending: true })
     .order('uploaded_at', { ascending: true })
     .limit(30);

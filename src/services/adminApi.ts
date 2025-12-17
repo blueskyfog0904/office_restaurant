@@ -7,6 +7,29 @@ export const setSkipAdminCheck = (skip: boolean) => {
   skipAdminCheck = skip;
 };
 
+// 관리자 Edge Function 호출(서비스키 브라우저 노출 방지)
+const callAdminEdge = async (functionName: string, payload: any) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('로그인이 필요합니다.');
+  }
+
+  const resp = await fetch(`${process.env.REACT_APP_SUPABASE_URL}/functions/v1/${functionName}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const json = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(json.error || '요청 실패');
+  }
+  return json;
+};
+
 // 관리자 권한 확인 (role 기반) - 세션 안전성 개선
 const checkAdminRole = async (): Promise<boolean> => {
   try {
@@ -263,6 +286,34 @@ export const getUsers = async (
   }
 
   try {
+    // 1) Edge Function 우선 (브라우저 Service Role Key 제거)
+    try {
+      const res = await callAdminEdge('admin-users', {
+        action: 'list',
+        page,
+        perPage: limit,
+        role: filters.role || 'all',
+        search: filters.search || '',
+      });
+
+      return {
+        data: (res.data || []).map((u: any) => ({
+          user_id: u.user_id,
+          email: u.email || '',
+          nickname: u.nickname || 'N/A',
+          role: u.role || 'user',
+          created_at: u.created_at,
+          last_sign_in_at: undefined,
+        })),
+        total: res.total || 0,
+        page: res.page || page,
+        limit: res.perPage || limit,
+        totalPages: res.totalPages || 1,
+      };
+    } catch (edgeError) {
+      console.warn('admin-users Edge Function 실패, fallback 사용:', edgeError);
+    }
+
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -270,105 +321,38 @@ export const getUsers = async (
     let combinedUsers: UserData[] = [];
     let totalCount = 0;
 
-    try {
-      // Supabase Auth에서 사용자 목록 가져오기
-      const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers({
-        page: page,
-        perPage: limit,
-      });
+    // Fallback: profiles 테이블에서만 정보 가져오기
+    let query = supabase
+      .from('profiles')
+      .select('user_id, email, nickname, role, created_at', { count: 'exact' });
 
-      if (usersError) {
-        throw new Error('Admin API 접근 실패');
-      }
-      
-      // profiles 테이블에서 추가 정보 가져오기
-      const userIds = users.map(u => u.id);
-      let profileQuery = supabase
-        .from('profiles')
-        .select('user_id, nickname, role')
-        .in('user_id', userIds);
-
-      // Admin API에서는 모든 사용자를 가져온 후 클라이언트에서 필터링
-      const { data: profiles, error: profilesError } = await profileQuery;
-
-      if (profilesError) {
-        throw new Error(getErrorMessage(profilesError));
-      }
-
-      const profilesMap = new Map(profiles.map(p => [p.user_id, p]));
-      let allUsers = users.map(user => ({
-        user_id: user.id,
-        email: user.email || '',
-        nickname: profilesMap.get(user.id)?.nickname || 'N/A',
-        role: profilesMap.get(user.id)?.role || 'user',
-        created_at: user.created_at,
-        last_sign_in_at: user.last_sign_in_at,
-      }));
-
-      // 클라이언트 측 필터링 적용
-      if (filters.role && filters.role !== 'all') {
-        allUsers = allUsers.filter(user => user.role === filters.role);
-      }
-
-      if (filters.search && filters.search.trim().length > 0) {
-        const searchTerm = filters.search.trim().toLowerCase();
-        allUsers = allUsers.filter(user => 
-          user.email.toLowerCase().includes(searchTerm) ||
-          user.nickname.toLowerCase().includes(searchTerm)
-        );
-      }
-
-      combinedUsers = allUsers;
-      
-      // 전체 사용자 수를 얻기 위해 별도 쿼리
-      const { count, error: countError } = await supabase
-        .from('profiles')
-        .select('user_id', { count: 'exact', head: true });
-
-      if (countError) {
-        throw new Error(getErrorMessage(countError));
-      }
-
-      totalCount = count || 0;
-
-    } catch (adminError) {
-      console.warn('Admin API 사용 불가, profiles 테이블에서만 조회:', adminError);
-      
-      // Fallback: profiles 테이블에서만 정보 가져오기
-      let query = supabase
-        .from('profiles')
-        .select('user_id, email, nickname, role, created_at', { count: 'exact' });
-
-      // 역할 필터 적용
-      if (filters.role && filters.role !== 'all') {
-        query = query.eq('role', filters.role);
-      }
-
-      // 검색 필터 적용
-      if (filters.search && filters.search.trim().length > 0) {
-        const searchTerm = `%${filters.search.trim()}%`;
-        query = query.or(`email.ilike.${searchTerm},nickname.ilike.${searchTerm}`);
-      }
-
-      const { data: profiles, error: profilesError, count } = await query
-        .range(from, to)
-        .order('created_at', { ascending: false });
-
-      if (profilesError) {
-        throw new Error(getErrorMessage(profilesError));
-      }
-
-      combinedUsers = (profiles || []).map(profile => ({
-        user_id: profile.user_id,
-        email: profile.email || '',
-        nickname: profile.nickname || 'N/A',
-        role: profile.role || 'user',
-        created_at: profile.created_at,
-        last_sign_in_at: undefined, // Admin API 없이는 알 수 없음
-      }));
-
-      totalCount = count || 0;
+    if (filters.role && filters.role !== 'all') {
+      query = query.eq('role', filters.role);
     }
+
+    if (filters.search && filters.search.trim().length > 0) {
+      const searchTerm = `%${filters.search.trim()}%`;
+      query = query.or(`email.ilike.${searchTerm},nickname.ilike.${searchTerm}`);
+    }
+
+    const { data: profiles, error: profilesError, count } = await query
+      .range(from, to)
+      .order('created_at', { ascending: false });
+
+    if (profilesError) {
+      throw new Error(getErrorMessage(profilesError));
+    }
+
+    combinedUsers = (profiles || []).map(profile => ({
+      user_id: profile.user_id,
+      email: profile.email || '',
+      nickname: profile.nickname || 'N/A',
+      role: profile.role || 'user',
+      created_at: profile.created_at,
+      last_sign_in_at: undefined,
+    }));
+
+    totalCount = count || 0;
 
     return {
       data: combinedUsers,
@@ -414,24 +398,18 @@ export const deleteUser = async (userId: string): Promise<{ success: boolean }> 
 
   try {
     try {
-      // Admin API로 사용자 삭제 시도
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-      if (error) throw new Error(getErrorMessage(error));
+      const res = await callAdminEdge('admin-users', { action: 'delete', user_id: userId });
+      if (res?.partial) {
+        throw new Error(`Admin API 제한으로 프로필만 삭제되었습니다. (${res.message || ''})`);
+      }
       return { success: true };
-    } catch (adminApiError) {
-      console.warn('Admin API 사용자 삭제 실패, profiles 테이블에서만 삭제:', adminApiError);
-      
-      // Fallback: profiles 테이블에서만 삭제 (실제 Auth 사용자는 남아있음)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId);
-        
+    } catch (edgeError) {
+      console.warn('admin-users 삭제 Edge 실패, profiles fallback:', edgeError);
+      const { error: profileError } = await supabase.from('profiles').delete().eq('user_id', userId);
       if (profileError) {
         throw new Error(`프로필 삭제 실패: ${getErrorMessage(profileError)}`);
       }
-      
-      throw new Error('Admin API 접근 권한이 없어 프로필만 삭제되었습니다. 완전한 사용자 삭제를 위해서는 Supabase Admin API 키가 필요합니다.');
+      throw new Error('Admin Edge 접근이 실패하여 프로필만 삭제되었습니다.');
     }
   } catch (error) {
     throw new Error(`사용자 삭제 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
@@ -451,61 +429,24 @@ export const createAdminUser = async (adminData: CreateAdminRequest): Promise<Us
   }
 
   try {
-    // Admin API를 사용할 수 없는 경우 에러 메시지 개선
-    try {
-      // Supabase Auth Admin API를 사용하여 사용자 생성
-      const { data, error } = await supabaseAdmin.auth.admin.createUser({
-        email: adminData.email,
-        password: adminData.password,
-        email_confirm: true, // 이메일 확인 건너뛰기
-        user_metadata: {
-          nickname: adminData.nickname
-        }
-      });
+    const res = await callAdminEdge('admin-users', {
+      action: 'create_admin',
+      email: adminData.email,
+      password: adminData.password,
+      nickname: adminData.nickname,
+    });
 
-      if (error) {
-        throw new Error(getErrorMessage(error));
-      }
+    const userId = res.user_id as string | undefined;
+    if (!userId) throw new Error('생성된 user_id를 확인할 수 없습니다.');
 
-      if (!data.user) {
-        throw new Error('사용자 생성에 실패했습니다.');
-      }
-
-      // profiles 테이블에 관리자 정보 추가 (supabaseAdmin 사용으로 RLS 우회)
-      const { error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .upsert({
-          user_id: data.user.id,
-          email: adminData.email,
-          nickname: adminData.nickname,
-          role: 'admin', // 관리자 권한 설정
-          provider: 'email',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-
-      if (profileError) {
-        // 사용자는 생성되었지만 프로필 생성 실패시, 사용자 삭제 후 에러 발생
-        await supabaseAdmin.auth.admin.deleteUser(data.user.id);
-        throw new Error(getErrorMessage(profileError));
-      }
-
-      return {
-        user_id: data.user.id,
-        email: adminData.email,
-        nickname: adminData.nickname,
-        role: 'admin',
-        created_at: data.user.created_at,
-        last_sign_in_at: data.user.last_sign_in_at,
-      };
-
-    } catch (adminApiError) {
-      // Admin API 접근 불가 시 더 명확한 에러 메시지
-      if (adminApiError instanceof Error && adminApiError.message.includes('User not allowed')) {
-        throw new Error('Supabase Admin API 접근 권한이 없습니다. 환경 변수(.env 파일)에 올바른 SUPABASE_SERVICE_ROLE_KEY가 설정되어 있는지 확인해주세요.');
-      }
-      throw adminApiError;
-    }
+    return {
+      user_id: userId,
+      email: adminData.email,
+      nickname: adminData.nickname,
+      role: 'admin',
+      created_at: new Date().toISOString(),
+      last_sign_in_at: undefined,
+    };
 
   } catch (error) {
     throw new Error(`관리자 계정 생성 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);

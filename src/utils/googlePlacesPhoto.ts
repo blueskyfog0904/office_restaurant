@@ -25,28 +25,38 @@ export function buildGooglePhotoUrl(
 }
 
 /**
+ * Google API URL인지 확인
+ */
+export function isGoogleApiUrl(url?: string | null): boolean {
+  if (!url) return false;
+  return url.includes('googleapis.com') || url.includes('googleusercontent.com');
+}
+
+/**
  * 저장된 photo_url이 있으면 사용하고, 없으면 photo_reference로 URL 생성
+ * Google API URL은 만료될 수 있으므로 비활성화된 경우 제외
  * @param photoUrl 저장된 photo_url (있을 경우)
  * @param photoReference photo_reference (photo_url이 없을 경우 사용)
  * @param maxWidth 최대 너비 (기본값: 1200)
- * @returns 이미지 URL
+ * @returns 이미지 URL (Google API URL이면 빈 문자열 반환)
  */
 export function getPhotoUrl(
   photoUrl?: string | null,
   photoReference?: string | null,
   maxWidth: number = 1200
 ): string {
-  // 저장된 URL이 있으면 우선 사용
-  if (photoUrl) {
+  // 저장된 URL이 있으면 우선 사용 (Google API URL 제외)
+  if (photoUrl && !isGoogleApiUrl(photoUrl)) {
     return photoUrl;
   }
 
-  // photo_reference로 URL 생성
-  if (photoReference) {
-    return buildGooglePhotoUrl(photoReference, maxWidth);
-  }
+  // Google API URL은 만료되어 사용 불가하므로 빈 문자열 반환
+  // photo_reference로 URL 생성도 비활성화
+  // if (photoReference) {
+  //   return buildGooglePhotoUrl(photoReference, maxWidth);
+  // }
 
-  // 둘 다 없으면 빈 문자열 반환
+  // Google URL이거나 없으면 빈 문자열 반환
   return '';
 }
 

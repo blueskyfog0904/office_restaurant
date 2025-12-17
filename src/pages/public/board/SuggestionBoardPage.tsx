@@ -78,13 +78,13 @@ const SuggestionBoardPage: React.FC = () => {
               <svg className="h-6 w-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-              <h1 className="text-3xl font-bold text-gray-900">의견제안</h1>
+              <h1 className="text-2xl font-bold text-gray-900">의견제안</h1>
             </div>
-            <p className="text-gray-600">서비스 개선을 위한 의견을 제안해주세요</p>
+            <p className="text-sm text-gray-600">서비스 개선을 위한 의견을 제안해주세요</p>
           </div>
           <Link
             to="/board/suggestion/write"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors"
           >
             <PlusIcon className="h-4 w-4" />
             의견제안
@@ -93,12 +93,12 @@ const SuggestionBoardPage: React.FC = () => {
       </div>
 
       {/* 게시글 목록 */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="border-b border-gray-200">
-          <div className="px-6 py-4">
+          <div className="px-4 py-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">의견제안 목록</h2>
-              <div className="text-sm text-gray-500">
+              <h2 className="text-base font-semibold text-gray-900">의견제안 목록</h2>
+              <div className="text-xs text-gray-500">
                 총 {posts.length}개의 의견제안
               </div>
             </div>
@@ -108,17 +108,17 @@ const SuggestionBoardPage: React.FC = () => {
         <div className="divide-y divide-gray-200">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+              <div key={post.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
                 <Link to={`/board/suggestion/${post.id}`} className="block">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-1.5">
                         {getStatusBadge(post.status)}
-                        <h3 className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">
+                        <h3 className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors">
                           {post.title}
                         </h3>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
                           <CalendarIcon className="h-4 w-4" />
                           <span>{formatDate(post.created_at)}</span>

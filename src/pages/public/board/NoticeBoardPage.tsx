@@ -49,18 +49,18 @@ const NoticeBoardPage: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <BellIcon className="h-6 w-6 text-red-500" />
-          <h1 className="text-3xl font-bold text-gray-900">공지사항</h1>
+          <h1 className="text-2xl font-bold text-gray-900">공지사항</h1>
         </div>
-        <p className="text-gray-600">중요한 공지사항을 확인하세요</p>
+        <p className="text-sm text-gray-600">중요한 공지사항을 확인하세요</p>
       </div>
 
       {/* 게시글 목록 */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="border-b border-gray-200">
-          <div className="px-6 py-4">
+          <div className="px-4 py-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">공지사항 목록</h2>
-              <div className="text-sm text-gray-500">
+              <h2 className="text-base font-semibold text-gray-900">공지사항 목록</h2>
+              <div className="text-xs text-gray-500">
                 총 {posts.length}개의 공지사항
               </div>
             </div>
@@ -70,21 +70,21 @@ const NoticeBoardPage: React.FC = () => {
         <div className="divide-y divide-gray-200">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+              <div key={post.id} className="px-4 py-3 hover:bg-gray-50 transition-colors">
                 <Link to={`/board/notice/${post.id}`} className="block">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-1.5">
                         {post.is_pinned && (
                           <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full font-medium">
                             공지
                           </span>
                         )}
-                        <h3 className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors">
+                        <h3 className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors">
                           {post.title}
                         </h3>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-xs text-gray-500">
                         <div className="flex items-center gap-1">
                           <CalendarIcon className="h-4 w-4" />
                           <span>{formatDate(post.created_at)}</span>

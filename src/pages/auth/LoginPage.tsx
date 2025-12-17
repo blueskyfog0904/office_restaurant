@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loginWithKakao } from '../../services/kakaoAuthService';
+import { supabase } from '../../services/supabaseClient';
 
 const isLocalhost = () => {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -11,9 +12,11 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   
   // localhost 테스트 로그인용 상태
-  const [testEmail, setTestEmail] = useState('test@localhost.dev');
+  const [testEmail, setTestEmail] = useState('testaccount@localhost.dev');
+  const [testPassword, setTestPassword] = useState('testaccount1234');
   const [testUsername, setTestUsername] = useState('테스트유저');
   const [isAdmin, setIsAdmin] = useState(true);
+  const [testLoading, setTestLoading] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,19 +37,57 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // localhost 테스트 로그인
-  const handleTestLogin = () => {
-    const testUser = {
-      id: '00000000-0000-0000-0000-000000000000',
-      email: testEmail,
-      username: testUsername,
-      is_active: true,
-      is_admin: isAdmin,
-      created_at: new Date().toISOString(),
-      role: isAdmin ? 'admin' : 'user',
-    };
-    localStorage.setItem('user', JSON.stringify(testUser));
-    window.location.href = from || '/';
+  // localhost 테스트 로그인 - 실제 Supabase Auth 사용
+  const handleTestLogin = async () => {
+    if (!isLocalhost()) {
+      setError('테스트 로그인은 localhost에서만 가능합니다.');
+      return;
+    }
+
+    setTestLoading(true);
+    setError('');
+
+    try {
+      // 로그인 시도
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: testEmail,
+        password: testPassword,
+      });
+
+      if (signInError) {
+        if (signInError.message.includes('Invalid login credentials')) {
+          throw new Error('계정이 존재하지 않습니다. Supabase 대시보드 > Authentication > Users에서 테스트 계정을 먼저 생성해주세요.');
+        }
+        throw new Error(`로그인 실패: ${signInError.message}`);
+      }
+
+      // 로그인 성공 후 프로필 확인/생성
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!profile) {
+          // 프로필이 없으면 생성
+          await supabase.from('profiles').insert({
+            user_id: user.id,
+            email: testEmail,
+            nickname: testUsername,
+            role: isAdmin ? 'admin' : 'user',
+          });
+        }
+      }
+
+      // 로그인 성공
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '테스트 로그인에 실패했습니다.');
+    } finally {
+      setTestLoading(false);
+    }
   };
 
   return (
@@ -102,6 +143,17 @@ const LoginPage: React.FC = () => {
                     value={testEmail}
                     onChange={(e) => setTestEmail(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500"
+                    disabled={testLoading}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">비밀번호</label>
+                  <input
+                    type="password"
+                    value={testPassword}
+                    onChange={(e) => setTestPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500"
+                    disabled={testLoading}
                   />
                 </div>
                 <div>
@@ -111,6 +163,7 @@ const LoginPage: React.FC = () => {
                     value={testUsername}
                     onChange={(e) => setTestUsername(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-orange-500 focus:border-orange-500"
+                    disabled={testLoading}
                   />
                 </div>
                 <div className="flex items-center">
@@ -120,6 +173,7 @@ const LoginPage: React.FC = () => {
                     checked={isAdmin}
                     onChange={(e) => setIsAdmin(e.target.checked)}
                     className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                    disabled={testLoading}
                   />
                   <label htmlFor="isAdmin" className="ml-2 text-sm text-gray-700">
                     관리자 권한
@@ -128,10 +182,14 @@ const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleTestLogin}
-                  className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-md transition-colors"
+                  disabled={testLoading}
+                  className="w-full py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  테스트 로그인
+                  {testLoading ? '로그인 중...' : '테스트 로그인'}
                 </button>
+                <p className="text-xs text-gray-500">
+                  * Supabase 대시보드에서 테스트 계정을 먼저 생성해주세요.
+                </p>
               </div>
             </div>
           )}

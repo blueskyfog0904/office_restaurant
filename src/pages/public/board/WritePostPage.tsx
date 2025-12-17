@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeftIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import { createPost, checkPostCooldown } from '../../../services/boardService';
+import { createPost, checkPostCooldown, getBoardCategories, BoardCategory } from '../../../services/boardService';
 import { useAuth } from '../../../contexts/AuthContext';
+import CKEditorWrapper, { CKEditorRef } from '../../../components/editor/CKEditorWrapper';
+import FileAttachment, { AttachedFile } from '../../../components/editor/FileAttachment';
 
 const WritePostPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const editorRef = useRef<CKEditorRef>(null);
   
-  // URL에서 boardType 추출
+  // URL에서 boardType 결정
   const boardType = location.pathname.includes('/board/free/write') ? 'free' : 
-                   location.pathname.includes('/board/suggestion/write') ? 'suggestion' : 
+                   location.pathname.includes('/board/suggestion/write') ? 'suggestion' :
+                   location.pathname.includes('/board/restaurant-info/write') ? 'restaurant_info' :
+                   location.pathname.includes('/board/civil-servant/write') ? 'civil_servant' :
                    undefined;
+  
+  // URL 쿼리 파라미터에서 카테고리 가져오기
+  const searchParams = new URLSearchParams(location.search);
+  const initialCategory = searchParams.get('category') || '';
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -21,7 +30,10 @@ const WritePostPage: React.FC = () => {
   const [canPost, setCanPost] = useState(true);
   const [remainingTime, setRemainingTime] = useState(0);
 
-  // 게시판 타입에 따른 제목과 설명
+  const [categories, setCategories] = useState<BoardCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
+
   const getBoardInfo = () => {
     switch (boardType) {
       case 'free':
@@ -36,6 +48,18 @@ const WritePostPage: React.FC = () => {
           description: '서비스 개선을 위한 의견을 제안해주세요',
           placeholder: '서비스 개선 아이디어, 버그 신고, 기능 요청 등을 작성해주세요...'
         };
+      case 'restaurant_info':
+        return {
+          title: '맛집정보',
+          description: '방문한 맛집 정보를 공유해주세요',
+          placeholder: '맛집 정보를 상세히 작성해주세요...'
+        };
+      case 'civil_servant':
+        return {
+          title: '공무원게시판',
+          description: '공무원 관련 이야기를 나누어보세요',
+          placeholder: '공무원 관련 내용을 작성해주세요...'
+        };
       default:
         return {
           title: '게시글 작성',
@@ -47,7 +71,28 @@ const WritePostPage: React.FC = () => {
 
   const boardInfo = getBoardInfo();
 
-  // 쿨다운 상태 확인
+  useEffect(() => {
+    if (boardType === 'free') {
+      const loadCategories = async () => {
+        try {
+          const cats = await getBoardCategories('free');
+          const activeCats = cats.filter((c) => c.is_active && c.code !== 'hot');
+          setCategories(activeCats);
+          
+          // URL 쿼리 파라미터에서 카테고리가 있으면 그것을 사용, 없으면 첫 번째 카테고리
+          if (initialCategory && activeCats.some(c => c.code === initialCategory)) {
+            setSelectedCategory(initialCategory);
+          } else if (activeCats.length > 0) {
+            setSelectedCategory(activeCats[0].code);
+          }
+        } catch (e) {
+          console.error('카테고리 로드 실패:', e);
+        }
+      };
+      loadCategories();
+    }
+  }, [boardType, initialCategory]);
+
   useEffect(() => {
     const checkCooldown = async () => {
       if (isLoggedIn) {
@@ -66,7 +111,6 @@ const WritePostPage: React.FC = () => {
     checkCooldown();
   }, [isLoggedIn]);
 
-  // 쿨다운 타이머
   useEffect(() => {
     if (!canPost && remainingTime > 0) {
       const timer = setInterval(() => {
@@ -83,8 +127,8 @@ const WritePostPage: React.FC = () => {
     }
   }, [canPost, remainingTime]);
 
-  // boardType이 유효하지 않은 경우 처리
-  if (!boardType || (boardType !== 'free' && boardType !== 'suggestion')) {
+  const validBoardTypes = ['free', 'suggestion', 'restaurant_info', 'civil_servant'];
+  if (!boardType || !validBoardTypes.includes(boardType)) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center py-12">
@@ -106,7 +150,6 @@ const WritePostPage: React.FC = () => {
     );
   }
 
-  // 로그인 체크
   if (!isLoggedIn) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -129,6 +172,12 @@ const WritePostPage: React.FC = () => {
     );
   }
 
+  const handleInsertToContent = (urls: string[]) => {
+    if (urls.length > 0) {
+      editorRef.current?.insertImages(urls);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -142,11 +191,15 @@ const WritePostPage: React.FC = () => {
       return;
     }
 
+    if (boardType === 'free' && !selectedCategory) {
+      setError('카테고리를 선택해주세요.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // 15초 요청 타임아웃 가드
       const timeout = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('요청 시간이 초과되었습니다. 다시 시도해주세요.')), 15000);
       });
@@ -155,12 +208,15 @@ const WritePostPage: React.FC = () => {
         createPost({
           title: title.trim(),
           content: content.trim(),
-          board_type: boardType as 'free' | 'suggestion'
+          board_type: boardType as 'free' | 'suggestion' | 'restaurant_info' | 'civil_servant',
+          category_code: boardType === 'free' ? selectedCategory : undefined,
         }),
         timeout,
       ]);
 
-      navigate(`/board/${boardType}`);
+      // 네비게이션 경로 변환 (restaurant_info -> restaurant-info)
+      const navPath = boardType.replace('_', '-');
+      navigate(`/board/${navPath}`);
     } catch (error) {
       console.error('게시글 작성 실패:', error);
       setError(error instanceof Error ? error.message : '게시글 작성에 실패했습니다. 다시 시도해주세요.');
@@ -170,12 +226,12 @@ const WritePostPage: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(`/board/${boardType}`);
+    const navPath = boardType?.replace('_', '-') || 'free';
+    navigate(`/board/${navPath}`);
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* 헤더 */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <button
@@ -193,10 +249,29 @@ const WritePostPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 글쓰기 폼 */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 제목 입력 */}
+          {boardType === 'free' && categories.length > 0 && (
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                카테고리 *
+              </label>
+              <select
+                id="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">카테고리 선택</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.code}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
               제목 *
@@ -215,33 +290,39 @@ const WritePostPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 내용 입력 */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               내용 *
             </label>
-            <textarea
-              id="content"
+            <CKEditorWrapper
+              ref={editorRef}
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={15}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+              onChange={setContent}
               placeholder={boardInfo.placeholder}
-              maxLength={5000}
             />
-            <div className="mt-1 text-sm text-gray-500">
-              {content.length}/5000
-            </div>
           </div>
 
-          {/* 에러 메시지 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              파일 첨부
+            </label>
+            <FileAttachment
+              files={attachedFiles}
+              onFilesChange={setAttachedFiles}
+              onInsertToContent={handleInsertToContent}
+              disabled={loading}
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              지원 형식: jpg, jpeg, gif, png, webp, pdf, zip (최대 50MB, 1MB 초과 이미지는 자동 리사이즈)
+            </p>
+          </div>
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-md p-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          {/* 쿨다운 메시지 */}
           {!canPost && remainingTime > 0 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
               <p className="text-sm text-yellow-800">
@@ -250,12 +331,10 @@ const WritePostPage: React.FC = () => {
             </div>
           )}
 
-          {/* 작성 가이드 */}
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <h4 className="text-sm font-medium text-blue-900 mb-2">작성 가이드</h4>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• 제목은 100자 이내로 작성해주세요.</li>
-              <li>• 내용은 5000자 이내로 작성해주세요.</li>
               <li>• 게시글 작성 후 1분간은 새 글을 작성할 수 없습니다.</li>
               <li>• 타인을 비방하거나 불쾌감을 주는 내용은 삼가해주세요.</li>
               <li>• 개인정보나 민감한 정보는 포함하지 마세요.</li>
@@ -265,7 +344,6 @@ const WritePostPage: React.FC = () => {
             </ul>
           </div>
 
-          {/* 버튼 */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"

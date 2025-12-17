@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
-import { ArrowLeftIcon, EyeIcon, HandThumbUpIcon, HandThumbDownIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, HandThumbUpIcon, HandThumbDownIcon, CalendarIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { HandThumbUpIcon as HandThumbUpSolid, HandThumbDownIcon as HandThumbDownSolid } from '@heroicons/react/24/solid';
-import { getPostById, deletePost, togglePostReaction, Post } from '../../../services/boardService';
+import { getPostById, deletePost, togglePostReaction, getRestaurantInfoMeta, getPostPhotos, reportPostByEdge, Post, RestaurantInfoMeta, PostPhoto } from '../../../services/boardService';
 import { useAuth } from '../../../contexts/AuthContext';
 import CommentList from '../../../components/comments/CommentList';
+import PostContent from '../../../components/editor/PostContent';
 import { formatDetailDate } from '../../../utils/dateUtils';
 
 const PostDetailPage: React.FC = () => {
@@ -17,6 +18,8 @@ const PostDetailPage: React.FC = () => {
   const boardType = location.pathname.includes('/board/notice/') ? 'notice' :
                    location.pathname.includes('/board/free/') ? 'free' :
                    location.pathname.includes('/board/suggestion/') ? 'suggestion' :
+                   location.pathname.includes('/board/restaurant-info/') ? 'restaurant_info' :
+                   location.pathname.includes('/board/civil-servant/') ? 'civil_servant_spots' :
                    undefined;
   
   const [post, setPost] = useState<Post | null>(null);
@@ -25,6 +28,8 @@ const PostDetailPage: React.FC = () => {
   const [userReaction, setUserReaction] = useState<'like' | 'dislike' | null>(null);
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
+  const [riMeta, setRiMeta] = useState<RestaurantInfoMeta | null>(null);
+  const [photos, setPhotos] = useState<PostPhoto[]>([]);
 
   // 게시판 타입에 따른 제목
   const getBoardTitle = () => {
@@ -35,6 +40,10 @@ const PostDetailPage: React.FC = () => {
         return '자유게시판';
       case 'suggestion':
         return '의견제안';
+      case 'restaurant_info':
+        return '맛집정보';
+      case 'civil_servant_spots':
+        return '공무원맛집(UGC)';
       default:
         return '게시판';
     }
@@ -51,6 +60,18 @@ const PostDetailPage: React.FC = () => {
         setLikeCount(postData.like_count);
         setDislikeCount(postData.dislike_count);
         setUserReaction(postData.user_reaction || null);
+
+        if (boardType === 'restaurant_info') {
+          const [meta, ph] = await Promise.all([
+            getRestaurantInfoMeta(postId).catch(() => null),
+            getPostPhotos(postId).catch(() => []),
+          ]);
+          setRiMeta(meta);
+          setPhotos(ph);
+        } else {
+          setRiMeta(null);
+          setPhotos([]);
+        }
       } catch (error) {
         console.error('게시글 로드 실패:', error);
         setError('게시글을 불러올 수 없습니다.');
@@ -89,7 +110,9 @@ const PostDetailPage: React.FC = () => {
 
     try {
       await deletePost(postId);
-      navigate(`/board/${boardType}`);
+      if (boardType === 'restaurant_info') navigate('/board/restaurant-info');
+      else if (boardType === 'civil_servant_spots') navigate('/board/civil-servant');
+      else navigate(`/board/${boardType}`);
     } catch (error) {
       console.error('게시글 삭제 실패:', error);
       alert('게시글 삭제에 실패했습니다.');
@@ -98,6 +121,24 @@ const PostDetailPage: React.FC = () => {
 
   const handleEdit = () => {
     navigate(`/board/${boardType}/edit/${postId}`);
+  };
+
+  const handleReport = async () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요한 기능입니다.');
+      return;
+    }
+    if (!postId) return;
+    const reason = window.prompt('신고 사유를 입력해주세요(예: 광고/도배/욕설/개인정보 등)');
+    if (!reason) return;
+    const description = window.prompt('추가 설명(선택, 최대 500자)') || '';
+
+    try {
+      await reportPostByEdge(postId, reason, description);
+      alert('신고가 접수되었습니다. 감사합니다.');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '신고에 실패했습니다.');
+    }
   };
 
   if (!boardType || !postId) {
@@ -155,7 +196,12 @@ const PostDetailPage: React.FC = () => {
         <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
           <Link to="/board" className="hover:text-gray-900">게시판</Link>
           <span>&gt;</span>
-          <Link to={`/board/${boardType}`} className="hover:text-gray-900">{getBoardTitle()}</Link>
+          <Link
+            to={boardType === 'restaurant_info' ? '/board/restaurant-info' : boardType === 'civil_servant_spots' ? '/board/civil-servant' : `/board/${boardType}`}
+            className="hover:text-gray-900"
+          >
+            {getBoardTitle()}
+          </Link>
         </div>
       </div>
 
@@ -223,11 +269,38 @@ const PostDetailPage: React.FC = () => {
 
         {/* 게시글 본문 */}
         <div className="p-6 min-h-[200px]">
-          <div className="prose max-w-none">
-            <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
-              {post.content}
+          {/* 맛집정보 메타 */}
+          {boardType === 'restaurant_info' && riMeta && (
+            <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
+              <div className="text-lg font-semibold text-gray-900">{riMeta.restaurant_name}</div>
+              <div className="mt-1 text-sm text-gray-600">
+                {riMeta.address_text || riMeta.map_link || ''}
+              </div>
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div><span className="font-medium">대표메뉴:</span> {(riMeta.representative_menus || []).join(', ')}</div>
+                <div><span className="font-medium">가격대:</span> {riMeta.price_range}</div>
+                <div className="md:col-span-2"><span className="font-medium">한줄평:</span> {riMeta.one_line_review}</div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* 사진 */}
+          {boardType === 'restaurant_info' && photos.length > 0 && (
+            <div className="mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                {photos
+                  .slice()
+                  .sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
+                  .map((ph, idx) => (
+                    <a key={ph.id} href={ph.photo_url} target="_blank" rel="noreferrer" className="block border rounded overflow-hidden bg-gray-50">
+                      <img src={ph.photo_url} alt={`첨부 ${idx + 1}`} className="w-full h-24 object-cover" />
+                    </a>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          <PostContent markdown={post.content || ''} />
         </div>
 
         {/* 공감/비공감 버튼 영역 */}
@@ -267,6 +340,17 @@ const PostDetailPage: React.FC = () => {
               <span className="text-xs font-bold">{dislikeCount}</span>
             </button>
           </div>
+
+          {!isAuthor && (
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={handleReport}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                신고하기
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
