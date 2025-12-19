@@ -137,71 +137,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
   };
 
   const renderGallery = () => {
-    if (photos.length === 1) {
-      const photo = photos[0];
-      const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
-      const isPrimary = isPrimaryPhoto(photo);
-      
-      return (
-        <div className="w-full aspect-video relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
-          <PhotoImage
-            src={imageUrl}
-            alt={`${restaurantName} 사진`}
-            className="w-full h-full object-cover"
-            onClick={() => openLightbox(0)}
-          />
-          {isPrimary && (
-            <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <StarIconSolid className="h-3 w-3" />
-              대표
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    if (photos.length >= 2 && photos.length <= 4) {
-      return (
-        <div className={`grid gap-2 ${
-          photos.length === 2 ? 'grid-cols-2' : 
-          photos.length === 3 ? 'grid-cols-3' : 
-          'grid-cols-2'
-        }`}>
-          {photos.map((photo, index) => {
-            const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
-            const isLarge = photos.length === 3 && index === 0;
-            const isPrimary = isPrimaryPhoto(photo);
-            
-            return (
-              <div
-                key={photo.id}
-                className={`${isLarge ? 'col-span-2 row-span-2' : ''} relative group cursor-pointer overflow-hidden rounded-lg aspect-square`}
-                onClick={() => openLightbox(index)}
-              >
-                <PhotoImage
-                  src={imageUrl}
-                  alt={`${restaurantName} 사진 ${index + 1}`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                {isPrimary && (
-                  <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 z-10">
-                    <StarIconSolid className="h-3 w-3" />
-                    대표
-                  </div>
-                )}
-                {photos.length > 4 && index === 3 && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold text-lg">
-                    +{photos.length - 4}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    // 5장 이상: 슬라이더/캐러셀 형태
+    // 모든 경우에 슬라이드 형식으로 표시
     return (
       <div className="relative">
         <style>{`
@@ -221,7 +157,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
           }
         `}</style>
         <div className="overflow-x-auto photo-gallery-scroll" style={{ scrollbarWidth: 'thin', scrollbarColor: '#cbd5e1 #f1f5f9' }}>
-          <div className="flex gap-2 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
+          <div className="flex gap-3 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
             {photos.map((photo, index) => {
               const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
               const isPrimary = isPrimaryPhoto(photo);
@@ -229,7 +165,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
               return (
                 <div
                   key={photo.id}
-                  className="flex-shrink-0 w-64 h-48 relative group cursor-pointer overflow-hidden rounded-lg"
+                  className="flex-shrink-0 w-72 h-56 relative group cursor-pointer overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow"
                   onClick={() => openLightbox(index)}
                   style={{ scrollSnapAlign: 'start' }}
                 >
@@ -239,19 +175,27 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {isPrimary && (
-                    <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                    <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow">
                       <StarIconSolid className="h-3 w-3" />
                       대표
                     </div>
                   )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent h-12 pointer-events-none" />
+                  <div className="absolute bottom-2 right-2 text-white text-xs bg-black/40 px-2 py-0.5 rounded">
+                    {index + 1} / {photos.length}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="mt-2 text-sm text-gray-600 text-center">
-          {photos.length}장의 사진이 있습니다. 좌우로 스크롤하여 모두 확인하세요.
-        </div>
+        {photos.length > 1 && (
+          <div className="mt-3 text-sm text-gray-500 text-center flex items-center justify-center gap-2">
+            <ChevronLeftIcon className="h-4 w-4" />
+            <span>좌우로 스크롤하여 {photos.length}장의 사진을 확인하세요</span>
+            <ChevronRightIcon className="h-4 w-4" />
+          </div>
+        )}
       </div>
     );
   };
