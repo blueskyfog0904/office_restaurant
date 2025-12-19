@@ -1353,6 +1353,34 @@ export const updateReview = async (
   return data as any;
 };
 
+export const deleteReview = async (reviewId: string): Promise<void> => {
+  let userId: string;
+  
+  if (isLocalhost()) {
+    userId = LOCALHOST_USER_ID;
+  } else {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) throw new Error(getErrorMessage(userError));
+    userId = userData.user?.id || '';
+    if (!userId) throw new Error('로그인이 필요합니다.');
+  }
+
+  const client = getClient();
+
+  const { error } = await client
+    .from('reviews')
+    .delete()
+    .eq('id', reviewId)
+    .eq('user_id', userId);
+    
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('리뷰를 찾을 수 없거나 삭제 권한이 없습니다.');
+    }
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 // ===================================
 // 공유 관련 유틸리티
 // ===================================

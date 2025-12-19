@@ -13,7 +13,9 @@ import {
   TrashIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  XMarkIcon
+  XMarkIcon,
+  PencilIcon,
+  EllipsisVerticalIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid, HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { 
@@ -22,6 +24,8 @@ import {
   getRestaurantReviews,
   getRestaurantReviewSummary,
   createReview,
+  updateReview,
+  deleteReview,
   getRestaurantPhotos,
   setRestaurantPrimaryPhoto,
   RestaurantPhoto
@@ -100,6 +104,13 @@ const RestaurantDetailPage: React.FC = () => {
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [photoModalImages, setPhotoModalImages] = useState<ReviewPhoto[]>([]);
   const [photoModalIndex, setPhotoModalIndex] = useState(0);
+
+  // 리뷰 수정 상태
+  const [editingReview, setEditingReview] = useState<UserReview | null>(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editContent, setEditContent] = useState('');
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [reviewMenuOpen, setReviewMenuOpen] = useState<string | null>(null);
 
   // 사용자가 이미 리뷰를 작성했는지 확인
   const checkUserReview = () => {
@@ -399,6 +410,80 @@ const RestaurantDetailPage: React.FC = () => {
     } catch (error) {
       console.error('사진 삭제 실패:', error);
       alert('사진 삭제에 실패했습니다.');
+    }
+  };
+
+  // 리뷰 수정 시작
+  const handleStartEditReview = (review: UserReview) => {
+    setEditingReview(review);
+    setEditRating(review.rating);
+    setEditContent(review.content || '');
+    setReviewMenuOpen(null);
+  };
+
+  // 리뷰 수정 취소
+  const handleCancelEditReview = () => {
+    setEditingReview(null);
+    setEditRating(5);
+    setEditContent('');
+  };
+
+  // 리뷰 수정 제출
+  const handleSubmitEditReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReview) return;
+
+    try {
+      setEditSubmitting(true);
+      await updateReview(editingReview.id, {
+        rating: editRating,
+        content: editContent.trim() || undefined
+      });
+      
+      setEditingReview(null);
+      setEditRating(5);
+      setEditContent('');
+      
+      // 리뷰 목록과 요약 새로고침
+      if (restaurant) {
+        await Promise.all([
+          loadReviews(String(restaurant.id)),
+          getRestaurantReviewSummary(String(restaurant.id)).then(setReviewSummary).catch(() => {})
+        ]);
+      }
+      
+      alert('리뷰가 수정되었습니다.');
+    } catch (error) {
+      console.error('리뷰 수정 실패:', error);
+      alert(error instanceof Error ? error.message : '리뷰 수정에 실패했습니다.');
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  // 리뷰 삭제
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!window.confirm('리뷰를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    try {
+      await deleteReview(reviewId);
+      setHasUserReviewed(false);
+      setReviewMenuOpen(null);
+      
+      // 리뷰 목록과 요약 새로고침
+      if (restaurant) {
+        await Promise.all([
+          loadReviews(String(restaurant.id)),
+          getRestaurantReviewSummary(String(restaurant.id)).then(setReviewSummary).catch(() => {})
+        ]);
+      }
+      
+      alert('리뷰가 삭제되었습니다.');
+    } catch (error) {
+      console.error('리뷰 삭제 실패:', error);
+      alert(error instanceof Error ? error.message : '리뷰 삭제에 실패했습니다.');
     }
   };
 
@@ -843,6 +928,71 @@ const RestaurantDetailPage: React.FC = () => {
               const reviewAny = review as any;
               const displayName = reviewAny.nickname || review.user?.username || '익명';
               const displayInitial = displayName.charAt(0) || '?';
+              const isMyReview = user?.id === review.user_id;
+              
+              // 수정 중인 리뷰인 경우 수정 폼 표시
+              if (editingReview?.id === review.id) {
+                return (
+                  <div key={review.id} className="border-b border-gray-200 pb-6">
+                    <form onSubmit={handleSubmitEditReview} className="bg-gray-50 rounded-lg p-4">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">리뷰 수정</h3>
+                      
+                      {/* 평점 선택 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">평점</label>
+                        <div className="flex items-center space-x-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setEditRating(star)}
+                              className="p-1"
+                            >
+                              <StarIconSolid
+                                className={`h-8 w-8 ${
+                                  star <= editRating ? 'text-yellow-400' : 'text-gray-300'
+                                } hover:text-yellow-400 transition-colors`}
+                              />
+                            </button>
+                          ))}
+                          <span className="ml-2 text-sm text-gray-600">{editRating}점</span>
+                        </div>
+                      </div>
+
+                      {/* 리뷰 내용 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">리뷰 내용</label>
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          rows={4}
+                          maxLength={500}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                        <p className="mt-1 text-sm text-gray-500">{editContent.length}/500자</p>
+                      </div>
+
+                      {/* 버튼들 */}
+                      <div className="flex space-x-3">
+                        <button
+                          type="submit"
+                          disabled={editSubmitting}
+                          className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                          {editSubmitting ? '수정 중...' : '수정 완료'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelEditReview}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                );
+              }
               
               return (
               <div key={review.id} className="border-b border-gray-200 pb-6">
@@ -867,13 +1017,51 @@ const RestaurantDetailPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    {new Date(review.created_at).toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm text-gray-500">
+                      {new Date(review.created_at).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                    {/* 본인 리뷰인 경우 수정/삭제 메뉴 버튼 */}
+                    {isMyReview && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setReviewMenuOpen(reviewMenuOpen === review.id ? null : review.id)}
+                          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                          title="더보기"
+                        >
+                          <EllipsisVerticalIcon className="h-5 w-5" />
+                        </button>
+                        {reviewMenuOpen === review.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setReviewMenuOpen(null)}
+                            />
+                            <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-20 min-w-[100px]">
+                              <button
+                                onClick={() => handleStartEditReview(review)}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                                수정
+                              </button>
+                              <button
+                                onClick={() => handleDeleteReview(review.id)}
+                                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                                삭제
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-3">
                   {review.content ? (
