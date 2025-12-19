@@ -1428,7 +1428,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       </div>
 
       {mapLoaded && showControls && (
-        <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200]">
+        <div className="absolute top-3 left-3 flex items-center gap-2 z-[20]">
           <button
             type="button"
             onClick={handleToggleLocationView}
@@ -1447,7 +1447,7 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
       )}
       
       {mapLoaded && !showControls && (userLocation && showUserLocation) && (
-        <div className="absolute top-3 left-3 flex items-center gap-2 z-[1200] nearby-map-controls">
+        <div className="absolute top-3 left-3 flex items-center gap-2 z-[20] nearby-map-controls">
           <button
             type="button"
             onClick={handleFocusUserLocation}
