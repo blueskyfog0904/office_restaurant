@@ -877,7 +877,7 @@ const RestaurantDetailPage: React.FC = () => {
                 </div>
                 <div className="mt-3">
                   {review.content ? (
-                    <p className="text-gray-900 leading-relaxed">
+                    <p className="text-gray-900 leading-relaxed whitespace-pre-line">
                       {review.content}
                     </p>
                   ) : (
