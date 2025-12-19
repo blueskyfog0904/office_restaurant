@@ -4,6 +4,7 @@ import { compressImage, CompressedImage } from '../utils/imageCompressor';
 
 const BUCKET_NAME = 'review-photos';
 const MAX_PHOTOS_PER_REVIEW = 10;
+const MAX_RESTAURANT_PHOTOS = 20;
 
 const isLocalhost = () => {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -40,7 +41,6 @@ export const uploadReviewPhoto = async (
   const fileName = `${timestamp}_${randomStr}.jpg`;
   const storagePath = `${userId}/${reviewId}/${fileName}`;
 
-  // localhost에서는 admin client 사용 (RLS 우회)
   const client = getClient();
 
   const { error: uploadError } = await client.storage
@@ -78,12 +78,110 @@ export const uploadReviewPhoto = async (
     throw new Error(`사진 정보 저장 실패: ${dbError.message}`);
   }
 
+  // 리뷰에서 restaurant_id 조회 후 restaurant_photos에도 추가
+  try {
+    await linkReviewPhotoToRestaurant(client, reviewId, photoData.id, photoUrl, displayOrder);
+  } catch (linkError) {
+    console.warn('음식점 사진 연동 실패:', linkError);
+  }
+
   return {
     id: photoData.id,
     photo_url: photoUrl,
     storage_path: storagePath,
     file_size: fileToUpload.size,
   };
+};
+
+// 리뷰 사진을 음식점 사진으로 연동
+const linkReviewPhotoToRestaurant = async (
+  client: ReturnType<typeof getClient>,
+  reviewId: string,
+  reviewPhotoId: string,
+  photoUrl: string,
+  displayOrder: number
+): Promise<void> => {
+  // 리뷰에서 restaurant_id 조회
+  const { data: review, error: reviewError } = await client
+    .from('reviews')
+    .select('restaurant_id')
+    .eq('id', reviewId)
+    .single();
+
+  if (reviewError || !review) {
+    console.warn('리뷰 정보 조회 실패:', reviewError);
+    return;
+  }
+
+  const restaurantId = review.restaurant_id;
+
+  // 현재 음식점의 리뷰 사진 개수 확인 (최대 20개 제한)
+  const { count: existingCount } = await client
+    .from('restaurant_photos')
+    .select('*', { count: 'exact', head: true })
+    .eq('restaurant_id', restaurantId)
+    .eq('source_type', 'review')
+    .eq('is_active', true);
+
+  if ((existingCount || 0) >= MAX_RESTAURANT_PHOTOS) {
+    console.log('음식점 사진 최대 개수 도달, 연동 건너뜀');
+    return;
+  }
+
+  // restaurant_photos에 추가
+  const { error: insertError } = await client
+    .from('restaurant_photos')
+    .insert({
+      restaurant_id: restaurantId,
+      review_id: reviewId,
+      review_photo_id: reviewPhotoId,
+      photo_url: photoUrl,
+      source_type: 'review',
+      display_order: 1000 + displayOrder, // 리뷰 사진은 기존 사진보다 뒤에 표시
+      is_active: true,
+    });
+
+  if (insertError) {
+    console.warn('restaurant_photos 추가 실패:', insertError);
+    return;
+  }
+
+  // 대표 이미지 자동 설정 (없는 경우)
+  await autoSetPrimaryPhotoIfNeeded(client, restaurantId, photoUrl);
+};
+
+// 대표 이미지가 없는 경우 자동 설정
+const autoSetPrimaryPhotoIfNeeded = async (
+  client: ReturnType<typeof getClient>,
+  restaurantId: string,
+  photoUrl: string
+): Promise<void> => {
+  // 현재 대표 이미지 확인
+  const { data: restaurant, error: restaurantError } = await client
+    .from('restaurants')
+    .select('primary_photo_url')
+    .eq('id', restaurantId)
+    .single();
+
+  if (restaurantError) {
+    console.warn('음식점 정보 조회 실패:', restaurantError);
+    return;
+  }
+
+  // 대표 이미지가 없거나 Google API URL인 경우 자동 설정
+  const isGoogleUrl = (url?: string) => url?.includes('googleapis.com');
+  if (!restaurant.primary_photo_url || isGoogleUrl(restaurant.primary_photo_url)) {
+    const { error: updateError } = await client
+      .from('restaurants')
+      .update({ primary_photo_url: photoUrl })
+      .eq('id', restaurantId);
+
+    if (updateError) {
+      console.warn('대표 이미지 자동 설정 실패:', updateError);
+    } else {
+      console.log('대표 이미지 자동 설정 완료:', restaurantId);
+    }
+  }
 };
 
 export const uploadReviewPhotos = async (
@@ -136,7 +234,6 @@ export const deleteReviewPhoto = async (photoId: string): Promise<void> => {
     isAdmin = profile?.is_admin === true;
   }
 
-  // localhost에서는 admin client 사용 (RLS 우회)
   const client = getClient();
 
   const { data: photo, error: fetchError } = await client
@@ -162,6 +259,12 @@ export const deleteReviewPhoto = async (photoId: string): Promise<void> => {
   if (storageError) {
     console.warn('Storage 파일 삭제 실패:', storageError);
   }
+
+  // restaurant_photos에서 연동된 사진도 삭제
+  await client
+    .from('restaurant_photos')
+    .delete()
+    .eq('review_photo_id', photoId);
 
   const { error: dbError } = await client
     .from('review_photos')

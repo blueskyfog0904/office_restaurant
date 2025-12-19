@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon, XMarkIcon, StarIcon } from '@heroicons/react/24/outline';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { RestaurantPhoto } from '../services/authService';
 import { getPhotoUrl } from '../utils/googlePlacesPhoto';
 
@@ -7,6 +8,9 @@ interface RestaurantPhotoGalleryProps {
   photos: RestaurantPhoto[];
   restaurantName?: string;
   isLoading?: boolean;
+  isAdmin?: boolean;
+  primaryPhotoUrl?: string;
+  onSetPrimary?: (photoUrl: string) => void;
 }
 
 // 개별 이미지 컴포넌트 (로딩 상태 포함)
@@ -53,10 +57,29 @@ const PhotoImage: React.FC<{
 const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({ 
   photos, 
   restaurantName = '음식점',
-  isLoading = false 
+  isLoading = false,
+  isAdmin = false,
+  primaryPhotoUrl,
+  onSetPrimary
 }) => {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [lightboxImageLoading, setLightboxImageLoading] = useState(false);
+  const [settingPrimary, setSettingPrimary] = useState(false);
+
+  const handleSetPrimary = async (photoUrl: string) => {
+    if (!onSetPrimary || settingPrimary) return;
+    setSettingPrimary(true);
+    try {
+      await onSetPrimary(photoUrl);
+    } finally {
+      setSettingPrimary(false);
+    }
+  };
+
+  const isPrimaryPhoto = (photo: RestaurantPhoto) => {
+    const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
+    return primaryPhotoUrl === imageUrl || primaryPhotoUrl === photo.photo_url;
+  };
 
   if (isLoading) {
     return (
@@ -117,6 +140,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
     if (photos.length === 1) {
       const photo = photos[0];
       const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
+      const isPrimary = isPrimaryPhoto(photo);
       
       return (
         <div className="w-full aspect-video relative overflow-hidden rounded-lg cursor-pointer hover:opacity-90 transition-opacity">
@@ -126,6 +150,12 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
             className="w-full h-full object-cover"
             onClick={() => openLightbox(0)}
           />
+          {isPrimary && (
+            <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+              <StarIconSolid className="h-3 w-3" />
+              대표
+            </div>
+          )}
         </div>
       );
     }
@@ -140,6 +170,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
           {photos.map((photo, index) => {
             const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
             const isLarge = photos.length === 3 && index === 0;
+            const isPrimary = isPrimaryPhoto(photo);
             
             return (
               <div
@@ -152,6 +183,12 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
                   alt={`${restaurantName} 사진 ${index + 1}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
+                {isPrimary && (
+                  <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 z-10">
+                    <StarIconSolid className="h-3 w-3" />
+                    대표
+                  </div>
+                )}
                 {photos.length > 4 && index === 3 && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white font-semibold text-lg">
                     +{photos.length - 4}
@@ -187,6 +224,7 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
           <div className="flex gap-2 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
             {photos.map((photo, index) => {
               const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
+              const isPrimary = isPrimaryPhoto(photo);
               
               return (
                 <div
@@ -200,6 +238,12 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
                     alt={`${restaurantName} 사진 ${index + 1}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  {isPrimary && (
+                    <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <StarIconSolid className="h-3 w-3" />
+                      대표
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -273,8 +317,46 @@ const RestaurantPhotoGallery: React.FC<RestaurantPhotoGalleryProps> = ({
             />
           </div>
 
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded-full">
-            {selectedIndex + 1} / {photos.length}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-3">
+            <span className="text-white text-sm bg-black bg-opacity-50 px-3 py-1 rounded-full">
+              {selectedIndex + 1} / {photos.length}
+            </span>
+            
+            {isAdmin && onSetPrimary && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const photo = photos[selectedIndex];
+                  const imageUrl = getPhotoUrl(photo.photo_url, photo.photo_reference);
+                  handleSetPrimary(imageUrl);
+                }}
+                disabled={settingPrimary || isPrimaryPhoto(photos[selectedIndex])}
+                className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  isPrimaryPhoto(photos[selectedIndex])
+                    ? 'bg-yellow-500 text-white cursor-default'
+                    : settingPrimary
+                    ? 'bg-gray-500 text-white cursor-wait'
+                    : 'bg-white text-gray-800 hover:bg-yellow-500 hover:text-white'
+                }`}
+              >
+                {isPrimaryPhoto(photos[selectedIndex]) ? (
+                  <>
+                    <StarIconSolid className="h-4 w-4" />
+                    대표 이미지
+                  </>
+                ) : settingPrimary ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                    설정 중...
+                  </>
+                ) : (
+                  <>
+                    <StarIcon className="h-4 w-4" />
+                    대표로 설정
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       )}

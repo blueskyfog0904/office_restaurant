@@ -996,6 +996,8 @@ export const getRestaurantReviews = async (
 // 음식점 사진 관련 API
 // ===================================
 
+const MAX_RESTAURANT_PHOTOS = 20;
+
 export interface RestaurantPhoto {
   id: string;
   restaurant_id: string;
@@ -1004,17 +1006,19 @@ export interface RestaurantPhoto {
   description: string | null;
   uploaded_at: string;
   display_order: number;
+  source_type?: string;
+  review_id?: string;
 }
 
 export const getRestaurantPhotos = async (restaurantId: string): Promise<RestaurantPhoto[]> => {
   const { data, error } = await supabase
     .from('restaurant_photos')
-    .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order')
+    .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order, source_type, review_id')
     .eq('restaurant_id', restaurantId)
-    .eq('is_active', true)  // 비활성화된 이미지(Google 등) 제외
+    .eq('is_active', true)
     .order('display_order', { ascending: true })
     .order('uploaded_at', { ascending: true })
-    .limit(30);
+    .limit(MAX_RESTAURANT_PHOTOS);
 
   if (error) {
     console.error('음식점 사진 조회 실패:', error);
@@ -1022,6 +1026,24 @@ export const getRestaurantPhotos = async (restaurantId: string): Promise<Restaur
   }
 
   return (data || []) as RestaurantPhoto[];
+};
+
+// 관리자용: 음식점 대표 이미지 설정
+export const setRestaurantPrimaryPhoto = async (
+  restaurantId: string,
+  photoUrl: string
+): Promise<void> => {
+  const client = isLocalhost() ? getSupabaseAdmin() : supabase;
+  
+  const { error } = await client
+    .from('restaurants')
+    .update({ primary_photo_url: photoUrl })
+    .eq('id', restaurantId);
+
+  if (error) {
+    console.error('대표 이미지 설정 실패:', error);
+    throw new Error(getErrorMessage(error));
+  }
 };
 
 export const getRestaurantReviewSummary = async (
