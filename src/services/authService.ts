@@ -1011,21 +1011,80 @@ export interface RestaurantPhoto {
 }
 
 export const getRestaurantPhotos = async (restaurantId: string): Promise<RestaurantPhoto[]> => {
-  const { data, error } = await supabase
+  // 1. restaurant_photos 테이블에서 조회 (기존 사진 + 연동된 리뷰 사진)
+  const { data: restaurantPhotos, error: restaurantError } = await supabase
     .from('restaurant_photos')
-    .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order, source_type, review_id')
+    .select('id, restaurant_id, photo_reference, photo_url, description, uploaded_at, display_order, source_type, review_id, review_photo_id')
     .eq('restaurant_id', restaurantId)
     .eq('is_active', true)
     .order('display_order', { ascending: true })
-    .order('uploaded_at', { ascending: true })
-    .limit(MAX_RESTAURANT_PHOTOS);
+    .order('uploaded_at', { ascending: true });
 
-  if (error) {
-    console.error('음식점 사진 조회 실패:', error);
-    throw new Error(getErrorMessage(error));
+  if (restaurantError) {
+    console.error('음식점 사진 조회 실패:', restaurantError);
   }
 
-  return (data || []) as RestaurantPhoto[];
+  // 2. 기존 리뷰 사진 조회 (review_photos 테이블에서 직접)
+  const { data: reviewPhotos, error: reviewError } = await supabase
+    .from('review_photos')
+    .select(`
+      id,
+      photo_url,
+      display_order,
+      created_at,
+      review_id,
+      reviews!inner (
+        restaurant_id
+      )
+    `)
+    .eq('reviews.restaurant_id', restaurantId)
+    .order('created_at', { ascending: true });
+
+  if (reviewError) {
+    console.error('리뷰 사진 조회 실패:', reviewError);
+  }
+
+  // 이미 restaurant_photos에 연동된 review_photo_id 목록
+  const linkedReviewPhotoIds = new Set(
+    (restaurantPhotos || [])
+      .filter((p: any) => p.review_photo_id)
+      .map((p: any) => p.review_photo_id)
+  );
+
+  // restaurant_photos 데이터 변환
+  const photosFromRestaurant: RestaurantPhoto[] = (restaurantPhotos || []).map((p: any) => ({
+    id: p.id,
+    restaurant_id: p.restaurant_id,
+    photo_reference: p.photo_reference,
+    photo_url: p.photo_url,
+    description: p.description,
+    uploaded_at: p.uploaded_at,
+    display_order: p.display_order,
+    source_type: p.source_type,
+    review_id: p.review_id,
+  }));
+
+  // 아직 연동되지 않은 기존 리뷰 사진 추가
+  const photosFromReviews: RestaurantPhoto[] = (reviewPhotos || [])
+    .filter((p: any) => !linkedReviewPhotoIds.has(p.id))
+    .map((p: any, index: number) => ({
+      id: `review_${p.id}`,
+      restaurant_id: restaurantId,
+      photo_reference: null,
+      photo_url: p.photo_url,
+      description: null,
+      uploaded_at: p.created_at,
+      display_order: 2000 + index, // 기존 리뷰 사진은 뒤에 표시
+      source_type: 'review',
+      review_id: p.review_id,
+    }));
+
+  // 병합 및 정렬
+  const allPhotos = [...photosFromRestaurant, ...photosFromReviews]
+    .sort((a, b) => a.display_order - b.display_order)
+    .slice(0, MAX_RESTAURANT_PHOTOS);
+
+  return allPhotos;
 };
 
 // 관리자용: 음식점 대표 이미지 설정
