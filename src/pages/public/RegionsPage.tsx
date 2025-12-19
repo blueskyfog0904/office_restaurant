@@ -1394,14 +1394,25 @@ const RegionsPage: React.FC = () => {
                                 }`}
                               >
                                 <div className="flex items-center justify-between gap-2">
-                                  <p className={`font-medium truncate ${isHovered ? 'text-white' : 'text-gray-900'}`}>
-                                    {restaurant.title || restaurant.name}
-                                    {restaurant.category && (
-                                      <span className={`ml-2 text-xs font-normal ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
-                                        {restaurant.category}
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    {restaurant.region_rank && (
+                                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${
+                                        isHovered 
+                                          ? 'bg-white/20 text-white' 
+                                          : 'bg-blue-900/10 text-blue-900'
+                                      }`}>
+                                        {restaurant.region_rank}위
                                       </span>
                                     )}
-                                  </p>
+                                    <p className={`font-medium truncate ${isHovered ? 'text-white' : 'text-gray-900'}`}>
+                                      {restaurant.title || restaurant.name}
+                                      {restaurant.category && (
+                                        <span className={`ml-2 text-xs font-normal ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
+                                          {restaurant.category}
+                                        </span>
+                                      )}
+                                    </p>
+                                  </div>
                                   <span className={`text-xs whitespace-nowrap flex-shrink-0 ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
                                     <span className={isHovered ? 'text-yellow-300' : 'text-yellow-500'}>★</span>
                                     {' '}{(restaurant.avg_rating ?? 0).toFixed(1)} ({restaurant.review_count ?? 0})
