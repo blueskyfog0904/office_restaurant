@@ -394,8 +394,57 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
       return { ...row, calculatedRank: currentRank };
     });
 
-    // 통계 정보는 별도로 조회하지 않고 기본값 사용 (성능 우선)
+    // 리뷰 통계 조회 (음식점별 평균 별점, 리뷰 개수)
+    const restaurantIds = itemsWithRank.map((row: any) => row.id);
+    let reviewStats: Map<string, { avg_rating: number; review_count: number }> = new Map();
+    let reviewPhotoMap: Map<string, string> = new Map();
+
+    if (restaurantIds.length > 0) {
+      const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('restaurant_id, rating')
+        .in('restaurant_id', restaurantIds);
+
+      if (reviewData && reviewData.length > 0) {
+        const statsMap: Map<string, number[]> = new Map();
+        reviewData.forEach((r: any) => {
+          const existing = statsMap.get(r.restaurant_id) || [];
+          existing.push(r.rating);
+          statsMap.set(r.restaurant_id, existing);
+        });
+        statsMap.forEach((ratings, restaurantId) => {
+          const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+          reviewStats.set(restaurantId, { avg_rating: avg, review_count: ratings.length });
+        });
+      }
+
+      // primary_photo_url이 없는 음식점의 리뷰 사진 조회
+      const noPrimaryPhotoIds = itemsWithRank
+        .filter((row: any) => !row.primary_photo_url || row.primary_photo_url.includes('googleapis.com'))
+        .map((row: any) => row.id);
+
+      if (noPrimaryPhotoIds.length > 0) {
+        const { data: reviewPhotos } = await supabase
+          .from('reviews')
+          .select('restaurant_id, review_photos(photo_url)')
+          .in('restaurant_id', noPrimaryPhotoIds);
+
+        if (reviewPhotos) {
+          reviewPhotos.forEach((review: any) => {
+            if (!reviewPhotoMap.has(review.restaurant_id) && review.review_photos?.length > 0) {
+              reviewPhotoMap.set(review.restaurant_id, review.review_photos[0].photo_url);
+            }
+          });
+        }
+      }
+    }
+
     const items = itemsWithRank.map((row: any) => {
+      const stats = reviewStats.get(row.id) || { avg_rating: 0, review_count: 0 };
+      const photoUrl = row.primary_photo_url && !row.primary_photo_url.includes('googleapis.com')
+        ? row.primary_photo_url
+        : reviewPhotoMap.get(row.id) || null;
+
       const mapped: RestaurantWithStats = {
         id: row.id,
         name: row.title || row.name,
@@ -416,8 +465,8 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
         updated_at: row.updated_at,
         total_amount: (row.total_count ?? 0) as number,
         visit_count: row.total_count ?? 0,
-        avg_rating: 0,
-        review_count: 0,
+        avg_rating: stats.avg_rating,
+        review_count: stats.review_count,
         region_rank: row.calculatedRank,
         province_rank: null,
         national_rank: null,
@@ -425,7 +474,7 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
         region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
         recent_visits: [],
         recent_rankings: [],
-        primary_photo_url: row.primary_photo_url,
+        primary_photo_url: photoUrl,
       } as any;
       return mapped;
     });
@@ -537,7 +586,57 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
   console.log(`⏱️ searchRestaurants 쿼리 시간: ${queryTime.toFixed(2)}ms`);
   console.log('✅ 검색 결과:', data?.length || 0, '개 음식점, 전체:', count);
 
+  // 리뷰 통계 조회 (음식점별 평균 별점, 리뷰 개수)
+  const viewRestaurantIds = (data ?? []).map((row: any) => row.id);
+  let viewReviewStats: Map<string, { avg_rating: number; review_count: number }> = new Map();
+  let viewReviewPhotoMap: Map<string, string> = new Map();
+
+  if (viewRestaurantIds.length > 0) {
+    const { data: reviewData } = await supabase
+      .from('reviews')
+      .select('restaurant_id, rating')
+      .in('restaurant_id', viewRestaurantIds);
+
+    if (reviewData && reviewData.length > 0) {
+      const statsMap: Map<string, number[]> = new Map();
+      reviewData.forEach((r: any) => {
+        const existing = statsMap.get(r.restaurant_id) || [];
+        existing.push(r.rating);
+        statsMap.set(r.restaurant_id, existing);
+      });
+      statsMap.forEach((ratings, restaurantId) => {
+        const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+        viewReviewStats.set(restaurantId, { avg_rating: avg, review_count: ratings.length });
+      });
+    }
+
+    // primary_photo_url이 없는 음식점의 리뷰 사진 조회
+    const viewNoPrimaryPhotoIds = (data ?? [])
+      .filter((row: any) => !row.primary_photo_url || row.primary_photo_url.includes('googleapis.com'))
+      .map((row: any) => row.id);
+
+    if (viewNoPrimaryPhotoIds.length > 0) {
+      const { data: reviewPhotos } = await supabase
+        .from('reviews')
+        .select('restaurant_id, review_photos(photo_url)')
+        .in('restaurant_id', viewNoPrimaryPhotoIds);
+
+      if (reviewPhotos) {
+        reviewPhotos.forEach((review: any) => {
+          if (!viewReviewPhotoMap.has(review.restaurant_id) && review.review_photos?.length > 0) {
+            viewReviewPhotoMap.set(review.restaurant_id, review.review_photos[0].photo_url);
+          }
+        });
+      }
+    }
+  }
+
   const items = ((data ?? []) as any[]).map((row: any) => {
+    const stats = viewReviewStats.get(row.id) || { avg_rating: 0, review_count: 0 };
+    const photoUrl = row.primary_photo_url && !row.primary_photo_url.includes('googleapis.com')
+      ? row.primary_photo_url
+      : viewReviewPhotoMap.get(row.id) || null;
+
     const mapped: RestaurantWithStats = {
       id: row.id,
       name: row.title || row.name,
@@ -557,12 +656,13 @@ const searchRestaurantsInternal = async (params: RestaurantSearchRequest): Promi
       updated_at: row.updated_at,
       total_amount: (row.total_count ?? 0) as number,
       visit_count: row.visit_count ?? 0,
-      avg_rating: 0,
-      review_count: row.review_count ?? 0,
+      avg_rating: stats.avg_rating,
+      review_count: stats.review_count,
       region_rank: row.region_rank,
       province_rank: row.province_rank,
       national_rank: row.national_rank,
       region_info: { sub_add1: row.sub_add1, sub_add2: row.sub_add2 } as any,
+      primary_photo_url: photoUrl,
     } as any;
     return mapped;
   });

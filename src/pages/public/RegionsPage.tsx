@@ -75,7 +75,7 @@ const calculateDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: num
 };
 
 // 음식점을 MapMarker로 변환하는 헬퍼 함수
-const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number): MapMarker => ({
+const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number, distance?: number): MapMarker => ({
   id: restaurant.id,
   name: restaurant.title || restaurant.name,
   latitude: toNumber(restaurant.latitude) ?? undefined,
@@ -84,6 +84,10 @@ const createMapMarker = (restaurant: RestaurantWithStats, ranking?: number): Map
   subAdd1: restaurant.sub_add1,
   subAdd2: restaurant.sub_add2,
   ranking,
+  distance,
+  category: restaurant.category,
+  avg_rating: restaurant.avg_rating,
+  review_count: restaurant.review_count,
 });
 
 const RegionsPage: React.FC = () => {

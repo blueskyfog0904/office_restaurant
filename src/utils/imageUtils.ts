@@ -126,3 +126,4 @@ export const isAllowedFileType = (file: File): boolean => {
 export const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 
 
+
