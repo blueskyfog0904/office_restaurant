@@ -892,41 +892,8 @@ const AdvancedKakaoMapComponent: React.FC<AdvancedKakaoMapProps> = ({
 
     header.appendChild(titleWrap);
     header.appendChild(badge);
+
     card.appendChild(header);
-
-    // 카테고리 및 별점/리뷰 정보 표시
-    const infoRow = document.createElement('div');
-    infoRow.className = 'restaurant-card__info-row';
-    infoRow.style.display = 'flex';
-    infoRow.style.alignItems = 'center';
-    infoRow.style.justifyContent = 'space-between';
-    infoRow.style.fontSize = '12px';
-    infoRow.style.marginTop = '4px';
-
-    // 카테고리 표시
-    if (marker.category) {
-      const categorySpan = document.createElement('span');
-      categorySpan.style.color = isSelected ? 'rgba(255,255,255,0.9)' : '#666';
-      categorySpan.textContent = marker.category;
-      infoRow.appendChild(categorySpan);
-    }
-
-    // 별점 및 리뷰 개수 표시
-    const ratingSpan = document.createElement('span');
-    ratingSpan.style.color = isSelected ? 'rgba(255,255,255,0.9)' : '#666';
-    ratingSpan.style.marginLeft = 'auto';
-    
-    const avgRating = marker.avg_rating ?? 0;
-    const reviewCount = marker.review_count ?? 0;
-    
-    if (avgRating > 0 || reviewCount > 0) {
-      ratingSpan.innerHTML = `<span style="color:${isSelected ? '#FFD700' : '#F59E0B'}">★</span> ${avgRating.toFixed(1)} (${reviewCount})`;
-    } else {
-      ratingSpan.textContent = '★ 0.0 (0)';
-    }
-    infoRow.appendChild(ratingSpan);
-
-    card.appendChild(infoRow);
 
     return card;
   };

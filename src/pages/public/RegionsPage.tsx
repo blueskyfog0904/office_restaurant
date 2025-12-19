@@ -1393,14 +1393,20 @@ const RegionsPage: React.FC = () => {
                                     : 'border-gray-200 hover:border-[#FF6B35] hover:shadow-sm'
                                 }`}
                               >
-                                <p className={`font-medium truncate ${isHovered ? 'text-white' : 'text-gray-900'}`}>
-                                  {restaurant.title || restaurant.name}
-                                  {restaurant.category && (
-                                    <span className={`ml-2 text-xs font-normal ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
-                                      {restaurant.category}
-                                    </span>
-                                  )}
-                                </p>
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className={`font-medium truncate ${isHovered ? 'text-white' : 'text-gray-900'}`}>
+                                    {restaurant.title || restaurant.name}
+                                    {restaurant.category && (
+                                      <span className={`ml-2 text-xs font-normal ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
+                                        {restaurant.category}
+                                      </span>
+                                    )}
+                                  </p>
+                                  <span className={`text-xs whitespace-nowrap flex-shrink-0 ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
+                                    <span className={isHovered ? 'text-yellow-300' : 'text-yellow-500'}>★</span>
+                                    {' '}{(restaurant.avg_rating ?? 0).toFixed(1)} ({restaurant.review_count ?? 0})
+                                  </span>
+                                </div>
                                 <p className={`text-xs mt-1 truncate ${isHovered ? 'text-white/90' : 'text-gray-500'}`}>
                                   {distance.toFixed(1)}km · {restaurant.address || '주소 정보 없음'}
                                 </p>
