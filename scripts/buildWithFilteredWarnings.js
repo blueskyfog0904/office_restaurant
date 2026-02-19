@@ -7,13 +7,20 @@ process.on('unhandledRejection', (err) => {
 });
 
 const webpack = require('webpack');
+const fs = require('fs-extra');
 const configFactory = require('react-scripts/config/webpack.config');
+const paths = require('react-scripts/config/paths');
 const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 
 const SUPABASE_RT_WARNING = /Critical dependency: the request of a dependency is an expression/;
 const SUPABASE_RT_MODULE = /@supabase\/realtime-js\/dist\/module\/lib\/websocket-factory\.js/;
 
 const config = configFactory('production');
+
+// Keep behavior aligned with CRA build: clean output and copy /public files
+// (except index.html, which HtmlWebpackPlugin emits).
+fs.emptyDirSync(paths.appBuild);
+copyPublicFolder();
 
 const isIgnorableSupabaseWarning = (warning) => {
   const message = typeof warning === 'string' ? warning : warning.message || '';
@@ -63,3 +70,10 @@ webpack(config, (err, stats) => {
     console.log('Compiled successfully.');
   }
 });
+
+function copyPublicFolder() {
+  fs.copySync(paths.appPublic, paths.appBuild, {
+    dereference: true,
+    filter: (file) => file !== paths.appHtml
+  });
+}
