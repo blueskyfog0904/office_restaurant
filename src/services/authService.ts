@@ -11,7 +11,7 @@ import {
   Restaurant,
   Region,
 } from '../types';
-import { ensureSession, executeWithSession, executePublicApi } from './sessionManager';
+import { ensureSession, executePublicApi } from './sessionManager';
 
 const isLocalhost = () => {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';

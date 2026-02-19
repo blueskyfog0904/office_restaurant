@@ -25,6 +25,7 @@ const isSafeUrl = (url: string): boolean => {
 const sanitizeHTML = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
+  const scriptProtocol = 'javascript';
   
   // 스크립트 태그 제거
   doc.querySelectorAll('script').forEach(el => el.remove());
@@ -41,8 +42,13 @@ const sanitizeHTML = (html: string): string => {
   // 안전하지 않은 href/src 제거
   doc.querySelectorAll('a[href]').forEach(el => {
     const href = el.getAttribute('href') || '';
-    if (href.startsWith('javascript:')) {
-      el.removeAttribute('href');
+    try {
+      const protocol = new URL(href, window.location.origin).protocol.toLowerCase().replace(':', '');
+      if (protocol === scriptProtocol) {
+        el.removeAttribute('href');
+      }
+    } catch {
+      // ignore malformed href
     }
   });
   

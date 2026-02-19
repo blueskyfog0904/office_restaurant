@@ -1,5 +1,4 @@
 import { format, isToday, parseISO } from 'date-fns';
-import { ko } from 'date-fns/locale';
 
 /**
  * 게시판용 날짜 포맷터
@@ -23,6 +22,5 @@ export const formatDetailDate = (dateString: string): string => {
   const date = parseISO(dateString);
   return format(date, 'yyyy.MM.dd HH:mm:ss');
 };
-
 
 

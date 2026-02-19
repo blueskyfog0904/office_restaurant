@@ -6,7 +6,7 @@ import { formatBoardDate } from '../../../utils/dateUtils';
 
 const stripParentheses = (text: string) =>
   text
-    .replace(/\s*[\(（][^)\）]*[\)）]\s*/g, ' ')
+    .replace(/\s*[(（][^)）]*[)）]\s*/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 

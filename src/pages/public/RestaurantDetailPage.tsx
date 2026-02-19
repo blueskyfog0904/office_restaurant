@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   MapPinIcon,
@@ -496,20 +496,20 @@ const RestaurantDetailPage: React.FC = () => {
   };
 
   // 리뷰 사진 모달 닫기
-  const closePhotoModal = () => {
+  const closePhotoModal = useCallback(() => {
     setPhotoModalOpen(false);
     document.body.style.overflow = 'unset';
-  };
+  }, []);
 
   // 이전 사진
-  const goToPrevPhoto = () => {
+  const goToPrevPhoto = useCallback(() => {
     setPhotoModalIndex(prev => (prev > 0 ? prev - 1 : photoModalImages.length - 1));
-  };
+  }, [photoModalImages.length]);
 
   // 다음 사진
-  const goToNextPhoto = () => {
+  const goToNextPhoto = useCallback(() => {
     setPhotoModalIndex(prev => (prev < photoModalImages.length - 1 ? prev + 1 : 0));
-  };
+  }, [photoModalImages.length]);
 
   // 키보드 이벤트 처리
   useEffect(() => {
@@ -521,7 +521,7 @@ const RestaurantDetailPage: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [photoModalOpen, photoModalImages.length]);
+  }, [photoModalOpen, closePhotoModal, goToPrevPhoto, goToNextPhoto]);
 
   // 별점 렌더링 함수
   const renderStars = (rating: number, size: 'sm' | 'md' | 'lg' = 'md') => {
