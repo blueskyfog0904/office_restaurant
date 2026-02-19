@@ -86,6 +86,18 @@ const buildFallbackUser = (sessionUser: any): User => ({
   role: 'user',
 });
 
+const buildPreservedFallbackUser = (sessionUser: any): User => {
+  const storedUser = getStoredUser();
+  if (storedUser && storedUser.id === sessionUser.id) {
+    return {
+      ...storedUser,
+      email: sessionUser.email || storedUser.email || '',
+      created_at: storedUser.created_at || sessionUser.created_at || new Date().toISOString(),
+    };
+  }
+  return buildFallbackUser(sessionUser);
+};
+
 // ===================================
 // Auth Provider 컴포넌트 (단순화)
 // ===================================
@@ -149,7 +161,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       isProcessingAuthRef.current = true;
 
       try {
-        const localUserPresent = !!getStoredUser();
         const localUser = getStoredUser();
         if (isLocalTestUser(localUser)) {
           setUser(localUser);
@@ -160,8 +171,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { isValid, needsRefresh } = await validateSession();
         
         if (!isValid) {
+          if (isVisibilityChange) {
+            console.warn('⚠️ 포그라운드 복귀 시 세션 검증 실패 - 기존 사용자 상태 유지');
+            return;
+          }
           console.warn('⚠️ 세션이 유효하지 않음, 로그아웃 처리');
-          await handleSessionExpired(!isVisibilityChange && !!storedUser);
+          await handleSessionExpired(!!storedUser);
           return;
         }
 
@@ -175,13 +190,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             );
             
             if (refreshResult.error || !refreshResult.data.session) {
+              if (isVisibilityChange) {
+                console.warn('⚠️ 포그라운드 복귀 시 세션 갱신 실패 - 기존 사용자 상태 유지');
+                return;
+              }
               console.warn('⚠️ 세션 갱신 실패, 로그아웃 처리');
-              await handleSessionExpired(!isVisibilityChange && !!storedUser);
+              await handleSessionExpired(!!storedUser);
               return;
             }
           } catch (e) {
+            if (isVisibilityChange) {
+              console.warn('⚠️ 포그라운드 복귀 시 세션 갱신 오류 - 기존 사용자 상태 유지:', e);
+              return;
+            }
             console.warn('⚠️ 세션 갱신 중 오류:', e);
-            await handleSessionExpired(!isVisibilityChange && !!storedUser);
+            await handleSessionExpired(!!storedUser);
             return;
           }
         }
@@ -194,8 +217,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
         
         if (userResult.error || !userResult.data.user) {
+          if (isVisibilityChange) {
+            console.warn('⚠️ 포그라운드 복귀 시 사용자 조회 실패 - 기존 사용자 상태 유지');
+            return;
+          }
           console.warn('⚠️ 사용자 정보 조회 실패, 로그아웃 처리');
-          await handleSessionExpired(!isVisibilityChange && !!storedUser);
+          await handleSessionExpired(!!storedUser);
           return;
         }
         
@@ -214,10 +241,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       } catch (e) {
         console.warn('세션 확인 실패 (타임아웃 포함):', e);
-        // 타임아웃 시 로컬 상태 정리
-        if (storedUser) {
-          await handleSessionExpired(false);
-        }
+        // 네트워크/복귀 타이밍 이슈일 수 있으므로 즉시 로그아웃하지 않음
       } finally {
         isProcessingAuthRef.current = false;
       }
@@ -243,7 +267,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // 세션 갱신 실패 이벤트 리스너 (supabaseClient에서 발생)
     const handleSessionRefreshFailed = () => {
       console.log('🔔 세션 갱신 실패 이벤트 수신');
-      handleSessionExpired(true);
+      setTimeout(() => {
+        void checkSession(true);
+      }, 300);
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -281,7 +307,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (event === 'TOKEN_REFRESHED') {
         if (!session) {
           console.warn('⚠️ 토큰 갱신됐지만 세션 없음');
-          await handleSessionExpired(true);
+          await checkSession(true);
           return;
         }
         console.log('✅ 토큰 갱신됨 - 기존 사용자 정보 유지');
@@ -306,13 +332,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(currentUser));
             console.log('✅ 로그인 완료:', currentUser.email);
           } else {
-            const fallbackUser = buildFallbackUser(session.user);
+            const fallbackUser = buildPreservedFallbackUser(session.user);
             setUser(fallbackUser);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
           }
         } catch (e) {
           console.warn('사용자 정보 로드 실패:', e);
-          const fallbackUser = buildFallbackUser(session.user);
+          const fallbackUser = buildPreservedFallbackUser(session.user);
           setUser(fallbackUser);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackUser));
         } finally {

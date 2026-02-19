@@ -16,7 +16,8 @@ import {
   CalendarIcon,
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
-  MapIcon
+  MapIcon,
+  MegaphoneIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -47,6 +48,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: '지역 순서 관리', href: '/admin/region-order', icon: MapIcon },
     { name: '데이터 품질 관리', href: '/admin/data-quality', icon: ExclamationTriangleIcon },
     { name: '데이터 업로드/다운로드', href: '/admin/data-upload', icon: ArrowUpTrayIcon },
+    { name: 'Google Ads 연동', href: '/admin/google-ads', icon: MegaphoneIcon },
 
     // { name: '통계/랭킹', href: '/admin/statistics', icon: ChartBarIcon },
     // { name: '설정/공지', href: '/admin/settings', icon: Cog6ToothIcon },

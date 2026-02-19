@@ -58,6 +58,7 @@ import SettingsPage from '../pages/admin/SettingsPage';
 import DataQualityPage from '../pages/admin/DataQualityPage';
 import RecommendationPage from '../pages/admin/RecommendationPage';
 import RegionOrderPage from '../pages/admin/RegionOrderPage';
+import GoogleAdsIntegrationPage from '../pages/admin/GoogleAdsIntegrationPage';
 
 // Route Guards
 import PrivateRoute from './PrivateRoute';
@@ -402,6 +403,12 @@ const AppRouter: React.FC = () => {
           <Route path="/admin/region-order" element={
             <AdminRoute>
               <RegionOrderPage />
+            </AdminRoute>
+          } />
+
+          <Route path="/admin/google-ads" element={
+            <AdminRoute>
+              <GoogleAdsIntegrationPage />
             </AdminRoute>
           } />
 

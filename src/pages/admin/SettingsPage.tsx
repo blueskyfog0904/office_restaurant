@@ -14,6 +14,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import AdminLayout from '../../components/layout/AdminLayout';
+import { getGoogleAdsConnectionStatus } from '../../services/googleAdsService';
 
 interface Notice {
   id: number;
@@ -64,6 +65,17 @@ interface Backup {
   description?: string;
 }
 
+type GoogleAdsConnectionViewState = 'idle' | 'checking' | 'connected' | 'disconnected' | 'error';
+
+interface GoogleAdsConnectionView {
+  state: GoogleAdsConnectionViewState;
+  message: string;
+  checkedAt?: string;
+  customerId?: string;
+  managerCustomerId?: string;
+  requestId?: string;
+}
+
 const SettingsPage: React.FC = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [faqs, setFaqs] = useState<FAQ[]>([]);
@@ -71,6 +83,12 @@ const SettingsPage: React.FC = () => {
   const [backups, setBackups] = useState<Backup[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'notices' | 'faqs' | 'formats' | 'backups'>('notices');
+  const [googleAdsCustomerId, setGoogleAdsCustomerId] = useState('');
+  const [googleAdsLoginCustomerId, setGoogleAdsLoginCustomerId] = useState('');
+  const [googleAdsConnection, setGoogleAdsConnection] = useState<GoogleAdsConnectionView>({
+    state: 'idle',
+    message: '연결 상태를 확인하려면 고객 ID를 입력하고 점검 버튼을 눌러주세요.',
+  });
 
   // 임시 데이터
   const mockNotices: Notice[] = [
@@ -292,6 +310,55 @@ const SettingsPage: React.FC = () => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const normalizeCustomerIdInput = (value: string) => value.replace(/[^\d-]/g, '');
+
+  const getConnectionMessageClass = (state: GoogleAdsConnectionViewState) => {
+    switch (state) {
+      case 'connected':
+        return 'text-green-700';
+      case 'disconnected':
+        return 'text-yellow-700';
+      case 'error':
+        return 'text-red-700';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  const checkGoogleAdsConnection = async () => {
+    setGoogleAdsConnection({
+      state: 'checking',
+      message: 'Google Ads 연결 상태를 확인하고 있습니다...',
+    });
+
+    try {
+      const status = await getGoogleAdsConnectionStatus({
+        customerId: googleAdsCustomerId,
+        loginCustomerId: googleAdsLoginCustomerId,
+      });
+
+      const connectionState: GoogleAdsConnectionViewState = status.connected ? 'connected' : 'disconnected';
+      setGoogleAdsConnection({
+        state: connectionState,
+        message:
+          status.message ||
+          (status.connected
+            ? 'Google Ads API 연결이 정상입니다.'
+            : 'Google Ads API 연결 정보가 없거나 인증이 만료되었습니다.'),
+        checkedAt: new Date().toISOString(),
+        customerId: status.customerId,
+        managerCustomerId: status.managerCustomerId || status.loginCustomerId,
+        requestId: status.requestId,
+      });
+    } catch (error) {
+      setGoogleAdsConnection({
+        state: 'error',
+        message: error instanceof Error ? error.message : 'Google Ads 연결 상태 확인에 실패했습니다.',
+        checkedAt: new Date().toISOString(),
+      });
+    }
   };
 
   if (loading) {
@@ -646,6 +713,64 @@ const SettingsPage: React.FC = () => {
                 </table>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Google Ads 연결 점검 */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Google Ads API 연결</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                백엔드 프록시(예: Supabase Edge Function)와 Google Ads 계정 연결 상태를 점검합니다.
+              </p>
+            </div>
+            <button
+              onClick={checkGoogleAdsConnection}
+              disabled={googleAdsConnection.state === 'checking'}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {googleAdsConnection.state === 'checking' ? '점검 중...' : '연결 점검'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">광고 고객 ID (선택)</label>
+              <input
+                type="text"
+                value={googleAdsCustomerId}
+                onChange={(e) => setGoogleAdsCustomerId(normalizeCustomerIdInput(e.target.value))}
+                placeholder="예: 123-456-7890"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">로그인 고객 ID (MCC, 선택)</label>
+              <input
+                type="text"
+                value={googleAdsLoginCustomerId}
+                onChange={(e) => setGoogleAdsLoginCustomerId(normalizeCustomerIdInput(e.target.value))}
+                placeholder="예: 987-654-3210"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 border border-gray-100 rounded-md bg-gray-50 p-4">
+            <p className={`text-sm font-medium ${getConnectionMessageClass(googleAdsConnection.state)}`}>
+              {googleAdsConnection.message}
+            </p>
+            <div className="mt-2 text-xs text-gray-500 space-y-1">
+              {googleAdsConnection.customerId && <p>고객 ID: {googleAdsConnection.customerId}</p>}
+              {googleAdsConnection.managerCustomerId && (
+                <p>관리자(MCC) ID: {googleAdsConnection.managerCustomerId}</p>
+              )}
+              {googleAdsConnection.requestId && <p>요청 ID: {googleAdsConnection.requestId}</p>}
+              {googleAdsConnection.checkedAt && (
+                <p>점검 시각: {new Date(googleAdsConnection.checkedAt).toLocaleString('ko-KR')}</p>
+              )}
+            </div>
           </div>
         </div>
 

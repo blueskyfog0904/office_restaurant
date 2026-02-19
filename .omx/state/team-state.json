@@ -1,0 +1,16 @@
+{
+  "active": false,
+  "mode": "team",
+  "iteration": 0,
+  "max_iterations": 50,
+  "current_phase": "cancelled",
+  "task_description": "1:architect,1:executor,1:verifier 구글 애즈 API를 우리 프로젝트에 연결하는 작업을 수행해줘, 설계자는 인증 흐름과 구조를 잡고, 개발자는 코드를 작성하며, 검수자는 연결 상태를 테스트해.",
+  "started_at": "2026-02-19T00:31:38.915Z",
+  "tmux_pane_id": "%0",
+  "tmux_pane_set_at": "2026-02-19T00:31:38.915Z",
+  "linked_ralph": false,
+  "team_name": "1-architect-1-executor-1-verif",
+  "agent_count": 3,
+  "agent_types": "executor",
+  "completed_at": "2026-02-19T00:42:47.291Z"
+}

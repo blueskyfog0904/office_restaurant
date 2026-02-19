@@ -5,6 +5,66 @@ import { clearSessionRefreshState, withTimeout } from './sessionManager';
 
 const LOGOUT_TIMEOUT_MS = 5000;
 
+type ProfileRow = {
+  role?: string | null;
+  nickname?: string | null;
+  mob_nickname?: string | null;
+  profile_image_url?: string | null;
+};
+
+const getStoredUser = (): User | null => {
+  try {
+    const raw = localStorage.getItem('user');
+    return raw ? (JSON.parse(raw) as User) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getPreferredProfileNickname = (profile: ProfileRow | null | undefined): string | undefined => {
+  return profile?.mob_nickname || profile?.nickname || undefined;
+};
+
+const fetchProfileWithNicknameFallback = async (userId: string): Promise<{
+  profile: ProfileRow | null;
+  error: any;
+}> => {
+  const withMobileNickname = await supabase
+    .from('profiles')
+    .select('role, nickname, mob_nickname, profile_image_url')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (!withMobileNickname.error) {
+    return {
+      profile: (withMobileNickname.data as ProfileRow | null) ?? null,
+      error: null,
+    };
+  }
+
+  // 컬럼이 아직 배포되지 않은 환경 대응 (mob_nickname 미존재)
+  if (
+    typeof withMobileNickname.error?.message === 'string' &&
+    withMobileNickname.error.message.includes('mob_nickname')
+  ) {
+    const fallback = await supabase
+      .from('profiles')
+      .select('role, nickname, profile_image_url')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    return {
+      profile: (fallback.data as ProfileRow | null) ?? null,
+      error: fallback.error,
+    };
+  }
+
+  return {
+    profile: null,
+    error: withMobileNickname.error,
+  };
+};
+
 // ===================================
 // 카카오 OAuth 전용 인증 서비스
 // ===================================
@@ -59,16 +119,15 @@ export const getCurrentUser = async (): Promise<User | null> => {
   if (!user) return null;
 
   // profiles 테이블에서 정보 조회 (필수)
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role, nickname, profile_image_url')
-    .eq('user_id', user.id)
-    .single();
+  const { profile, error: profileError } = await fetchProfileWithNicknameFallback(user.id);
+  const profileNickname = getPreferredProfileNickname(profile);
+  const storedUser = getStoredUser();
 
   console.log('🔍 getCurrentUser - profiles 조회:', {
     user_id: user.id,
     email: user.email,
-    profile_nickname: profile?.nickname,
+    profile_nickname: profileNickname,
+    profile_mob_nickname: profile?.mob_nickname,
     profile_role: profile?.role,
     kakao_metadata_name: user.user_metadata?.name,
     kakao_metadata_nickname: user.user_metadata?.nickname,
@@ -76,8 +135,19 @@ export const getCurrentUser = async (): Promise<User | null> => {
     has_error: !!profileError
   });
 
-  if (profileError) {
+  if (profileError && !profile) {
     console.error('Profile 조회 실패:', profileError);
+    // 프로필 조회 자체가 실패했을 때는 기존 로컬 사용자명을 우선 유지
+    if (storedUser?.id === user.id && storedUser.username) {
+      return {
+        ...storedUser,
+        email: user.email || storedUser.email || '',
+        created_at: storedUser.created_at || user.created_at || new Date().toISOString(),
+      };
+    }
+  }
+
+  if (!profile) {
     // profiles가 없는 경우 기본 프로필 생성 시도
     const defaultNickname = user.user_metadata?.name || 
                            user.user_metadata?.nickname || 
@@ -108,27 +178,28 @@ export const getCurrentUser = async (): Promise<User | null> => {
   
   // profiles.nickname을 최우선으로 사용 (사용자가 수정한 이름 보존)
   // 카카오 메타데이터는 fallback으로만 사용
-  const username = profile?.nickname || 
+  const username = profileNickname || 
+                   (storedUser?.id === user.id ? storedUser.username : undefined) ||
                    user.user_metadata?.name || 
                    user.user_metadata?.nickname || 
                    user.user_metadata?.full_name ||
                    user.email?.split('@')[0] || 
                    'Unknown';
 
-  console.log('✅ getCurrentUser 최종 username:', username, '(profile?.nickname:', profile?.nickname, ')');
+  console.log('✅ getCurrentUser 최종 username:', username, '(profile nickname:', profileNickname, ')');
 
   return {
     id: user.id,
     email: user.email || '',
     username: username,
     is_active: true,
-    is_admin: profile?.role === 'admin',
+    is_admin: profile?.role === 'admin' || storedUser?.role === 'admin',
     created_at: user.created_at || new Date().toISOString(),
     kakao_id: kakaoId,
-    profile_image_url: profile?.profile_image_url || user.user_metadata?.avatar_url,
+    profile_image_url: profile?.profile_image_url || storedUser?.profile_image_url || user.user_metadata?.avatar_url,
     provider: 'kakao',
-    role: profile?.role || 'user',
-    nickname: profile?.nickname,
+    role: (profile?.role as 'admin' | 'user' | undefined) || storedUser?.role || 'user',
+    nickname: profileNickname || storedUser?.nickname,
   } as User & { kakao_id?: string; profile_image_url?: string; provider: string };
 };
 

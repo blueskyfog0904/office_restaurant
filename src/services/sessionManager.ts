@@ -160,8 +160,8 @@ export const validateSession = async (): Promise<{ isValid: boolean; needsRefres
   } catch (e) {
     console.warn('세션 검증 실패:', e);
     if (isApiTimeoutError(e)) {
-      // 타임아웃이면 세션이 문제가 있을 수 있음
-      return { isValid: false, needsRefresh: false };
+      // 포그라운드 복귀/네트워크 지연 시 false로 처리하면 불필요 로그아웃이 발생할 수 있음
+      return { isValid: true, needsRefresh: false };
     }
     return { isValid: true, needsRefresh: false };
   } finally {
@@ -342,23 +342,16 @@ export const executePublicApi = async <T>(
     const { isValid, needsRefresh } = await validateSession();
     
     if (!isValid) {
-      console.warn('⚠️ 세션이 만료됨, 세션 정리 후 API 호출');
-      await forceSignOut();
-      // 세션 정리 후 새로고침
-      window.dispatchEvent(new CustomEvent('session-expired'));
+      console.warn('⚠️ 공개 API 호출 전 세션 검증 실패 - 즉시 로그아웃하지 않고 요청 계속 진행');
     } else if (needsRefresh) {
       // 백그라운드에서 세션 갱신 시도 (실패해도 API 호출은 진행)
       try {
         const session = await ensureSession();
         if (!session) {
-          console.warn('⚠️ 세션 갱신 실패, 세션 정리');
-          await forceSignOut();
-          window.dispatchEvent(new CustomEvent('session-expired'));
+          console.warn('⚠️ 공개 API 호출 전 세션 갱신 실패 - 요청은 익명/현재 상태로 진행');
         }
       } catch (refreshError) {
-        console.warn('⚠️ 세션 갱신 중 오류:', refreshError);
-        await forceSignOut();
-        window.dispatchEvent(new CustomEvent('session-expired'));
+        console.warn('⚠️ 공개 API 호출 전 세션 갱신 오류:', refreshError);
       }
     }
   }

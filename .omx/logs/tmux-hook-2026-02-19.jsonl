@@ -1,0 +1,3 @@
+{"timestamp":"2026-02-19T00:40:15.020Z","type":"all_workers_idle_notification","team":"1-architect-1-executor-1-verif","tmux_target":"0:0","worker":"worker-2","worker_count":3}
+{"timestamp":"2026-02-19T00:40:15.150Z","type":"all_workers_idle_notification","team":"1-architect-1-executor-1-verif","tmux_target":"0:0","worker":"worker-1","worker_count":3}
+{"timestamp":"2026-02-19T00:42:28.948Z","type":"all_workers_idle_notification","team":"1-architect-1-executor-1-verif","tmux_target":"0:0","worker":"worker-1","worker_count":3}
