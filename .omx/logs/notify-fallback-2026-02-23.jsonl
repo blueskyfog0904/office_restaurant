@@ -1,0 +1,9 @@
+{"timestamp":"2026-02-23T05:02:37.886Z","type":"watcher_start","cwd":"/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web","notify_script":"/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js","poll_ms":700,"once":false}
+{"timestamp":"2026-02-23T05:02:50.852Z","type":"watcher_start","cwd":"/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web","notify_script":"/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js","poll_ms":700,"once":true}
+{"timestamp":"2026-02-23T05:02:51.253Z","type":"watcher_once_complete","seen_turns":0}
+{"timestamp":"2026-02-23T05:02:51.275Z","type":"watcher_stop","signal":"SIGTERM"}
+{"timestamp":"2026-02-23T05:05:32.817Z","type":"watcher_start","cwd":"/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web","notify_script":"/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js","poll_ms":700,"once":false}
+{"timestamp":"2026-02-23T05:06:07.098Z","type":"watcher_start","cwd":"/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web","notify_script":"/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js","poll_ms":700,"once":true}
+{"timestamp":"2026-02-23T05:06:07.501Z","type":"watcher_once_complete","seen_turns":0}
+{"timestamp":"2026-02-23T05:06:07.519Z","type":"watcher_stop","signal":"SIGTERM"}
+{"timestamp":"2026-02-23T05:06:13.223Z","type":"watcher_start","cwd":"/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web","notify_script":"/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js","poll_ms":700,"once":false}

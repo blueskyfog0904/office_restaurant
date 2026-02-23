@@ -362,7 +362,20 @@ Run `omx setup` to install all components. Run `omx doctor` to verify installati
 
 <!-- OMX:RUNTIME:START -->
 <session_context>
-**Session:** omx-1771460696539-wk6a0y | 2026-02-19T00:24:56.540Z
+**Session:** omx-1771823173164-i3wead | 2026-02-23T05:06:13.191Z
+
+**Codebase Map:**
+  src/: App.test, App, react-app-env.d, reportWebVitals, setupTests
+  src/components/: AdvancedKakaoMap, DateFilter, KakaoMap, KakaoMapTest, MapModal, NaverReviewButton, NearbyRestaurantsMap, RestaurantCard, RestaurantPhotoGallery, ReviewPhotoUploader
+  src/contexts/: AdminAuthContext, AuthContext
+  src/hooks/: useActivityTracker
+  src/pages/: NotFoundPage, AdminBoardsPage, AdminCommentReports, AdminDashboard, AdminEditRestaurantPage, AdminLoginPage, AdminPointsPage, AdminPostReportsPage, AdminPosts, AdminRestaurants
+  src/routes/: AdminRoute, AppRouter, PrivateRoute
+  src/services/: adminApi, api, authService, boardService, commentApi, googleAdsService, kakaoAuthService, postImageService, reviewPhotoService, reviewReactionService
+  src/types/: index
+  src/utils/: dateUtils, favorites, googlePlacesPhoto, imageCompressor, imageUtils, kakao, naverSearch, regionOrder, socialShare, urlUtils
+  scripts/: buildWithFilteredWarnings
+  (root): postcss.config, tailwind.config, test-db-connection
 
 **Compaction Protocol:**
 Before context compaction, preserve critical state:

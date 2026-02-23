@@ -1,5 +1,5 @@
 {
-  "last_turn_at": "2026-02-19T04:44:42.287Z",
-  "turn_count": 16,
-  "last_agent_output": "원인과 수정 둘 다 확인해서 반영했습니다.\n\n1. `app-ads.txt` 파일명이 아니라 확장자 없는 `app-ads`로 올라가 있었습니다 (`app-ads`).\n2. 파일 위치"
+  "last_turn_at": "2026-02-23T05:21:41.870Z",
+  "turn_count": 1,
+  "last_agent_output": "요청하신 대로 `ads.txt`를 사이트 루트 경로에서 제공되도록 배치했습니다.\n\n### 적용 내용\n- `public/ads.txt` 파일을 생성/반영했습니다.\n- CRA/정적 빌"
 }

@@ -1,0 +1,35 @@
+{
+  "name": "1-architect",
+  "task": "1: architect",
+  "agent_type": "executor",
+  "worker_count": 3,
+  "max_workers": 20,
+  "workers": [
+    {
+      "name": "worker-1",
+      "index": 1,
+      "role": "executor",
+      "assigned_tasks": [],
+      "pane_id": "%82"
+    },
+    {
+      "name": "worker-2",
+      "index": 2,
+      "role": "executor",
+      "assigned_tasks": [],
+      "pane_id": "%83"
+    },
+    {
+      "name": "worker-3",
+      "index": 3,
+      "role": "executor",
+      "assigned_tasks": [],
+      "pane_id": "%84"
+    }
+  ],
+  "created_at": "2026-02-23T04:58:09.355Z",
+  "tmux_session": "7:0",
+  "next_task_id": 1,
+  "leader_pane_id": "%81",
+  "hud_pane_id": "%85"
+}

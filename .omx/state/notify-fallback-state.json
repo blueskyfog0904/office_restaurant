@@ -1,9 +1,9 @@
 {
-  "pid": 10095,
-  "started_at": "2026-02-19T00:24:56.579Z",
+  "pid": 73980,
+  "started_at": "2026-02-23T05:06:13.223Z",
   "cwd": "/Users/mac/Documents/project/cursor-talk-to-figma-mcp-main/office_restaurant_v01/web",
   "notify_script": "/opt/homebrew/lib/node_modules/oh-my-codex/scripts/notify-hook.js",
   "poll_ms": 700,
-  "tracked_files": 11,
-  "seen_turns": 6
+  "tracked_files": 1,
+  "seen_turns": 0
 }
